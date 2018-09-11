@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.tox.dao.ElecUserCouponsRelMapper" >
+  <resultMap id="BaseResultMap" type="com.tox.bean.ElecUserCouponsRel" >
+    <id column="ID" property="id" jdbcType="INTEGER" />
+    <result column="COUPONS_ID" property="couponsId" jdbcType="INTEGER" />
+    <result column="USER_ID" property="userId" jdbcType="INTEGER" />
+    <result column="REDEEM_ID" property="redeemId" jdbcType="INTEGER" />
+    <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP" />
+     <result column="STATUS" property="status" jdbcType="INTEGER" />
+     <result column="IS_NEW" property="isNew" jdbcType="INTEGER" />
+     <result column="ACTIVITY_ID" property="activityId" jdbcType="INTEGER" />
+     <association property="coupons" javaType="com.tox.bean.ElecCoupons" column="COUPONS_ID">
+     	<result column="COU_ID" property="id"/>
+     	<result column="NAME" property="name" jdbcType="VARCHAR" />
+	    <result column="FROM_DATE" property="fromDate" jdbcType="TIMESTAMP" />
+	    <result column="TO_DATE" property="toDate" jdbcType="TIMESTAMP" />
+	    <result column="AMOUNT" property="amount" jdbcType="DOUBLE" />
+	    <result column="COU_STATUS" property="status" jdbcType="INTEGER" />
+	    <result column="TYPE" property="type" jdbcType="INTEGER" />
+	    <result column="COU_CREATE_DATE" property="createDate" jdbcType="TIMESTAMP" />
+	    <result column="IS_DEL" property="isDel" jdbcType="INTEGER" />
+	    <result column="useNum" property="useNum" jdbcType="INTEGER" />
+	    <result column="allNum" property="allNum" jdbcType="INTEGER" />
+	    <result column="INDATE_TYPE" property="indateType" jdbcType="INTEGER" />
+	    <result column="REACH" property="reach" jdbcType="DOUBLE" />
+	    <result column="DAYS" property="days" jdbcType="INTEGER" />
+     </association>
+  </resultMap>
+  <sql id="Base_Column_List" >
+    ID, COUPONS_ID, USER_ID, REDEEM_ID, CREATE_DATE,STATUS,IS_NEW,ACTIVITY_ID
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from elec_user_coupons_rel
+    where ID = #{id,jdbcType=INTEGER}
+  </select>
+  <select id="getUserCouponsRelByUserIdAndRedeemId" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from elec_user_coupons_rel
+    where USER_ID = #{userId,jdbcType=INTEGER} and REDEEM_ID = #{redeemId,jdbcType=INTEGER}
+  </select>
+  <select id="getCouponsNumByUserId" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    ucr.ID, COUPONS_ID, USER_ID, REDEEM_ID, ucr.CREATE_DATE,ucr.STATUS,IS_NEW,ACTIVITY_ID,
+    cou.ID as COU_ID, NAME, FROM_DATE, TO_DATE, AMOUNT, cou.STATUS as COU_STATUS, TYPE, cou.CREATE_DATE AS COU_CREATE_DATE, IS_DEL,
+    INDATE_TYPE,REACH,DAYS
+    from elec_user_coupons_rel ucr
+    left join elec_coupons cou on ucr.COUPONS_ID=cou.ID
+    where USER_ID = #{userId,jdbcType=INTEGER} and ucr.STATUS=0 and cou.IS_DEL=0 and 
+	(
+	CASE
+	WHEN cou.INDATE_TYPE = 1 THEN
+		DATEDIFF(NOW(), ucr.CREATE_DATE) &lt;= cou.DAYS
+	WHEN cou.INDATE_TYPE = 2 THEN
+		(
+			cou.FROM_DATE &lt;= NOW()
+	AND cou.TO_DATE &gt;= NOW()
+	)
+	END
+	)
+    order by ucr.IS_NEW desc
+  </select>
+  <select id="getCouponsByUserId" resultMap="BaseResultMap" parameterType="com.tox.bean.ElecUserCouponsRel" >
+    select 
+    ucr.ID, COUPONS_ID, USER_ID, REDEEM_ID, ucr.CREATE_DATE,ucr.STATUS,IS_NEW,ACTIVITY_ID,
+    cou.ID as COU_ID, NAME, FROM_DATE, TO_DATE, AMOUNT, cou.STATUS as COU_STATUS, TYPE, cou.CREATE_DATE AS COU_CREATE_DATE, IS_DEL,
+    INDATE_TYPE,REACH,DAYS
+    from elec_user_coupons_rel ucr
+    left join elec_coupons cou on ucr.COUPONS_ID=cou.ID
+    where USER_ID = #{userId,jdbcType=INTEGER} and ucr.STATUS=0 and cou.IS_DEL=0 and
+	(
+	CASE
+	WHEN cou.INDATE_TYPE = 1 THEN
+		DATEDIFF(NOW(), ucr.CREATE_DATE) &lt;= (cou.DAYS + 7)
+	WHEN cou.INDATE_TYPE = 2 THEN
+		(
+			cou.FROM_DATE &lt;= NOW()
+	AND DATEDIFF(NOW(), cou.TO_DATE) &lt;= 7
+	)
+	END
+	)
+    order by ucr.CREATE_DATE desc
+    <if test="pageSize>0">
+		limit #{pageNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+	</if>
+  </select>
+  <select id="getCouponsCountByUserId" resultType="java.lang.Integer" parameterType="com.tox.bean.ElecUserCouponsRel" >
+    select count(ucr.ID)
+    from elec_user_coupons_rel ucr
+    left join elec_coupons cou on ucr.COUPONS_ID=cou.ID
+    where USER_ID = #{userId,jdbcType=INTEGER} and ucr.STATUS=0 and cou.IS_DEL=0 and 
+	(
+	CASE
+	WHEN cou.INDATE_TYPE = 1 THEN
+		DATEDIFF(NOW(), ucr.CREATE_DATE) &lt;= (cou.DAYS + 7)
+	WHEN cou.INDATE_TYPE = 2 THEN
+		(
+			cou.FROM_DATE &lt;= NOW()
+	AND DATEDIFF(NOW(), cou.TO_DATE) &lt;= 7
+	)
+	END
+	)
+    order by ucr.CREATE_DATE desc
+  </select>
+  <select id="getCouponsNumByRedeemId" resultType="java.lang.Integer" parameterType="java.lang.Integer" >
+    select count(ID)
+    from elec_user_coupons_rel 
+    where REDEEM_ID = #{redeemId}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from elec_user_coupons_rel
+    where ID = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.tox.bean.ElecUserCouponsRel" >
+    insert into elec_user_coupons_rel (ID, COUPONS_ID, USER_ID, 
+      REDEEM_ID, CREATE_DATE)
+    values (#{id,jdbcType=INTEGER}, #{couponsId,jdbcType=INTEGER}, #{userId,jdbcType=INTEGER}, 
+      #{redeemId,jdbcType=INTEGER}, #{createDate,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.tox.bean.ElecUserCouponsRel" keyColumn="ID" keyProperty="id" useGeneratedKeys="true">
+    insert into elec_user_coupons_rel
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+     <!--  <if test="id != null" >
+        ID,
+      </if> -->
+      <if test="couponsId != null" >
+        COUPONS_ID,
+      </if>
+      <if test="userId != null" >
+        USER_ID,
+      </if>
+      <if test="redeemId != null" >
+        REDEEM_ID,
+      </if>
+      <if test="createDate != null" >
+        CREATE_DATE,
+      </if>
+       <if test="status != null" >
+        STATUS,
+      </if>
+       <if test="isNew != null" >
+        IS_NEW,
+      </if>
+       <if test="activityId != null" >
+        ACTIVITY_ID,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+     <!--  <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if> -->
+      <if test="couponsId != null" >
+        #{couponsId,jdbcType=INTEGER},
+      </if>
+      <if test="userId != null" >
+        #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="redeemId != null" >
+        #{redeemId,jdbcType=INTEGER},
+      </if>
+      <if test="createDate != null" >
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="isNew != null" >
+        #{isNew,jdbcType=INTEGER},
+      </if>
+      <if test="activityId != null" >
+        #{activityId,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.tox.bean.ElecUserCouponsRel" >
+    update elec_user_coupons_rel
+    <set >
+      <if test="couponsId != null" >
+        COUPONS_ID = #{couponsId,jdbcType=INTEGER},
+      </if>
+      <if test="userId != null" >
+        USER_ID = #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="redeemId != null" >
+        REDEEM_ID = #{redeemId,jdbcType=INTEGER},
+      </if>
+      <if test="createDate != null" >
+        CREATE_DATE = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+       <if test="status != null" >
+        STATUS = #{status,jdbcType=INTEGER},
+      </if>
+       <if test="isNew != null" >
+        IS_NEW = #{isNew,jdbcType=INTEGER},
+      </if>
+       <if test="activityId != null" >
+        ACTIVITY_ID = #{activityId,jdbcType=INTEGER},
+      </if>
+    </set>
+    where ID = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.tox.bean.ElecUserCouponsRel" >
+    update elec_user_coupons_rel
+    set COUPONS_ID = #{couponsId,jdbcType=INTEGER},
+      USER_ID = #{userId,jdbcType=INTEGER},
+      REDEEM_ID = #{redeemId,jdbcType=INTEGER},
+      CREATE_DATE = #{createDate,jdbcType=TIMESTAMP}
+    where ID = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

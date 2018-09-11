@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tox.dao.ElecActivity2Mapper">
+  <resultMap id="BaseResultMap" type="com.tox.bean.ElecActivity2">
+    <id column="ID" jdbcType="INTEGER" property="id" />
+    <result column="NAME" jdbcType="VARCHAR" property="name" />
+    <result column="TYPE" jdbcType="INTEGER" property="type" />
+    <result column="START_TIME" jdbcType="TIMESTAMP" property="startTime" />
+    <result column="END_TIME" jdbcType="TIMESTAMP" property="endTime" />
+    <result column="STATUS" jdbcType="INTEGER" property="status" />
+    <result column="GIVE_RULE" jdbcType="INTEGER" property="giveRule" />
+    <result column="OLD_PERSON_COUPON" jdbcType="INTEGER" property="oldPersonCoupon" />
+    <result column="NEW_PERSON_COUPON" jdbcType="INTEGER" property="newPersonCoupon" />
+    <result column="CREATE_TIME" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="IS_DEL" jdbcType="INTEGER" property="isDel" />
+    <result column="NEW_COUPON_TYPE" jdbcType="INTEGER" property="newCouponType" />
+    <result column="OLD_COUPON_TYPE" jdbcType="INTEGER" property="oldCouponType" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    ID, NAME, TYPE, START_TIME, END_TIME, STATUS, GIVE_RULE, OLD_PERSON_COUPON, NEW_PERSON_COUPON, 
+    CREATE_TIME, IS_DEL, NEW_COUPON_TYPE,OLD_COUPON_TYPE
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from elec_activity_2
+    where ID = #{id,jdbcType=INTEGER}
+  </select>
+  
+  <select id="getActivityByTypeAndRule" resultMap="BaseResultMap" parameterType="com.tox.bean.ElecActivity2" >
+    select 
+    <include refid="Base_Column_List" />
+    from elec_activity_2
+    where IS_DEL = 0 and STATUS=1
+    <if test="type != null" >
+        and TYPE = #{type,jdbcType=INTEGER}
+    </if>
+    <if test="giveRule != null" >
+        and GIVE_RULE = #{giveRule,jdbcType=INTEGER}
+    </if>
+  </select>
+  <select id="selectActivitys" resultMap="BaseResultMap" parameterType="com.tox.bean.ElecActivity2" >
+    select 
+    <include refid="Base_Column_List" />
+    from elec_activity_2
+    where IS_DEL = 0
+    <if test="status != null" >
+        and STATUS = #{status,jdbcType=INTEGER}
+    </if>
+    <if test="type != null" >
+        and TYPE = #{type,jdbcType=INTEGER}
+    </if>
+    <if test="startTime != null" >
+        and DATE_FORMAT(START_TIME,'%Y-%m-%d') &gt;= DATE_FORMAT(#{startTime,jdbcType=INTEGER},'%Y-%m-%d')
+    </if>
+    <if test="endTime != null" >
+        and DATE_FORMAT(END_TIME,'%Y-%m-%d') &lt;= DATE_FORMAT(#{endTime,jdbcType=INTEGER},'%Y-%m-%d')
+    </if>
+    <if test="name != null and name != ''">
+        <bind name="name" value="'%'+name+'%'"/>
+        and NAME like #{name}
+	 </if>
+    order by CREATE_TIME desc
+    <if test="pageSize>0">
+		limit #{pageNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+	</if>
+  </select>
+  <select id="selectActivitysCount" resultType="java.lang.Integer" parameterType="com.tox.bean.ElecActivity2" >
+    select count(*)
+    from elec_activity_2
+    where IS_DEL = 0
+    <if test="status != null" >
+        and STATUS = #{status,jdbcType=INTEGER}
+    </if>
+    <if test="type != null" >
+        and TYPE = #{type,jdbcType=INTEGER}
+    </if>
+    <if test="startTime != null" >
+        and DATE_FORMAT(START_TIME,'%Y-%m-%d') &gt;= DATE_FORMAT(#{startTime,jdbcType=INTEGER},'%Y-%m-%d')
+    </if>
+    <if test="endTime != null" >
+        and DATE_FORMAT(END_TIME,'%Y-%m-%d') &lt;= DATE_FORMAT(#{endTime,jdbcType=INTEGER},'%Y-%m-%d')
+    </if>
+    <if test="name != null and name != ''">
+        <bind name="name" value="'%'+name+'%'"/>
+        and NAME like #{name}
+	 </if>
+    order by CREATE_TIME desc
+  </select>
+  
+  <select id="getEnableActivity"  resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from elec_activity_2
+    where IS_DEL=0 AND STATUS=1 AND START_TIME &lt; NOW() AND END_TIME &gt; NOW()
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from elec_activity_2
+    where ID = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.tox.bean.ElecActivity2">
+    insert into elec_activity_2 (ID, NAME, TYPE, 
+      START_TIME, END_TIME, STATUS, 
+      GIVE_RULE, OLD_PERSON_COUPON, NEW_PERSON_COUPON, 
+      CREATE_TIME, IS_DEL, COUPON_TYPE
+      )
+    values (#{id,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, #{type,jdbcType=INTEGER}, 
+      #{startTime,jdbcType=TIMESTAMP}, #{endTime,jdbcType=TIMESTAMP}, #{status,jdbcType=INTEGER}, 
+      #{giveRule,jdbcType=INTEGER}, #{oldPersonCoupon,jdbcType=INTEGER}, #{newPersonCoupon,jdbcType=INTEGER}, 
+      #{createTime,jdbcType=TIMESTAMP}, #{isDel,jdbcType=INTEGER}, #{couponType,jdbcType=INTEGER}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.tox.bean.ElecActivity2">
+    insert into elec_activity_2
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        ID,
+      </if>
+      <if test="name != null">
+        NAME,
+      </if>
+      <if test="type != null">
+        TYPE,
+      </if>
+      <if test="startTime != null">
+        START_TIME,
+      </if>
+      <if test="endTime != null">
+        END_TIME,
+      </if>
+      <if test="status != null">
+        STATUS,
+      </if>
+      <if test="giveRule != null">
+        GIVE_RULE,
+      </if>
+      <if test="oldPersonCoupon != null">
+        OLD_PERSON_COUPON,
+      </if>
+      <if test="newPersonCoupon != null">
+        NEW_PERSON_COUPON,
+      </if>
+      <if test="createTime != null">
+        CREATE_TIME,
+      </if>
+      <if test="isDel != null">
+        IS_DEL,
+      </if>
+      <if test="newCouponType != null">
+        NEW_COUPON_TYPE,
+      </if>
+      <if test="oldCouponType != null">
+        OLD_COUPON_TYPE,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="name != null">
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="type != null">
+        #{type,jdbcType=INTEGER},
+      </if>
+      <if test="startTime != null">
+        #{startTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="endTime != null">
+        #{endTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="giveRule != null">
+        #{giveRule,jdbcType=INTEGER},
+      </if>
+      <if test="oldPersonCoupon != null">
+        #{oldPersonCoupon,jdbcType=INTEGER},
+      </if>
+      <if test="newPersonCoupon != null">
+        #{newPersonCoupon,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDel != null">
+        #{isDel,jdbcType=INTEGER},
+      </if>
+      <if test="newCouponType != null">
+        #{newCouponType,jdbcType=INTEGER},
+      </if>
+      <if test="oldCouponType != null">
+        #{newCouponType,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.tox.bean.ElecActivity2">
+    update elec_activity_2
+    <set>
+      <if test="name != null">
+        NAME = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="type != null">
+        TYPE = #{type,jdbcType=INTEGER},
+      </if>
+      <if test="startTime != null">
+        START_TIME = #{startTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="endTime != null">
+        END_TIME = #{endTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null">
+        STATUS = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="giveRule != null">
+        GIVE_RULE = #{giveRule,jdbcType=INTEGER},
+      </if>
+      <if test="oldPersonCoupon != null">
+        OLD_PERSON_COUPON = #{oldPersonCoupon,jdbcType=INTEGER},
+      </if>
+      <if test="newPersonCoupon != null">
+        NEW_PERSON_COUPON = #{newPersonCoupon,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null">
+        CREATE_TIME = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDel != null">
+        IS_DEL = #{isDel,jdbcType=INTEGER},
+      </if>
+      <if test="newCouponType != null">
+        NEW_COUPON_TYPE = #{newCouponType,jdbcType=INTEGER},
+      </if>
+      <if test="oldCouponType != null">
+        OLD_COUPON_TYPE = #{oldCouponType,jdbcType=INTEGER},
+      </if>
+    </set>
+    where ID = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.tox.bean.ElecActivity2">
+    update elec_activity_2
+    set NAME = #{name,jdbcType=VARCHAR},
+      TYPE = #{type,jdbcType=INTEGER},
+      START_TIME = #{startTime,jdbcType=TIMESTAMP},
+      END_TIME = #{endTime,jdbcType=TIMESTAMP},
+      STATUS = #{status,jdbcType=INTEGER},
+      GIVE_RULE = #{giveRule,jdbcType=INTEGER},
+      OLD_PERSON_COUPON = #{oldPersonCoupon,jdbcType=INTEGER},
+      NEW_PERSON_COUPON = #{newPersonCoupon,jdbcType=INTEGER},
+      CREATE_TIME = #{createTime,jdbcType=TIMESTAMP},
+      IS_DEL = #{isDel,jdbcType=INTEGER},
+      COUPON_TYPE = #{couponType,jdbcType=INTEGER}
+    where ID = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

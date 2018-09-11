@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.tox.dao.ElecUserMapper" >
+  <resultMap id="BaseResultMap" type="com.tox.bean.ElecUser" >
+    <id column="ID" property="id" jdbcType="INTEGER" />
+    <result column="PHONE" property="phone" jdbcType="VARCHAR" />
+    <result column="PASSWORD" property="password" jdbcType="VARCHAR" />
+    <result column="PASSWORD_DATE" property="passwordDate" jdbcType="TIMESTAMP" />
+    <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP" />
+    <result column="OPEN_ID" property="openId" jdbcType="VARCHAR" />
+    <result column="BALANCE" property="balance" jdbcType="DOUBLE" />
+    <result column="GIVE_MONEY" property="giveMoney" jdbcType="DOUBLE" />
+    <result column="ISDEL" property="isdel" jdbcType="INTEGER" />
+    <result column="TYPE" property="type" jdbcType="INTEGER" />
+    <result column="COUPONS_COUNT" property="couponsCount" jdbcType="INTEGER" />
+    <result column="OLD_USER_ID" property="oldUserId" jdbcType="INTEGER" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    ID, PHONE, PASSWORD, PASSWORD_DATE, CREATE_DATE, OPEN_ID, BALANCE,GIVE_MONEY, ISDEL,TYPE,OLD_USER_ID
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from elec_user
+    where ID = #{id,jdbcType=INTEGER}
+  </select>
+  <select id="selectByOpenId" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from elec_user
+    where OPEN_ID = #{openId,jdbcType=VARCHAR}
+    and ISDEL = 0
+  </select>
+  <select id="getUsers" parameterType="com.tox.bean.ElecUser" resultMap="BaseResultMap">
+      select 
+      	<include refid="Base_Column_List" />
+      from 
+      	elec_user
+      <where>
+          1=1 and ISDEL = 0
+          <if test="phone != null and phone != ''">
+              <bind name="phone" value="'%'+phone+'%'"/>
+              AND PHONE like #{phone}
+          </if>
+          <if test="type != null">
+              AND TYPE = #{type}
+          </if>
+          <if test="startDate != null">
+              AND DATE_FORMAT(CREATE_DATE,'%Y-%m-%d') &gt;= DATE_FORMAT(#{startDate},'%Y-%m-%d')
+          </if>
+          <if test="endDate != null">
+              AND DATE_FORMAT(CREATE_DATE,'%Y-%m-%d') &lt;= DATE_FORMAT(#{endDate},'%Y-%m-%d')
+          </if>
+          order by CREATE_DATE desc
+          <if test="pageSize>0">
+			limit #{pageNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+		 </if>
+	
+      </where>
+      
+  </select>
+  <select id="getUserCount" parameterType="com.tox.bean.ElecUser" resultType="java.lang.Integer">
+      select 
+      	COUNT(ID)
+      from 
+      	elec_user
+      <where>
+          1=1 and ISDEL = 0
+          <if test="phone != null and phone != ''">
+              <bind name="phone" value="'%'+phone+'%'"/>
+              AND PHONE like #{phone}
+          </if>
+          <if test="type != null">
+              AND TYPE = #{type}
+          </if>
+          <if test="startDate != null">
+              AND DATE_FORMAT(CREATE_DATE,'%Y-%m-%d') &gt;= DATE_FORMAT(#{startDate},'%Y-%m-%d')
+          </if>
+          <if test="endDate != null">
+              AND DATE_FORMAT(CREATE_DATE,'%Y-%m-%d') &lt;= DATE_FORMAT(#{endDate},'%Y-%m-%d')
+          </if>
+          order by CREATE_DATE desc
+      </where>
+  </select>
+  <select id="userDetail" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+      select 
+      	u.ID, PHONE, PASSWORD, PASSWORD_DATE, u.CREATE_DATE, OPEN_ID, BALANCE,GIVE_MONEY, u.ISDEL,u.TYPE,count(ucr.id) as COUPONS_COUNT,OLD_USER_ID
+      from elec_user u
+		LEFT JOIN elec_user_coupons_rel ucr ON u.id = ucr.USER_ID
+		LEFT JOIN elec_coupons c ON ucr.COUPONS_ID = c.ID
+		WHERE
+		u.ID = #{id}
+		AND ucr.`STATUS` = 0
+		AND c.TO_DATE &gt;= NOW();
+  </select>
+  <select id="selectByPhone" resultMap="BaseResultMap" parameterType="com.tox.bean.ElecUser">
+      select 
+    <include refid="Base_Column_List" />
+    from elec_user
+    <where>
+        1=1 and ISDEL = 0
+    	<if test="phone != null and phone != ''">
+    	   and PHONE = #{phone}
+    	</if>
+    	<if test="password != null and password != ''">
+    	   and PASSWORD = #{password}
+    	</if>
+    </where>
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from elec_user
+    where ID = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.tox.bean.ElecUser" >
+    insert into elec_user (ID, PHONE, PASSWORD, 
+      PASSWORD_DATE, CREATE_DATE, OPEN_ID, 
+      BALANCE, ISDEL)
+    values (#{id,jdbcType=INTEGER}, #{phone,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR}, 
+      #{passwordDate,jdbcType=TIMESTAMP}, #{createDate,jdbcType=TIMESTAMP}, #{openId,jdbcType=VARCHAR}, 
+      #{balance,jdbcType=DOUBLE}, #{isdel,jdbcType=INTEGER})
+  </insert>
+  <insert id="insertSelective" parameterType="com.tox.bean.ElecUser" >
+    insert into elec_user
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        ID,
+      </if>
+      <if test="phone != null" >
+        PHONE,
+      </if>
+      <if test="password != null" >
+        PASSWORD,
+      </if>
+      <if test="passwordDate != null" >
+        PASSWORD_DATE,
+      </if>
+      <if test="createDate != null" >
+        CREATE_DATE,
+      </if>
+      <if test="openId != null" >
+        OPEN_ID,
+      </if>
+      <if test="balance != null" >
+        BALANCE,
+      </if>
+      <if test="giveMoney != null" >
+        GIVE_MONEY,
+      </if>
+      <if test="isdel != null" >
+        ISDEL,
+      </if>
+      <if test="type != null" >
+        TYPE,
+      </if>
+      <if test="oldUserId != null" >
+        OLD_USER_ID,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="phone != null" >
+        #{phone,jdbcType=VARCHAR},
+      </if>
+      <if test="password != null" >
+        #{password,jdbcType=VARCHAR},
+      </if>
+      <if test="passwordDate != null" >
+        #{passwordDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createDate != null" >
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="openId != null" >
+        #{openId,jdbcType=VARCHAR},
+      </if>
+      <if test="balance != null" >
+        #{balance,jdbcType=DOUBLE},
+      </if>
+      <if test="giveMoney != null" >
+        #{giveMoney,jdbcType=DOUBLE},
+      </if>
+      <if test="isdel != null" >
+        #{isdel,jdbcType=INTEGER},
+      </if>
+      <if test="type != null" >
+        #{type,jdbcType=INTEGER},
+      </if>
+      <if test="oldUserId != null" >
+        #{oldUserId,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.tox.bean.ElecUser" >
+    update elec_user
+    <set >
+      <if test="phone != null" >
+        PHONE = #{phone,jdbcType=VARCHAR},
+      </if>
+      <if test="password != null" >
+        PASSWORD = #{password,jdbcType=VARCHAR},
+      </if>
+      <if test="passwordDate != null" >
+        PASSWORD_DATE = #{passwordDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createDate != null" >
+        CREATE_DATE = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="openId != null" >
+        OPEN_ID = #{openId,jdbcType=VARCHAR},
+      </if>
+      <if test="balance != null" >
+        BALANCE = #{balance,jdbcType=DOUBLE},
+      </if>
+      <if test="giveMoney != null" >
+        GIVE_MONEY = #{giveMoney,jdbcType=DOUBLE},
+      </if>
+      <if test="isdel != null" >
+        ISDEL = #{isdel,jdbcType=INTEGER},
+      </if>
+      <if test="type != null" >
+        TYPE = #{type,jdbcType=INTEGER},
+      </if>
+      <if test="oldUserId != null" >
+        OLD_USER_ID = #{oldUserId,jdbcType=INTEGER},
+      </if>
+    </set>
+    where ID = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.tox.bean.ElecUser" >
+    update elec_user
+    set PHONE = #{phone,jdbcType=VARCHAR},
+      PASSWORD = #{password,jdbcType=VARCHAR},
+      PASSWORD_DATE = #{passwordDate,jdbcType=TIMESTAMP},
+      CREATE_DATE = #{createDate,jdbcType=TIMESTAMP},
+      OPEN_ID = #{openId,jdbcType=VARCHAR},
+      BALANCE = #{balance,jdbcType=DOUBLE},
+      ISDEL = #{isdel,jdbcType=INTEGER}
+    where ID = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="changeAdmins" parameterType="java.util.List">
+      update elec_user
+      set TYPE = 1
+      where ID in 
+       <foreach collection="list" item="item" index="index" separator=",">
+            (#{item})
+       </foreach>
+  </update>
+  <update id="changeCommons" parameterType="java.util.List">
+      update elec_user
+      set TYPE = 2
+      where ID in 
+       <foreach collection="list" item="item" index="index" separator=",">
+            (#{item})
+       </foreach>
+  </update>
+  
+    <select id="selectByPrimaryKeyByFreeCounts" resultType="java.lang.Integer" parameterType="java.lang.Integer" >
+	    select 
+	   	count(old_user_id)
+	    from elec_user
+	    where OLD_USER_ID = #{id,jdbcType=INTEGER}
+  	</select>
+  
+  	
+  
+  
+</mapper>

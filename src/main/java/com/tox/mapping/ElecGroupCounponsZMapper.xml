@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tox.dao.ElecGroupCounponsZMapper">
+  <resultMap id="BaseResultMap" type="com.tox.bean.ElecGroupCounponsZ">
+    <id column="ID" jdbcType="INTEGER" property="id" />
+    <result column="FATHER_ID" jdbcType="INTEGER" property="fatherId" />
+    <result column="COUNPONS_ID" jdbcType="INTEGER" property="counponsId" />
+    <result column="NUM" jdbcType="INTEGER" property="num" />
+    <association property="coupon"  column="COUPONS_ID" javaType="com.tox.bean.ElecCoupons" >  
+        <id column="CID" property="id" jdbcType="INTEGER" />
+	    <result column="NAME" property="name" jdbcType="VARCHAR" />
+	    <result column="FROM_DATE" property="fromDate" jdbcType="TIMESTAMP" />
+	    <result column="TO_DATE" property="toDate" jdbcType="TIMESTAMP" />
+	    <result column="AMOUNT" property="amount" jdbcType="DOUBLE" />
+	    <result column="CSTATUS" property="status" jdbcType="INTEGER" />
+	    <result column="TYPE" property="type" jdbcType="INTEGER" />
+	    <result column="CCREATE_DATE" property="createDate" jdbcType="TIMESTAMP" />
+	    <result column="CIS_DEL" property="isDel" jdbcType="INTEGER" />
+    </association> 
+  </resultMap>
+  <sql id="Base_Column_List">
+    ID, FATHER_ID, COUNPONS_ID, NUM
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from elec_group_counpons_z
+    where ID = #{id,jdbcType=INTEGER}
+  </select>
+  <select id="selectByCounponsFId" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    z.ID, FATHER_ID, COUNPONS_ID, NUM,c.NAME,C.FROM_DATE,C.TO_DATE
+    from elec_group_counpons_z z left join elec_coupons c on z.COUNPONS_ID=c.ID
+    where FATHER_ID = #{counponsFId,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from elec_group_counpons_z
+    where ID = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.tox.bean.ElecGroupCounponsZ">
+    insert into elec_group_counpons_z (ID, FATHER_ID, COUNPONS_ID, 
+      NUM)
+    values (#{id,jdbcType=INTEGER}, #{fatherId,jdbcType=INTEGER}, #{counponsId,jdbcType=INTEGER}, 
+      #{num,jdbcType=INTEGER})
+  </insert>
+  <insert id="insertSelective" parameterType="com.tox.bean.ElecGroupCounponsZ">
+    insert into elec_group_counpons_z
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        ID,
+      </if>
+      <if test="fatherId != null">
+        FATHER_ID,
+      </if>
+      <if test="counponsId != null">
+        COUNPONS_ID,
+      </if>
+      <if test="num != null">
+        NUM,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="fatherId != null">
+        #{fatherId,jdbcType=INTEGER},
+      </if>
+      <if test="counponsId != null">
+        #{counponsId,jdbcType=INTEGER},
+      </if>
+      <if test="num != null">
+        #{num,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.tox.bean.ElecGroupCounponsZ">
+    update elec_group_counpons_z
+    <set>
+      <if test="fatherId != null">
+        FATHER_ID = #{fatherId,jdbcType=INTEGER},
+      </if>
+      <if test="counponsId != null">
+        COUNPONS_ID = #{counponsId,jdbcType=INTEGER},
+      </if>
+      <if test="num != null">
+        NUM = #{num,jdbcType=INTEGER},
+      </if>
+    </set>
+    where ID = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.tox.bean.ElecGroupCounponsZ">
+    update elec_group_counpons_z
+    set FATHER_ID = #{fatherId,jdbcType=INTEGER},
+      COUNPONS_ID = #{counponsId,jdbcType=INTEGER},
+      NUM = #{num,jdbcType=INTEGER}
+    where ID = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

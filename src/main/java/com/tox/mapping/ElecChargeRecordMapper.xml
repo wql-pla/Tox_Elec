@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.tox.dao.ElecChargeRecordMapper" >
+  <resultMap id="BaseResultMap" type="com.tox.bean.ElecChargeRecord" >
+    <id column="ID" property="id" jdbcType="INTEGER" />
+    <result column="ELEC_AMOUNT" property="elecAmount" jdbcType="DOUBLE" />
+    <result column="ELEC_COUNT" property="elecCount" jdbcType="DOUBLE" />
+    <result column="REAL_COUNT" property="realCount" jdbcType="DOUBLE" />
+    <result column="CREATE_TIME" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="END_TIME" property="endTime" jdbcType="TIMESTAMP" />
+    <result column="ORDER_ID" property="orderId" jdbcType="INTEGER" />
+    <result column="RECORD_STATUS" property="recordStatus" jdbcType="INTEGER" />
+    <result column="SERVICE_CHARGE_SELF" property="serviceChargeSelf" jdbcType="DOUBLE" />
+    <result column="SERVICE_CHARGE_THIRD" property="serviceChargeThird" jdbcType="DOUBLE" />
+    <result column="BASIC_CHARGE" property="basicCharge" jdbcType="DOUBLE" />
+    <result column="PAY_CORD" property="payCord" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    ID, ELEC_AMOUNT, ELEC_COUNT,REAL_COUNT, CREATE_TIME, END_TIME, ORDER_ID, SERVICE_CHARGE_SELF, 
+    SERVICE_CHARGE_THIRD, BASIC_CHARGE,PAY_CORD,RECORD_STATUS
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from elec_charge_record
+    where ID = #{id,jdbcType=INTEGER}
+  </select>
+  
+  <select id="selectByOrderId" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from elec_charge_record
+    where ORDER_ID = #{orderId,jdbcType=INTEGER}
+  </select>
+  
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from elec_charge_record
+    where ID = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.tox.bean.ElecChargeRecord" >
+    insert into elec_charge_record (ID, ELEC_AMOUNT, ELEC_COUNT, 
+      REAL_COUNT,CREATE_TIME, END_TIME, ORDER_ID, 
+      SERVICE_CHARGE_SELF, SERVICE_CHARGE_THIRD, BASIC_CHARGE,PAY_CORD
+      )
+    values (#{id,jdbcType=INTEGER}, #{elecAmount,jdbcType=DOUBLE}, #{elecCount,jdbcType=DOUBLE},
+      #{realCount,jdbcType=DOUBLE},
+      #{createTime,jdbcType=TIMESTAMP}, #{endTime,jdbcType=TIMESTAMP}, #{orderId,jdbcType=INTEGER}, 
+      #{serviceChargeSelf,jdbcType=DOUBLE}, #{serviceChargeThird,jdbcType=DOUBLE}, #{basicCharge,jdbcType=DOUBLE},
+      #{payCord,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.tox.bean.ElecChargeRecord" keyProperty="id" useGeneratedKeys="true" keyColumn="ID">
+    insert into elec_charge_record
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        ID,
+      </if>
+      <if test="elecAmount != null" >
+        ELEC_AMOUNT,
+      </if>
+      <if test="elecCount != null" >
+        ELEC_COUNT,
+      </if>
+      <if test="realCount != null" >
+        REAL_COUNT,
+      </if>
+      <if test="createTime != null" >
+        CREATE_TIME,
+      </if>
+      <if test="endTime != null" >
+        END_TIME,
+      </if>
+      <if test="orderId != null" >
+        ORDER_ID,
+      </if>
+      <if test="serviceChargeSelf != null" >
+        SERVICE_CHARGE_SELF,
+      </if>
+      <if test="serviceChargeThird != null" >
+        SERVICE_CHARGE_THIRD,
+      </if>
+      <if test="basicCharge != null" >
+        BASIC_CHARGE,
+      </if>
+      <if test="payCord != null" >
+        PAY_CORD,
+      </if>
+      <if test="recordStatus != null" >
+       	RECORD_STATUS,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="elecAmount != null" >
+        #{elecAmount,jdbcType=DOUBLE},
+      </if>
+      <if test="elecCount != null" >
+        #{elecCount,jdbcType=DOUBLE},
+      </if>
+      <if test="realCount != null" >
+        #{realCount,jdbcType=DOUBLE},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="endTime != null" >
+        #{endTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="orderId != null" >
+        #{orderId,jdbcType=INTEGER},
+      </if>
+      <if test="serviceChargeSelf != null" >
+        #{serviceChargeSelf,jdbcType=DOUBLE},
+      </if>
+      <if test="serviceChargeThird != null" >
+        #{serviceChargeThird,jdbcType=DOUBLE},
+      </if>
+      <if test="basicCharge != null" >
+        #{basicCharge,jdbcType=DOUBLE},
+      </if>
+      <if test="payCord != null" >
+        #{payCord,jdbcType=VARCHAR},
+      </if>
+      <if test="recordStatus != null" >
+        #{recordStatus,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.tox.bean.ElecChargeRecord" >
+    update elec_charge_record
+    <set >
+      <if test="elecAmount != null" >
+        ELEC_AMOUNT = #{elecAmount,jdbcType=DOUBLE},
+      </if>
+      <if test="elecCount != null" >
+        ELEC_COUNT = #{elecCount,jdbcType=DOUBLE},
+      </if>
+      <if test="realCount != null" >
+        REAL_COUNT = #{realCount,jdbcType=DOUBLE},
+      </if>
+      <if test="createTime != null" >
+        CREATE_TIME = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="endTime != null" >
+        END_TIME = #{endTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="orderId != null" >
+        ORDER_ID = #{orderId,jdbcType=INTEGER},
+      </if>
+      <if test="serviceChargeSelf != null" >
+        SERVICE_CHARGE_SELF = #{serviceChargeSelf,jdbcType=DOUBLE},
+      </if>
+      <if test="serviceChargeThird != null" >
+        SERVICE_CHARGE_THIRD = #{serviceChargeThird,jdbcType=DOUBLE},
+      </if>
+      <if test="basicCharge != null" >
+        BASIC_CHARGE = #{basicCharge,jdbcType=DOUBLE},
+      </if>
+      <if test="payCord != null" >
+        PAY_CORD = #{payCord,jdbcType=VARCHAR},
+      </if>
+      <if test="recordStatus != null" >
+        RECORD_STATUS = #{recordStatus,jdbcType=INTEGER},
+      </if>
+    </set>
+    where ID = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.tox.bean.ElecChargeRecord" >
+    update elec_charge_record
+    set ELEC_AMOUNT = #{elecAmount,jdbcType=DOUBLE},
+      ELEC_COUNT = #{elecCount,jdbcType=DOUBLE},
+      REAL_COUNT = #{realCount,jdbcType=DOUBLE},
+      CREATE_TIME = #{createTime,jdbcType=TIMESTAMP},
+      END_TIME = #{endTime,jdbcType=TIMESTAMP},
+      ORDER_ID = #{orderId,jdbcType=INTEGER},
+      SERVICE_CHARGE_SELF = #{serviceChargeSelf,jdbcType=DOUBLE},
+      SERVICE_CHARGE_THIRD = #{serviceChargeThird,jdbcType=DOUBLE},
+      BASIC_CHARGE = #{basicCharge,jdbcType=DOUBLE}
+      PAY_CORD = #{payCord,jdbcType=VARCHAR}
+    where ID = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

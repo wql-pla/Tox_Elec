@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tox.dao.ElecStoreMapper">
+  <resultMap id="BaseResultMap" type="com.tox.bean.ElecStore">
+    <id column="ID" jdbcType="INTEGER" property="id" />
+    <result column="NAME" jdbcType="VARCHAR" property="name" />
+    <result column="ADDRESS" jdbcType="VARCHAR" property="address" />
+    <result column="TEL" jdbcType="VARCHAR" property="tel" />
+    <result column="LINKMAN" jdbcType="VARCHAR" property="linkman" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    ID, NAME, ADDRESS, TEL, LINKMAN
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from elec_store
+    where ID = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from elec_store
+    where ID = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.tox.bean.ElecStore" useGeneratedKeys="true" keyColumn="ID" keyProperty="id">
+    insert into elec_store (ID, NAME, ADDRESS, 
+      TEL, LINKMAN)
+    values (#{id,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, #{address,jdbcType=VARCHAR}, 
+      #{tel,jdbcType=VARCHAR}, #{linkman,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.tox.bean.ElecStore" useGeneratedKeys="true" keyColumn="ID" keyProperty="id">
+    insert into elec_store
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        ID,
+      </if>
+      <if test="name != null">
+        NAME,
+      </if>
+      <if test="address != null">
+        ADDRESS,
+      </if>
+      <if test="tel != null">
+        TEL,
+      </if>
+      <if test="linkman != null">
+        LINKMAN,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="name != null">
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="address != null">
+        #{address,jdbcType=VARCHAR},
+      </if>
+      <if test="tel != null">
+        #{tel,jdbcType=VARCHAR},
+      </if>
+      <if test="linkman != null">
+        #{linkman,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.tox.bean.ElecStore">
+    update elec_store
+    <set>
+      <if test="name != null">
+        NAME = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="address != null">
+        ADDRESS = #{address,jdbcType=VARCHAR},
+      </if>
+      <if test="tel != null">
+        TEL = #{tel,jdbcType=VARCHAR},
+      </if>
+      <if test="linkman != null">
+        LINKMAN = #{linkman,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where ID = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.tox.bean.ElecStore">
+    update elec_store
+    set NAME = #{name,jdbcType=VARCHAR},
+      ADDRESS = #{address,jdbcType=VARCHAR},
+      TEL = #{tel,jdbcType=VARCHAR},
+      LINKMAN = #{linkman,jdbcType=VARCHAR}
+    where ID = #{id,jdbcType=INTEGER}
+  </update>
+  <select id="nameList"  resultMap="BaseResultMap">
+    SELECT ID,NAME FROM elec_store  ORDER BY ID desc
+  </select>
+
+  <sql id="pageWhere">
+    where 1=1
+    <if test="tel != null and tel !=''">
+     AND TEL LIKE CONCAT(CONCAT('%', #{tel,jdbcType=VARCHAR}), '%')
+    </if>
+    <if test="linkman != null and linkman !=''">
+      AND LINKMAN LIKE CONCAT(CONCAT('%', #{linkman,jdbcType=VARCHAR}), '%')
+    </if>
+    <if test="id != null">
+      and ID = #{id,jdbcType=INTEGER}
+    </if>
+  </sql>
+  <select id="pageList" parameterType="com.tox.bean.ElecStore" resultMap="BaseResultMap">
+    SELECT
+    <include refid="Base_Column_List" />
+    from elec_store
+    <include refid="pageWhere" />
+    ORDER BY ID desc LIMIT #{offset},#{pageSize}
+  </select>
+
+  <select id="pageCount" parameterType="com.tox.bean.ElecStore" resultType="java.lang.Integer">
+    SELECT
+     count(ID)
+    from elec_store
+      <include refid="pageWhere" />
+
+  </select>
+</mapper>

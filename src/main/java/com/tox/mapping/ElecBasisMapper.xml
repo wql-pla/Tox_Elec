@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.tox.dao.ElecBasisMapper" >
+  <resultMap id="BaseResultMap" type="com.tox.bean.ElecBasis" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="faid" property="faid" jdbcType="INTEGER" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="url" property="url" jdbcType="VARCHAR" />
+    <result column="tops" property="tops" jdbcType="INTEGER" />
+    <collection property="bason" ofType="com.tox.bean.ElecBasis">
+	     <id column="id2" property="id" jdbcType="INTEGER" />
+	    <result column="faid2" property="faid" jdbcType="INTEGER" />
+	    <result column="name2" property="name" jdbcType="VARCHAR" />
+	    <result column="url2" property="url" jdbcType="VARCHAR" />
+	    <result column="tops2" property="tops" jdbcType="INTEGER" />
+	</collection>
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, faid, `name`, url, tops
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from elec_basis
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  
+   <select id="selectBasisOne" resultMap="BaseResultMap" parameterType="com.tox.bean.ElecBasis" >
+    select 
+    <include refid="Base_Column_List" />
+    from elec_basis
+    where faid = 0
+  </select>
+  
+  <select id="selectBasisAll" resultMap="BaseResultMap" parameterType="com.tox.bean.ElecBasis" >
+    select 
+     eb1.id, eb1.faid, eb1.`name`, eb1.url, eb1.tops,
+     eb2.id id2, eb2.faid faid2, eb2.`name` name2, eb2.url url2, eb2.tops tops2
+    from elec_basis eb1
+    LEFT JOIN elec_basis eb2 ON  eb2.faid = eb1.id 
+     where eb1.faid = 0
+  </select>
+  
+   <select id="selectBasisByRoleId" resultMap="BaseResultMap" parameterType="com.tox.bean.ElecBasisRoleRel" >
+    select 
+     eb1.id, eb1.faid, eb1.`name`, eb1.url, eb1.tops,
+     eb2.id id2, eb2.faid faid2, eb2.`name` name2, eb2.url url2, eb2.tops tops2
+    from elec_basis eb1
+    LEFT JOIN elec_basis eb2 ON  eb2.faid = eb1.id 
+    LEFT JOIN elec_basis_role_rel brr ON eb1.id = brr.basisid
+    where 1=1
+    <if test="brr.roleid != null and brr.roleid != '' " >
+        and brr.roleid = #{brr.roleid,jdbcType=INTEGER}
+    </if>
+  </select>
+  
+   <select id="selectBasisByRoleIds" resultMap="BaseResultMap" parameterType="com.tox.bean.ElecBasisRoleRel" >
+    select 
+     eb2.id, eb2.faid, eb2.`name`, eb2.url, eb2.tops,
+     eb1.id id2, eb1.faid faid2, eb1.`name` name2, eb1.url url2, eb1.tops tops2
+    from elec_basis eb1
+    LEFT JOIN elec_basis eb2 ON  eb1.faid = eb2.id 
+    LEFT JOIN elec_basis_role_rel brr ON eb1.id = brr.basisid
+   
+    where 1=1
+    <if test="brr.roleid != null and brr.roleid != '' " >
+        and brr.roleid = #{brr.roleid,jdbcType=INTEGER}
+    </if>
+    order by eb2.id
+  </select>
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from elec_basis
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.tox.bean.ElecBasis" >
+    insert into elec_basis (id, faid, name, 
+      url, tops)
+    values (#{id,jdbcType=INTEGER}, #{faid,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, 
+      #{url,jdbcType=VARCHAR}, #{tops,jdbcType=INTEGER})
+  </insert>
+  <insert id="insertSelective" parameterType="com.tox.bean.ElecBasis" >
+    insert into elec_basis
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="faid != null" >
+        faid,
+      </if>
+      <if test="name != null" >
+        name,
+      </if>
+      <if test="url != null" >
+        url,
+      </if>
+      <if test="tops != null" >
+        tops,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="faid != null" >
+        #{faid,jdbcType=INTEGER},
+      </if>
+      <if test="name != null" >
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="url != null" >
+        #{url,jdbcType=VARCHAR},
+      </if>
+      <if test="tops != null" >
+        #{tops,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.tox.bean.ElecBasis" >
+    update elec_basis
+    <set >
+      <if test="faid != null" >
+        faid = #{faid,jdbcType=INTEGER},
+      </if>
+      <if test="name != null" >
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="url != null" >
+        url = #{url,jdbcType=VARCHAR},
+      </if>
+      <if test="tops != null" >
+        tops = #{tops,jdbcType=INTEGER},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.tox.bean.ElecBasis" >
+    update elec_basis
+    set faid = #{faid,jdbcType=INTEGER},
+      name = #{name,jdbcType=VARCHAR},
+      url = #{url,jdbcType=VARCHAR},
+      tops = #{tops,jdbcType=INTEGER}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.tox.dao.ElecCouponsMapper" >
+  <resultMap id="BaseResultMap" type="com.tox.bean.ElecCoupons" >
+    <id column="ID" property="id" jdbcType="INTEGER" />
+    <result column="NAME" property="name" jdbcType="VARCHAR" />
+    <result column="FROM_DATE" property="fromDate" jdbcType="TIMESTAMP" />
+    <result column="TO_DATE" property="toDate" jdbcType="TIMESTAMP" />
+    <result column="AMOUNT" property="amount" jdbcType="DOUBLE" />
+    <result column="STATUS" property="status" jdbcType="INTEGER" />
+    <result column="TYPE" property="type" jdbcType="INTEGER" />
+    <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP" />
+    <result column="IS_DEL" property="isDel" jdbcType="INTEGER" />
+    <result column="useNum" property="useNum" jdbcType="INTEGER" />
+    <result column="allNum" property="allNum" jdbcType="INTEGER" />
+    <result column="INDATE_TYPE" property="indateType" jdbcType="INTEGER" />
+    <result column="REACH" property="reach" jdbcType="DOUBLE" />
+    <result column="DAYS" property="days" jdbcType="INTEGER" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    ID, NAME, FROM_DATE, TO_DATE, AMOUNT, STATUS, TYPE, CREATE_DATE, IS_DEL,INDATE_TYPE,REACH,DAYS
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from elec_coupons
+    where ID = #{id,jdbcType=INTEGER}
+  </select>
+  
+  <select id="getFreeCoupon" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from elec_coupons
+    where IS_DEL=0 and STATUS=3 and FROM_DATE &lt;= NOW() and TO_DATE &gt;= NOW()
+  </select>
+  
+  <select id="selectByPrimaryKeys" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    SELECT
+	*, (
+		SELECT
+			COUNT(ID)
+		FROM
+			elec_user_coupons_rel euc
+		WHERE
+			euc.COUPONS_ID = ec.ID
+		AND euc.`STATUS` = 1
+		) AS useNum,
+		(
+		SELECT
+			COUNT(ID)
+		FROM
+			elec_user_coupons_rel euc
+		WHERE
+			euc.COUPONS_ID = ec.ID
+		) AS allNum
+		FROM
+			elec_coupons ec
+    	where ec.ID = #{id,jdbcType=INTEGER}
+  </select>
+  
+  <select id="selectCoupons" resultMap="BaseResultMap" parameterType="com.tox.bean.ElecCoupons" >
+    select 
+    <include refid="Base_Column_List" />
+    from elec_coupons
+    where 1=1 and IS_DEL = 0
+    <if test="coupons.id != null and coupons.id != '' " >
+        and ID = #{coupons.id,jdbcType=INTEGER}
+    </if>
+     <if test="coupons.name != null and coupons.name != ''">
+        <bind name="name" value="'%'+coupons.name+'%'"/>
+        and NAME like #{name}
+	</if>
+    <if test="coupons.status != null" >
+        and STATUS = #{coupons.status,jdbcType=INTEGER}
+    </if>
+    <if test="coupons.type != null" >
+        and TYPE = #{coupons.type,jdbcType=INTEGER}
+    </if>
+ 
+    order by CREATE_DATE desc
+    <if test="coupons.pageSize>0">
+		limit #{coupons.pageNum,jdbcType=INTEGER},#{coupons.pageSize,jdbcType=INTEGER}
+	</if>
+  </select>
+  <select id="selectCouponsCount" resultType="java.lang.Integer" parameterType="com.tox.bean.ElecCoupons" >
+    select count(*)
+    from elec_coupons
+    where 1=1 and IS_DEL = 0
+    <if test="coupons.id != null and coupons.id != '' " >
+        and ID = #{coupons.id,jdbcType=INTEGER}
+    </if>
+    <if test="coupons.name != null and coupons.name != ''">
+        <bind name="name" value="'%'+coupons.name+'%'"/>
+        and NAME like #{name}
+	</if>
+    <if test="coupons.status != null " >
+        and STATUS = #{coupons.status,jdbcType=INTEGER}
+    </if>
+     <if test="coupons.type != null" >
+        and TYPE = #{coupons.type,jdbcType=INTEGER}
+    </if>
+  </select>
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from elec_coupons
+    where ID = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.tox.bean.ElecCoupons" >
+    insert into elec_coupons (ID, NAME, FROM_DATE, 
+      TO_DATE, AMOUNT, STATUS, 
+      TYPE, CREATE_DATE, IS_DEL
+      )
+    values (#{id,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, #{fromDate,jdbcType=TIMESTAMP}, 
+      #{toDate,jdbcType=TIMESTAMP}, #{amount,jdbcType=DOUBLE}, #{status,jdbcType=INTEGER}, 
+      #{type,jdbcType=INTEGER}, #{createDate,jdbcType=TIMESTAMP}, #{isDel,jdbcType=INTEGER}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.tox.bean.ElecCoupons" >
+    insert into elec_coupons
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        ID,
+      </if>
+      <if test="name != null" >
+        NAME,
+      </if>
+      <if test="fromDate != null" >
+        FROM_DATE,
+      </if>
+      <if test="toDate != null" >
+        TO_DATE,
+      </if>
+      <if test="amount != null" >
+        AMOUNT,
+      </if>
+      <if test="status != null" >
+        STATUS,
+      </if>
+      <if test="type != null" >
+        TYPE,
+      </if>
+      <if test="createDate != null" >
+        CREATE_DATE,
+      </if>
+      <if test="isDel != null" >
+        IS_DEL,
+      </if>
+      <if test="indateType != null" >
+        INDATE_TYPE,
+      </if>
+      <if test="reach != null" >
+        REACH,
+      </if>
+      <if test="days != null" >
+        DAYS,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="name != null" >
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="fromDate != null" >
+        #{fromDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="toDate != null" >
+        #{toDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="amount != null" >
+        #{amount,jdbcType=DOUBLE},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="type != null" >
+        #{type,jdbcType=INTEGER},
+      </if>
+      <if test="createDate != null" >
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDel != null" >
+        #{isDel,jdbcType=INTEGER},
+      </if>
+      <if test="indateType != null" >
+        #{indateType,jdbcType=INTEGER},
+      </if>
+      <if test="reach != null" >
+        #{reach,jdbcType=DOUBLE},
+      </if>
+      <if test="days != null" >
+        #{days,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.tox.bean.ElecCoupons" >
+    update elec_coupons
+    <set >
+      <if test="name != null" >
+        NAME = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="fromDate != null" >
+        FROM_DATE = #{fromDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="toDate != null" >
+        TO_DATE = #{toDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="amount != null" >
+        AMOUNT = #{amount,jdbcType=DOUBLE},
+      </if>
+      <if test="status != null" >
+        STATUS = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="type != null" >
+        TYPE = #{type,jdbcType=INTEGER},
+      </if>
+      <if test="createDate != null" >
+        CREATE_DATE = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDel != null" >
+        IS_DEL = #{isDel,jdbcType=INTEGER},
+      </if>
+      <if test="indateType != null" >
+        INDATE_TYPE = #{indateType,jdbcType=INTEGER},
+      </if>
+      <if test="reach != null" >
+        REACH = #{reach,jdbcType=DOUBLE},
+      </if>
+      <if test="days != null" >
+        DAYS = #{days,jdbcType=INTEGER},
+      </if>
+    </set>
+    where ID = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.tox.bean.ElecCoupons" >
+    update elec_coupons
+    set NAME = #{name,jdbcType=VARCHAR},
+      FROM_DATE = #{fromDate,jdbcType=TIMESTAMP},
+      TO_DATE = #{toDate,jdbcType=TIMESTAMP},
+      AMOUNT = #{amount,jdbcType=DOUBLE},
+      STATUS = #{status,jdbcType=INTEGER},
+      TYPE = #{type,jdbcType=INTEGER},
+      CREATE_DATE = #{createDate,jdbcType=TIMESTAMP},
+      IS_DEL = #{isDel,jdbcType=INTEGER}
+    where ID = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

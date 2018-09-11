@@ -1,0 +1,1007 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.tox.dao.ElecPileMapper">
+	<resultMap id="BaseResultMap" type="com.tox.bean.ElecPile">
+		<id column="ID" property="id" jdbcType="INTEGER" />
+		<result column="PILE_NUM" property="pileNum" jdbcType="VARCHAR" />
+		<result column="CHARGE_STANDARD_ID" property="chargeStandardId"
+			jdbcType="INTEGER" />
+		<result column="FIRM_ID" property="firmId" jdbcType="INTEGER" />
+		<result column="FIRM_NAME" jdbcType="VARCHAR" property="firmName" />
+		<result column="STATUS" property="status" jdbcType="INTEGER" />
+		<result column="CREATE_TIME" property="createTime" jdbcType="TIMESTAMP" />
+		<result column="ONLINE_DATE" property="onlineDate" jdbcType="TIMESTAMP" />
+		<result column="ALL_COUNT" property="allCount" jdbcType="DOUBLE" />
+		<result column="WX_CODE" jdbcType="VARCHAR" property="wxCode" />
+		<result column="STORE_NAME" jdbcType="VARCHAR" property="storeName" />
+		<result column="SOFT_VERSION" jdbcType="VARCHAR" property="softVersion" />
+		<result column="UPDATE_STATUS" jdbcType="VARCHAR" property="updateStatus" />
+		<result column="IS_USED" jdbcType="INTEGER" property="isUsed" />
+		<result column="UPDATE_COUNT" jdbcType="INTEGER" property="updateCount" />
+		<result column="SERVER_IP" jdbcType="VARCHAR" property="serverIp" />
+		<result column="SERVER_PORT" jdbcType="VARCHAR" property="serverPort" />
+		<result column="IP_STATUS" jdbcType="INTEGER" property="ipStatus" />
+		<result column="TYPE" jdbcType="INTEGER" property="type" />
+		<association property="station" column="CHARGE_STANDARD_ID"
+			javaType="com.tox.bean.ElecStation">
+			<result column="STATION_NAME" jdbcType="VARCHAR" property="stationName" />
+			<result column="SERVICE_CHARGE_AMOUNT" jdbcType="DOUBLE"
+				property="serviceChargeAmount" />
+			<result column="BASIC_CHARGE_AMOUNT" jdbcType="DOUBLE"
+				property="basicChargeAmount" />
+			<result column="PERSON_SERVICE_AMOUNT" jdbcType="DOUBLE" property="personServiceAmount" />
+			<result column="THIRD_SERVICE_AMOUNT" jdbcType="DOUBLE" property="thirdServiceAmount" />
+			<result column="PERSON_NAME" jdbcType="VARCHAR" property="personName" />
+			<result column="PERSON_PHONE" jdbcType="VARCHAR" property="personPhone" />
+			<result column="PERSON_TYPE" jdbcType="INTEGER" property="personType" />
+			<result column="PERSON_OPENID" jdbcType="VARCHAR" property="personOpenid" />
+			<result column="PROVINCE" jdbcType="VARCHAR" property="province" />
+			<result column="CITY" jdbcType="VARCHAR" property="city" />
+			<result column="REGION" jdbcType="VARCHAR" property="region" />
+			<result column="ADDRESS" jdbcType="VARCHAR" property="address" />
+			<result column="COORD" jdbcType="VARCHAR" property="coord" />
+			<result column="STATUS" jdbcType="INTEGER" property="status" />
+			<result column="STORE_ID" jdbcType="INTEGER" property="storeId" />
+			<result column="CHARGE_TYPE" jdbcType="INTEGER" property="chargeType" />
+		</association>
+		<association property="firm" column="FIRM_ID"
+			javaType="com.tox.bean.ElecFirm">
+			<result column="FIRM_ID" property="id" jdbcType="INTEGER" />
+			<result column="FIRM_NAME" property="firmName" jdbcType="VARCHAR" />
+		</association>
+	</resultMap>
+	<sql id="Base_Column_List">
+		ID, PILE_NUM, CHARGE_STANDARD_ID, FIRM_ID,
+		CREATE_TIME,STATUS,ONLINE_DATE,WX_CODE,SOFT_VERSION,UPDATE_STATUS,IS_USED,ALL_COUNT,UPDATE_COUNT,
+		SERVER_IP,SERVER_PORT,IP_STATUS,TYPE
+	</sql>
+	<select id="selectByPrimaryKey" resultMap="BaseResultMap"
+		parameterType="java.lang.Integer">
+		select
+		<include refid="Base_Column_List" />
+		from elec_pile
+		where ID = #{id,jdbcType=INTEGER}
+	</select>
+	<select id="getQrCode" resultMap="BaseResultMap"
+		parameterType="java.lang.String">
+		select
+		<include refid="Base_Column_List" />
+		from elec_pile
+		where PILE_NUM = #{pileNo,jdbcType=VARCHAR}
+	</select>
+	
+	
+	<select id="selectPileAllCount" resultType="java.lang.Double" parameterType="com.tox.bean.ElecPile">
+  	    SELECT
+			COALESCE(SUM((
+				p.ALL_COUNT
+			)),0)
+		FROM
+			elec_pile AS p
+		LEFT JOIN
+		elec_station t2 on p.CHARGE_STANDARD_ID = t2.ID
+		LEFT JOIN
+		elec_firm t3 on p.FIRM_ID = t3.ID
+		LEFT JOIN
+		elec_store t4 on t2.STORE_ID = t4.ID
+		<where>
+		    1=1
+		    <if test="onlineDate != null">
+		        and  DATE_FORMAT(p.ONLINE_DATE,'%Y-%m-%d')=DATE_FORMAT(#{onlineDate},'%Y-%m-%d') 
+		    </if>
+		    <if test="status != null">
+		        and p.STATUS = #{status}
+		    </if>
+		    <if test="isUsed != null">
+		    	<if test="isUsed != 1">
+		    	and (p.IS_USED = #{isUsed} or p.IS_USED is null)
+		    	</if>
+		    	<if test="isUsed == 1">
+		    	and p.IS_USED = #{isUsed}
+		    	</if>
+    		</if>
+    		<if test="pileNum != null and pileNum !=''">
+		        <bind name="pileNum" value="'%'+pileNum+'%'"/>
+		        and p.PILE_NUM like #{pileNum}
+		    </if>
+		    <if test="stationName != null and stationName != ''">
+		    	<bind name="stationName" value="'%'+stationName+'%'"/>
+		        and t2.STATION_NAME like #{stationName}
+		    </if>
+		    <if test="storeName != null and storeName != ''">
+		    <bind name="storeName" value="'%'+storeName+'%'"/>
+		        and t4.NAME like #{storeName}
+		    </if>
+		    <if test="firmName != null and firmName != ''">
+		    <bind name="firmName" value="'%'+firmName+'%'"/>
+		        and t3.FIRM_NAME like #{firmName}
+		    </if>
+		</where>
+    </select>
+	<select id="selectPileList" resultMap="BaseResultMap" parameterType="com.tox.bean.ElecPile">
+        select 
+		p.ID, PILE_NUM, CHARGE_STANDARD_ID, FIRM_ID,
+		p.CREATE_TIME,p.STATUS,ONLINE_DATE,WX_CODE,SOFT_VERSION,UPDATE_STATUS,IS_USED,ALL_COUNT,p.TYPE
+		FROM
+			elec_pile AS p
+		LEFT JOIN
+		elec_station t2 on p.CHARGE_STANDARD_ID = t2.ID
+		LEFT JOIN
+		elec_firm t3 on p.FIRM_ID = t3.ID
+		LEFT JOIN
+		elec_store t4 on t2.STORE_ID = t4.ID
+		<where>
+		    1=1
+		    <if test="onlineDate != null">
+		        and  DATE_FORMAT(p.ONLINE_DATE,'%Y-%m-%d')=DATE_FORMAT(#{onlineDate},'%Y-%m-%d') 
+		    </if>
+		    <if test="status != null">
+		        and p.STATUS = #{status}
+		    </if>
+		    <if test="isUsed != null">
+		    	<if test="isUsed != 1">
+		    	and (p.IS_USED = #{isUsed} or p.IS_USED is null)
+		    	</if>
+		    	<if test="isUsed == 1">
+		    	and p.IS_USED = #{isUsed}
+		    	</if>
+    		</if>
+    		<if test="pileNum != null and pileNum !=''">
+		        <bind name="pileNum" value="'%'+pileNum+'%'"/>
+		        and p.PILE_NUM like #{pileNum}
+		    </if>
+		    <if test="stationName != null and stationName != ''">
+		    	<bind name="stationName" value="'%'+stationName+'%'"/>
+		        and t2.STATION_NAME like #{stationName}
+		    </if>
+		    <if test="storeName != null and storeName != ''">
+		    <bind name="storeName" value="'%'+storeName+'%'"/>
+		        and t4.NAME like #{storeName}
+		    </if>
+		    <if test="firmName != null and firmName != ''">
+		    <bind name="firmName" value="'%'+firmName+'%'"/>
+		        and t3.FIRM_NAME like #{firmName}
+		    </if>
+		</where>
+	 <if test="pageSize>0">
+	    limit #{pageNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+	 </if>
+    </select>
+    <select id="selectPileListCount" resultType="java.lang.Integer" parameterType="com.tox.bean.ElecPile">
+         select count(p.ID) 
+         FROM
+			elec_pile AS p
+		LEFT JOIN
+		elec_station t2 on p.CHARGE_STANDARD_ID = t2.ID
+		LEFT JOIN
+		elec_firm t3 on p.FIRM_ID = t3.ID
+		LEFT JOIN
+		elec_store t4 on t2.STORE_ID = t4.ID
+		<where>
+		    1=1
+		    <if test="onlineDate != null">
+		        and  DATE_FORMAT(p.ONLINE_DATE,'%Y-%m-%d')=DATE_FORMAT(#{onlineDate},'%Y-%m-%d') 
+		    </if>
+		    <if test="status != null">
+		        and p.STATUS = #{status}
+		    </if>
+		    <if test="isUsed != null">
+		    	<if test="isUsed != 1">
+		    	and (p.IS_USED = #{isUsed} or p.IS_USED is null)
+		    	</if>
+		    	<if test="isUsed == 1">
+		    	and p.IS_USED = #{isUsed}
+		    	</if>
+    		</if>
+    		<if test="pileNum != null and pileNum !=''">
+		        <bind name="pileNum" value="'%'+pileNum+'%'"/>
+		        and p.PILE_NUM like #{pileNum}
+		    </if>
+		    <if test="stationName != null and stationName != ''">
+		    	<bind name="stationName" value="'%'+stationName+'%'"/>
+		        and t2.STATION_NAME like #{stationName}
+		    </if>
+		    <if test="storeName != null and storeName != ''">
+		    <bind name="storeName" value="'%'+storeName+'%'"/>
+		        and t4.NAME like #{storeName}
+		    </if>
+		    <if test="firmName != null and firmName != ''">
+		    <bind name="firmName" value="'%'+firmName+'%'"/>
+		        and t3.FIRM_NAME like #{firmName}
+		    </if>
+		</where>
+    </select>
+	
+	
+	
+	<select id="getPilesByTradeTypeCode" resultMap="BaseResultMap"
+		parameterType="java.lang.String">
+		select
+		p.<include refid="Base_Column_List" />
+		from elec_pile p
+		left join elec_firm f
+		on p.FIRM_ID = f.ID
+		<where>
+			1=1
+			<if test="typeCode != null and typeCode !=''">
+		        <bind name="type" value="'%'+typeCode+'%'"/>
+		        and f.FIRM_NAME like #{type}
+		    </if>
+		</where>
+	</select>
+	<select id="getPileInfoByPileNumOrWxCode" resultMap="BaseResultMap"
+		parameterType="java.lang.String">
+		select
+		p.ID, p.PILE_NUM, p.CHARGE_STANDARD_ID, p.FIRM_ID,
+		p.CREATE_TIME,p.STATUS,p.ONLINE_DATE,p.WX_CODE,p.SOFT_VERSION,p.UPDATE_STATUS,p.IS_USED,p.ALL_COUNT,p.UPDATE_COUNT,
+		p.SERVER_IP,p.SERVER_PORT,p.IP_STATUS,p.TYPE
+		,f.ID AS FIRM_ID,F.FIRM_NAME,
+		s.STATION_NAME,s.SERVICE_CHARGE_AMOUNT,s.BASIC_CHARGE_AMOUNT,THIRD_SERVICE_AMOUNT,
+		s.PERSON_TYPE,s.PERSON_SERVICE_AMOUNT,s.PERSON_PHONE,s.CHARGE_TYPE
+		from elec_pile p
+		left join elec_firm f
+		on p.FIRM_ID = f.ID
+		left join elec_station s on p.CHARGE_STANDARD_ID = s.ID
+		where p.PILE_NUM = #{code,jdbcType=VARCHAR} OR p.WX_CODE = #{code,jdbcType=VARCHAR}
+	</select>
+	<select id="selectDetailById" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    	SELECT
+			t1.ONLINE_DATE,
+			t1.PILE_NUM,
+			t1.WX_CODE,
+			t1.TYPE,
+			t2.FIRM_NAME,
+			t3.STATION_NAME
+		FROM
+			elec_pile t1
+		LEFT JOIN elec_firm t2 ON t1.FIRM_ID = t2.ID
+		LEFT JOIN elec_station t3 ON t1.CHARGE_STANDARD_ID = t3.ID
+		WHERE
+			t1.ID = #{id}
+    </select>
+    <select id="selectFaBu" resultMap="BaseResultMap" parameterType="com.tox.bean.ElecPile">
+         select res.* FROM(SELECT
+			p.*, (
+				SELECT
+					COUNT(t1.ID)
+				FROM
+					elec_order AS t1
+				WHERE
+					t1.PILE_ID = p.ID
+					AND t1.`STATUS` = 1
+			) AS TOTAL,
+			(
+				SELECT
+					COALESCE(SUM(REAL_COUNT),0)
+				FROM
+					elec_order AS o
+				WHERE
+					o.PILE_ID = p.ID
+			) AS ALL_COUNT
+		FROM
+			elec_pile AS p
+		LEFT JOIN
+		elec_station t2 on p.CHARGE_STANDARD_ID = t2.ID
+		LEFT JOIN
+		elec_firm t3 on p.FIRM_ID = t3.ID
+		LEFT JOIN
+		elec_store t4 on t2.STORE_ID = t4.ID
+		<where>
+		    1=1
+		    <if test="pileNum != null and pileNum !=''">
+		        <bind name="pileNum" value="'%'+pileNum+'%'"/>
+		        and p.PILE_NUM like #{pileNum}
+		    </if>
+		    <if test="stationName != null and stationName != ''">
+		        and t2.STATION_NAME like #{stationName}
+		    </if>
+		    <if test="storeName != null and storeName != ''">
+		        and t4.NAME like #{storeName}
+		    </if>
+		    <if test="firmName != null and firmName != ''">
+		        and t3.FIRM_NAME like #{firmName}
+		    </if>
+		    <if test="status != null">
+		        and p.STATUS = #{status}
+		    </if>
+		</where>
+		)
+		as res
+		<where>
+		    1=1
+	    <if test="total != null">
+	        <if test="total == 1">
+	            and res.TOTAL = 1
+	        </if>
+	        <if test="total != 1">
+	            and res.TOTAL = 0
+	        </if>
+    	</if>
+    	</where>
+		GROUP BY res.ID
+	 <if test="pageSize>0">
+	    limit #{pageNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+	 </if>
+    </select>
+    <select id="selectFaBuCount" resultType="java.lang.Integer" parameterType="com.tox.bean.ElecPile">
+         select count(res.ID) FROM(SELECT
+			p.*, (
+				SELECT
+					COUNT(t1.ID)
+				FROM
+					elec_order AS t1
+				WHERE
+					t1.PILE_ID = p.ID
+					AND t1.`STATUS` = 1
+			) AS TOTAL,
+			(
+				SELECT
+					COALESCE(SUM(REAL_COUNT),0)
+				FROM
+					elec_order AS o
+				WHERE
+					o.PILE_ID = p.ID
+			) AS ALL_COUNT
+		FROM
+			elec_pile AS p
+		LEFT JOIN
+		elec_station t2 on p.CHARGE_STANDARD_ID = t2.ID
+		LEFT JOIN
+		elec_firm t3 on p.FIRM_ID = t3.ID
+		LEFT JOIN
+		elec_store t4 on t2.STORE_ID = t4.ID
+		<where>
+		    1=1
+		    <if test="pileNum != null and pileNum !=''">
+		        <bind name="pileNum" value="'%'+pileNum+'%'"/>
+		        and p.PILE_NUM like #{pileNum}
+		    </if>
+		    <if test="stationName != null and stationName != ''">
+		        and t2.STATION_NAME like #{stationName}
+		    </if>
+		    <if test="storeName != null and storeName != ''">
+		        and t4.NAME like #{storeName}
+		    </if>
+		    <if test="firmName != null and firmName != ''">
+		        and t3.FIRM_NAME like #{firmName}
+		    </if>
+		    <if test="status != null">
+		        and p.STATUS = #{status}
+		    </if>
+		</where>
+		)
+		as res
+		<where>
+		    1=1
+	    <if test="total != null">
+	        <if test="total == 1">
+	            and res.TOTAL = 1
+	        </if>
+	        <if test="total != 1">
+	            and res.TOTAL = 0
+	        </if>
+    	</if>
+    	</where>
+    </select>
+  	<select id="selectPilePage" resultMap="BaseResultMap" parameterType="com.tox.bean.ElecPile">
+  	  select res.* FROM(SELECT
+			p.*, (
+				SELECT
+					COUNT(t1.ID)
+				FROM
+					elec_order AS t1
+				WHERE
+					t1.PILE_ID = p.ID
+					AND t1.`STATUS` = 1
+			) AS TOTAL,
+			(
+				SELECT
+					COALESCE(SUM(REAL_COUNT),0)
+				FROM
+					elec_order AS o
+				WHERE
+					o.PILE_ID = p.ID
+			) AS ALL_COUNT
+		FROM
+			elec_pile AS p
+		LEFT JOIN
+		elec_station t2 on p.CHARGE_STANDARD_ID = t2.ID
+		LEFT JOIN
+		elec_firm t3 on p.FIRM_ID = t3.ID
+		LEFT JOIN
+		elec_store t4 on t2.STORE_ID = t4.ID
+		<where>
+		    1=1
+		    <if test="pileNum != null and pileNum !=''">
+		        <bind name="pileNum" value="'%'+pileNum+'%'"/>
+		        and p.PILE_NUM like #{pileNum}
+		    </if>
+		    <if test="stationName != null and stationName != ''">
+		        and t2.STATION_NAME like #{stationName}
+		    </if>
+		    <if test="storeName != null and storeName != ''">
+		        and t4.NAME like #{storeName}
+		    </if>
+		    <if test="firmName != null and firmName != ''">
+		        and t3.FIRM_NAME like #{firmName}
+		    </if>
+		    <if test="status != null">
+		        and p.STATUS = #{status}
+		    </if>
+		</where>
+		)
+		as res
+		<where>
+		    1=1
+	    <if test="total != null">
+	        <if test="total == 1">
+	            and res.TOTAL = 1
+	        </if>
+	        <if test="total != 1">
+	            and res.TOTAL = 0
+	        </if>
+    	</if>
+    	</where>
+  	</select>
+  	<select id="selectPilePages" resultMap="BaseResultMap" parameterType="com.tox.bean.ElecPile">
+  	   SELECT
+			p.*,t5.`STATUS` AS TOTAL,
+			(
+				SELECT
+					COALESCE(SUM(REAL_COUNT),0)
+				FROM
+					elec_order AS o
+				WHERE
+					o.PILE_ID = p.ID
+			) AS ALL_COUNT
+		FROM
+			elec_pile AS p
+		LEFT JOIN
+		elec_station t2 on p.CHARGE_STANDARD_ID = t2.ID
+		LEFT JOIN
+		elec_firm t3 on p.FIRM_ID = t3.ID
+		LEFT JOIN
+		elec_store t4 on t2.STORE_ID = t4.ID
+		LEFT JOIN
+		elec_order t5 on p.ID = t5.PILE_ID
+		<where>
+		    1=1
+		    <if test="pileNum != null and pileNum !=''">
+		        <bind name="pileNum" value="'%'+pileNum+'%'"/>
+		        and p.PILE_NUM like #{pileNum}
+		    </if>
+		    <if test="stationName != null and stationName != ''">
+		        and t2.STATION_NAME like #{stationName}
+		    </if>
+		    <if test="storeName != null and storeName != ''">
+		        and t4.NAME like #{storeName}
+		    </if>
+		    <if test="firmName != null and firmName != ''">
+		        and t3.FIRM_NAME like #{firmName}
+		    </if>
+		    <if test="status != null">
+		        and p.STATUS = #{status}
+		    </if>
+		    <if test="total != null">
+		       <if test="total != 1">
+		           and t5.STATUS != 1
+		       </if>
+		       <if test="total == 1">
+		           and t5.STATUS = 1
+		       </if>
+		    </if>
+		</where>
+		GROUP BY
+			p.ID
+	<if test="pageSize>0">
+   		limit #{pageNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+	</if>
+  	</select>
+  	<select id="selectPilePageCount" resultType="java.lang.Integer" parameterType="com.tox.bean.ElecPile">
+  	    SELECT
+			COUNT(p.ID)
+		FROM
+			elec_pile AS p
+		LEFT JOIN
+		elec_station t2 on p.CHARGE_STANDARD_ID = t2.ID
+		LEFT JOIN
+		elec_firm t3 on p.FIRM_ID = t3.ID
+		LEFT JOIN
+		elec_store t4 on t2.STORE_ID = t4.ID
+		<where>
+		    1=1
+		    <if test="pileNum != null and pileNum !=''">
+		        <bind name="pileNum" value="'%'+pileNum+'%'"/>
+		        and p.PILE_NUM like #{pileNum}
+		    </if>
+		    <if test="stationName != null and stationName != ''">
+		        and t2.STATION_NAME like #{stationName}
+		    </if>
+		    <if test="storeName != null and storeName != ''">
+		        and t4.NAME like #{storeName}
+		    </if>
+		    <if test="firmName != null and firmName != ''">
+		        and t3.FIRM_NAME like #{firmName}
+		    </if>
+		    <if test="status != null">
+		        and p.STATUS = #{status}
+		    </if>
+		</where>
+  	</select>
+  	<select id="selectSumCount" resultType="java.lang.Double" parameterType="com.tox.bean.ElecPile">
+  	    SELECT
+			COALESCE(SUM((
+				SELECT
+					SUM(REAL_COUNT)
+				FROM
+					elec_order AS o
+				WHERE
+					o.PILE_ID = p.ID
+			)))
+		FROM
+			elec_pile AS p
+		LEFT JOIN
+		elec_station t2 on p.CHARGE_STANDARD_ID = t2.ID
+		LEFT JOIN
+		elec_firm t3 on p.FIRM_ID = t3.ID
+		LEFT JOIN
+		elec_store t4 on t2.STORE_ID = t4.ID
+		<where>
+		    1=1
+		    <if test="pileNum != null and pileNum !=''">
+		        <bind name="pileNum" value="'%'+pileNum+'%'"/>
+		        and p.PILE_NUM like #{pileNum}
+		    </if>
+		    <if test="stationName != null and stationName != ''">
+		        and t2.STATION_NAME like #{stationName}
+		    </if>
+		    <if test="storeName != null and storeName != ''">
+		        and t4.NAME like #{storeName}
+		    </if>
+		    <if test="firmName != null and firmName != ''">
+		        and t3.FIRM_NAME like #{firmName}
+		    </if>
+		    <if test="status != null">
+		        and p.STATUS = #{status}
+		    </if>
+		</where>
+  	</select>
+  	<select id="SUMByIDS" resultType="java.lang.Double" parameterType="java.lang.Integer">
+  	    SELECT
+			COALESCE(SUM((
+				SELECT
+					SUM(REAL_COUNT)
+				FROM
+					elec_order AS o
+				WHERE
+					o.PILE_ID = p.ID
+			)),0)
+		FROM
+			elec_pile AS p
+		WHERE p.ID IN
+		<foreach collection="list" index="index" item="item" 
+	        separator="," open="(" close=")">
+	        #{item}
+	    </foreach>
+  	</select>
+	<select id="getPileCountByStationId" resultType="java.lang.Integer"
+		parameterType="java.lang.Integer">
+		select count(ID)
+		from elec_pile
+		where CHARGE_STANDARD_ID =
+		#{stationId,jdbcType=INTEGER} and STATUS=1 and (IS_USED is  null or  IS_USED = 0)
+	</select>
+	<select id="getPileCount" resultType="java.lang.Integer"
+		parameterType="java.lang.Integer">
+		select count(ID)
+		from elec_pile
+		where CHARGE_STANDARD_ID =
+		#{stationId,jdbcType=INTEGER}
+	</select>
+	<select id="getPileCountByType" resultType="java.lang.Integer"
+		parameterType="java.lang.Integer">
+		select count(ID)
+		from elec_pile
+		where CHARGE_STANDARD_ID =
+		#{stationId,jdbcType=INTEGER}
+		and TYPE = #{type,jdbcType=INTEGER}
+	</select>
+	<select id="getFreePileCount" resultType="java.lang.Integer"
+		parameterType="java.lang.Integer">
+		select count(ID)
+		from elec_pile
+		where CHARGE_STANDARD_ID =
+		#{stationId,jdbcType=INTEGER}
+		and TYPE = #{type,jdbcType=INTEGER}
+		and STATUS=1 and IS_USED=0
+	</select>
+	<select id="pilePageDetail" resultMap="BaseResultMap" parameterType="com.tox.bean.ElecPile">
+	    SELECT
+			p.PILE_NUM,p.TYPE,t2.STATION_NAME,t3.FIRM_NAME,t4.`NAME`,p.`STATUS`,t4.NAME AS STORE_NAME, (
+				SELECT
+					COUNT(t1.ID)
+				FROM
+					elec_order AS t1
+				WHERE
+					t1.PILE_ID = p.ID
+				AND t1.`STATUS` = 1
+			) AS TOTAL,
+			(
+				SELECT
+					COALESCE (SUM(REAL_COUNT), 0)
+				FROM
+					elec_order AS o
+				WHERE
+					o.PILE_ID = p.ID
+			<if test="startDate != null ">
+			    AND o.END_TIME &gt;= DATE_FORMAT(#{startDate},'%Y-%m-%d 00:00:00')
+			</if>
+			<if test="endDate != null ">
+			    AND o.END_TIME &lt;= DATE_FORMAT(#{endDate},'%Y-%m-%d 23:59:59')
+			</if>
+			) AS ALL_COUNT
+		FROM
+			elec_pile AS p
+		LEFT JOIN elec_station t2 ON p.CHARGE_STANDARD_ID = t2.ID
+		LEFT JOIN elec_firm t3 ON p.FIRM_ID = t3.ID
+		LEFT JOIN elec_store t4 ON t2.STORE_ID = t4.ID
+		WHERE p.ID = #{id}
+	</select>
+	 <select id="selectPiles" resultMap="BaseResultMap" parameterType="com.tox.bean.ElecPile" >
+    select 
+    p.ID, PILE_NUM, CHARGE_STANDARD_ID, FIRM_ID, p.CREATE_TIME,p.ONLINE_DATE,STATION_NAME,FIRM_NAME,
+    p.WX_CODE,SOFT_VERSION,UPDATE_STATUS,p.IS_USED,SERVER_IP,SERVER_PORT,IP_STATUS,TYPE
+    from elec_pile p
+    left join elec_station s on p.CHARGE_STANDARD_ID=s.id
+    left join elec_firm f on p.FIRM_ID=f.id
+    where 1=1
+    <if test="pile.id != null and pile.id != '' " >
+        and p.ID =#{pile.id}
+    </if>
+    <if test="pile.type!= null" >
+        and p.TYPE =#{pile.type}
+    </if>
+    <if test="pile.pileNum != null and pile.pileNum != '' " >
+        <bind name="pileNum" value="'%'+pile.pileNum+'%' "/>   
+        and p.PILE_NUM like #{pileNum}
+    </if>
+    <if test="pile.stationName != null and pile.stationName != '' " >
+ 		<bind name="stationName" value="'%'+pile.stationName+'%' "/>   
+        and s.STATION_NAME like #{stationName}
+    </if>
+    <if test="pile.firmName != null and pile.firmName != '' " >
+ 		<bind name="firmName" value="'%'+pile.firmName+'%' "/>   
+        and f.FIRM_NAME like #{firmName}
+    </if>
+    <if test="pile.softVersion != null and pile.softVersion != '' " >
+ 		<bind name="softVersion" value="'%'+pile.softVersion+'%' "/>   
+        and p.SOFT_VERSION like #{softVersion}
+    </if>
+    <if test="pile.serverIp != null and pile.serverIp != '' " >
+        and p.SERVER_IP = #{pile.serverIp}
+    </if>
+    <if test="pile.updateStatus != null and pile.updateStatus != '' " >
+ 		<if test="pile.updateStatus ==0">and p.UPDATE_STATUS = #{pile.updateStatus}</if>
+ 		<if test="pile.updateStatus ==1">and p.UPDATE_STATUS = #{pile.updateStatus}</if>
+ 		<if test="pile.updateStatus ==2">and p.UPDATE_STATUS = #{pile.updateStatus}</if>
+ 		<if test="pile.updateStatus ==3">and p.UPDATE_STATUS IN ('11','12','13','14')</if>
+ 		<if test="pile.updateStatus ==4">and p.UPDATE_STATUS IS NULL</if>
+    </if>
+    <if test="pile.ipStatus != null" >
+ 		<if test="pile.ipStatus ==0">and p.IP_STATUS = #{pile.ipStatus}</if>
+ 		<if test="pile.ipStatus ==1">and p.IP_STATUS = #{pile.ipStatus}</if>
+ 		<if test="pile.ipStatus ==2">and p.IP_STATUS = #{pile.ipStatus}</if>
+ 		<if test="pile.ipStatus ==3">and p.IP_STATUS IS NULL</if>
+    </if>
+    <if test="pile.startDate != null">
+        and p.ONLINE_DATE &gt;= DATE_FORMAT(#{pile.startDate},'%Y-%m-%d 00:00:00')
+    </if>
+    <if test="pile.endDate != null">
+        and p.ONLINE_DATE &lt;= DATE_FORMAT(#{pile.endDate},'%Y-%m-%d 23:59:59')
+    </if>
+    order by p.CREATE_TIME DESC
+    <if test="pile.pageSize>0">
+	    limit #{pile.pageNum,jdbcType=INTEGER},#{pile.pageSize,jdbcType=INTEGER}
+	</if>
+  </select>
+   <select id="selectPilesCount" resultType="java.lang.Integer" parameterType="com.tox.bean.ElecPile" >
+    select 
+    COUNT(p.ID)
+    from elec_pile p
+    left join elec_station s on p.CHARGE_STANDARD_ID=s.id
+    left join elec_firm f on p.FIRM_ID=f.id
+    where 1=1
+    <if test="pile.id != null and pile.id != '' " >
+        and p.ID =#{pile.id}
+    </if>
+    <if test="pile.type!= null" >
+        and p.TYPE =#{pile.type}
+    </if>
+    <if test="pile.pileNum != null and pile.pileNum != '' " >
+        <bind name="pileNum" value="'%'+pile.pileNum+'%' "/>   
+        and p.PILE_NUM like #{pileNum}
+    </if>
+    <if test="pile.stationName != null and pile.stationName != '' " >
+ 		<bind name="stationName" value="'%'+pile.stationName+'%' "/>   
+        and s.STATION_NAME like #{stationName}
+    </if>
+    <if test="pile.firmName != null and pile.firmName != '' " >
+ 		<bind name="firmName" value="'%'+pile.firmName+'%' "/>   
+        and f.FIRM_NAME like #{firmName}
+    </if>
+    <if test="pile.softVersion != null and pile.softVersion != '' " >
+ 		<bind name="softVersion" value="'%'+pile.softVersion+'%' "/>   
+        and p.SOFT_VERSION like #{softVersion}
+    </if>
+    <if test="pile.serverIp != null and pile.serverIp != '' " >
+        and p.SERVER_IP = #{pile.serverIp}
+    </if>
+    <if test="pile.updateStatus != null and pile.updateStatus != '' " >
+ 		<if test="pile.updateStatus ==0">and p.UPDATE_STATUS = #{pile.updateStatus}</if>
+ 		<if test="pile.updateStatus ==1">and p.UPDATE_STATUS = #{pile.updateStatus}</if>
+ 		<if test="pile.updateStatus ==2">and p.UPDATE_STATUS = #{pile.updateStatus}</if>
+ 		<if test="pile.updateStatus ==3">and p.UPDATE_STATUS IN ('11','12','13','14')</if>
+ 		<if test="pile.updateStatus ==4">and p.UPDATE_STATUS IS NULL</if>
+    </if>
+    <if test="pile.ipStatus != null" >
+ 		<if test="pile.ipStatus ==0">and p.IP_STATUS = #{pile.ipStatus}</if>
+ 		<if test="pile.ipStatus ==1">and p.IP_STATUS = #{pile.ipStatus}</if>
+ 		<if test="pile.ipStatus ==2">and p.IP_STATUS = #{pile.ipStatus}</if>
+ 		<if test="pile.ipStatus ==3">and p.IP_STATUS IS NULL</if>
+    </if>
+    <if test="pile.startDate != null">
+        and p.ONLINE_DATE &gt;= DATE_FORMAT(#{pile.startDate},'%Y-%m-%d 00:00:00')
+    </if>
+    <if test="pile.endDate != null">
+        and p.ONLINE_DATE &lt;= DATE_FORMAT(#{pile.endDate},'%Y-%m-%d 23:59:59')
+    </if>
+  </select>
+  
+  <select id="selectPilesByStationId" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from elec_pile
+    where CHARGE_STANDARD_ID = #{stationId,jdbcType=INTEGER}
+    order by ID
+  </select>
+  
+  <insert id="insert" parameterType="com.tox.bean.ElecPile" >
+    insert into elec_pile (ID, PILE_NUM, CHARGE_STANDARD_ID, 
+      FIRM_ID, CREATE_TIME,STATUS,ONLINE_DATE)
+    values (#{id,jdbcType=INTEGER}, #{pileNum,jdbcType=VARCHAR}, #{chargeStandardId,jdbcType=INTEGER}, 
+      #{firmId,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP},#{status,jdbcType=INTEGER},#{onlineDate,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.tox.bean.ElecPile" >
+    insert into elec_pile
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        ID,
+      </if>
+      <if test="pileNum != null" >
+        PILE_NUM,
+      </if>
+      <if test="chargeStandardId != null" >
+        CHARGE_STANDARD_ID,
+      </if>
+      <if test="firmId != null" >
+        FIRM_ID,
+      </if>
+      <if test="createTime != null" >
+        CREATE_TIME,
+      </if>
+      <if test="status != null" >
+        STATUS,
+      </if>
+      <if test="onlineDate != null" >
+        ONLINE_DATE,
+      </if>
+      <if test="wxCode != null" >
+        WX_CODE,
+      </if>
+      <if test="softVersion != null" >
+        SOFT_VERSION,
+      </if>
+      <if test="updateStatus != null" >
+        UPDATE_STATUS,
+      </if>
+      <if test="isUsed != null" >
+        IS_USED,
+      </if>
+      <if test="type != null" >
+        TYPE,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="pileNum != null" >
+        #{pileNum,jdbcType=VARCHAR},
+      </if>
+      <if test="chargeStandardId != null" >
+        #{chargeStandardId,jdbcType=INTEGER},
+      </if>
+      <if test="firmId != null" >
+        #{firmId,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="onlineDate != null" >
+        #{onlineDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="wxCode != null" >
+        #{wxCode,jdbcType=VARCHAR},
+      </if>
+      <if test="softVersion != null" >
+        #{softVersion,jdbcType=VARCHAR},
+      </if>
+      <if test="updateStatus != null" >
+        #{updateStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="isUsed != null" >
+        #{isUsed,jdbcType=INTEGER},
+      </if>
+      <if test="type != null" >
+        #{type,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.tox.bean.ElecPile" >
+    update elec_pile
+    <set >
+      <if test="pileNum != null" >
+        PILE_NUM = #{pileNum,jdbcType=VARCHAR},
+      </if>
+      <if test="chargeStandardId != null" >
+        CHARGE_STANDARD_ID = #{chargeStandardId,jdbcType=INTEGER},
+      </if>
+      <if test="firmId != null" >
+        FIRM_ID = #{firmId,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null" >
+        CREATE_TIME = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null" >
+        STATUS = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="onlineDate != null" >
+        ONLINE_DATE = #{onlineDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="wxCode != null" >
+        WX_CODE = #{wxCode,jdbcType=VARCHAR},
+      </if>
+      <if test="softVersion != null" >
+        SOFT_VERSION = #{softVersion,jdbcType=VARCHAR},
+      </if>
+      <if test="updateStatus != null" >
+        UPDATE_STATUS = #{updateStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="updateCount != null" >
+        UPDATE_COUNT = #{updateCount,jdbcType=INTEGER},
+      </if>
+      <if test="isUsed != null" >
+        IS_USED = #{isUsed,jdbcType=INTEGER},
+      </if>
+      <if test="allCount != null" >
+        ALL_COUNT = #{allCount,jdbcType=DOUBLE},
+      </if>
+      <if test="serverIp != null" >
+        SERVER_IP = #{serverIp,jdbcType=VARCHAR},
+      </if>
+      <if test="serverPort != null" >
+        SERVER_PORT = #{serverPort,jdbcType=VARCHAR},
+      </if>
+      <if test="ipStatus != null" >
+        IP_STATUS = #{ipStatus,jdbcType=INTEGER},
+      </if>
+      <if test="type != null" >
+        TYPE = #{type,jdbcType=INTEGER},
+      </if>
+    </set>
+    where ID = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.tox.bean.ElecPile" >
+    update elec_pile
+    set PILE_NUM = #{pileNum,jdbcType=VARCHAR},
+      CHARGE_STANDARD_ID = #{chargeStandardId,jdbcType=INTEGER},
+      FIRM_ID = #{firmId,jdbcType=INTEGER},
+      CREATE_TIME = #{createTime,jdbcType=TIMESTAMP},
+      STATUS = #{status,jdbcType=INTEGER},
+      ONLINE_DATE = #{onlineDate,jdbcType=TIMESTAMP},
+      WX_CODE = #{wxCode,jdbcType=TIMESTAMP}
+    where ID = #{id,jdbcType=INTEGER}
+  </update>
+	<select id="selectCSByPrimaryKey" resultMap="BaseResultMap"
+		parameterType="java.lang.Integer">
+		select
+		p.ID, p.PILE_NUM, p.CHARGE_STANDARD_ID, p.FIRM_ID, p.CREATE_TIME,p.UPDATE_COUNT,p.IS_USED,p.TYPE,THIRD_SERVICE_AMOUNT,ALL_COUNT,
+		SERVICE_CHARGE_AMOUNT,BASIC_CHARGE_AMOUNT,s.PERSON_TYPE,s.PERSON_SERVICE_AMOUNT,s.PERSON_PHONE,s.CHARGE_TYPE
+		FROM elec_station s
+		LEFT JOIN elec_pile p ON s.ID =
+		p.CHARGE_STANDARD_ID
+		<where>
+			1=1
+			<if test="pileNum!=null and pileNum!=''">
+				<bind name="pileNum" value=" pileNum " />
+				and p.PILE_NUM = #{pileNum}
+			</if>
+		</where>
+	</select>
+	<select id="findChargeInfoByPileNum2" resultMap="BaseResultMap"
+		parameterType="java.lang.String">
+		select
+		p.ID, p.PILE_NUM,p.WX_CODE,p.FIRM_ID,p.IS_USED,p.TYPE,p.CHARGE_STANDARD_ID,s.STATION_NAME,s.SERVICE_CHARGE_AMOUNT,s.BASIC_CHARGE_AMOUNT,THIRD_SERVICE_AMOUNT,
+		s.PERSON_TYPE,s.PERSON_SERVICE_AMOUNT,s.PERSON_PHONE,s.CHARGE_TYPE
+		FROM elec_station s
+		LEFT JOIN elec_pile p ON s.ID =
+		p.CHARGE_STANDARD_ID
+		<where>
+			1=1 and p.STATUS =1
+			<if test="pileNum!=null and pileNum!=''">
+				<bind name="pileNum" value=" pileNum " />
+				and p.PILE_NUM = #{pileNum}
+			</if>
+		</where>
+	</select>
+	<select id="findChargeInfoByPileNum" resultMap="BaseResultMap"
+		parameterType="java.lang.String">
+		select
+		p.ID, p.PILE_NUM,p.WX_CODE,p.FIRM_ID,p.IS_USED,p.TYPE,p.CHARGE_STANDARD_ID,s.STATION_NAME,s.SERVICE_CHARGE_AMOUNT,s.BASIC_CHARGE_AMOUNT,THIRD_SERVICE_AMOUNT,
+		s.PERSON_TYPE,s.PERSON_SERVICE_AMOUNT,s.PERSON_PHONE,s.CHARGE_TYPE
+		FROM elec_station s
+		LEFT JOIN elec_pile p ON s.ID =
+		p.CHARGE_STANDARD_ID
+		<where>
+			1=1 and p.STATUS =1
+			<if test="pileNum!=null and pileNum!=''">
+				<bind name="pileNum" value=" pileNum " />
+				and p.WX_CODE = #{pileNum}
+			</if>
+		</where>
+	</select>
+	<select id="selectPileByWxCode" resultMap="BaseResultMap"
+		parameterType="java.lang.String">
+		select
+		p.ID, p.PILE_NUM, p.CHARGE_STANDARD_ID, p.FIRM_ID, p.CREATE_TIME,p.WX_CODE,
+		SERVICE_CHARGE_AMOUNT,BASIC_CHARGE_AMOUNT,s.PERSON_TYPE,s.PERSON_SERVICE_AMOUNT,s.PERSON_PHONE
+		FROM elec_station s
+		LEFT JOIN elec_pile p ON s.ID =
+		p.CHARGE_STANDARD_ID
+		<where>
+			1=1
+			and p.WX_CODE = #{wxCode}
+		</where>
+	</select>
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+		delete from
+		elec_pile
+		where ID = #{id,jdbcType=INTEGER}
+	</delete>
+	<update id="updateByIds" parameterType="java.lang.Integer">
+    	update elec_pile 
+    		set  STATUS = #{status},ONLINE_DATE= IF (ONLINE_DATE IS NULL ,
+		NOW(),ONLINE_DATE)
+    	where ID in
+		<foreach collection="array" index="index" item="item" 
+        separator="," open="(" close=")">
+        #{item}
+    </foreach>
+	</update>
+	
+	<select id="selectPileByOnline" resultMap="BaseResultMap">
+		select p.PILE_NUM,s.STATION_NAME,p.ONLINE_DATE,p.`STATUS`,p.TYPE,s.PERSON_TYPE,s.REGION from elec_pile p , elec_station s 
+		where s.id=p.CHARGE_STANDARD_ID and p.CHARGE_STANDARD_ID not in (220,148,106,105) and p.status = '1'
+		and s.PROVINCE='天津市'
+		order by s.STATION_NAME
+	</select>
+	<select id="selectPileByOnline1" resultMap="BaseResultMap">
+		select p.PILE_NUM,s.STATION_NAME,p.ONLINE_DATE,p.`STATUS`,p.TYPE,s.PERSON_TYPE,s.REGION from elec_pile p , elec_station s 
+		where s.id=p.CHARGE_STANDARD_ID and p.CHARGE_STANDARD_ID not in (220,148,106,105) and p.status = '1'
+		and s.PROVINCE='四川省'
+		order by s.STATION_NAME
+	</select>
+</mapper>

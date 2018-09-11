@@ -1,0 +1,853 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tox.dao.ElecOrderMapper">
+  <resultMap id="BaseResultMap" type="com.tox.bean.ElecOrder">
+    <id column="ID" jdbcType="INTEGER" property="id" />
+    <result column="STATUS" jdbcType="VARCHAR" property="status" />
+    <result column="ELEC_TOTAL_AMOUNT" jdbcType="DOUBLE" property="elecTotalAmount" />
+    <result column="ELEC_TOTAL_COUNT" jdbcType="DOUBLE" property="elecTotalCount" />
+    <result column="ELEC_PRICE" jdbcType="DOUBLE" property="elecPrice" />
+    <result column="CREATE_TIME" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="END_TIME" jdbcType="TIMESTAMP" property="endTime" />
+    <result column="OPEN_ID" jdbcType="VARCHAR" property="openId" />
+    <result column="COUPON_ID" jdbcType="INTEGER" property="couponId" />
+    <result column="COUPON_STATUS" jdbcType="VARCHAR" property="couponStatus" />
+    <result column="PILE_ID" jdbcType="INTEGER" property="pileId" />
+    <result column="GUN_NO" jdbcType="INTEGER" property="gunNo" />
+    <result column="USE_OPENID" jdbcType="VARCHAR" property="useOpenid" />
+    <result column="PILE_NUM" jdbcType="VARCHAR" property="pileNum" />
+    <result column="SERVICE_CHARGE_TOTAL_SELF" jdbcType="DOUBLE" property="serviceChargeTotalSelf" />
+    <result column="SERVICE_CHARGE_TOTAL_THIRD" jdbcType="DOUBLE" property="serviceChargeTotalThird" />
+    <result column="BASIC_CHARGE_TOTAL" jdbcType="DOUBLE" property="basicChargeTotal" />
+    <result column="ORDER_SOURCE" jdbcType="VARCHAR" property="orderSource" />
+    <result column="REAL_AMOUNT" jdbcType="DOUBLE" property="realAmount" />
+    <result column="ORDER_FEE" jdbcType="DOUBLE" property="orderFee" />
+    <result column="REAL_COUNT" jdbcType="DOUBLE" property="realCount" />
+    <result column="SERVICE_PAY_STATUS" jdbcType="VARCHAR" property="servicePayStatus" />
+    <result column="BASIC_PAY_STATUS" jdbcType="VARCHAR" property="basicPayStatus" />
+    <result column="PILE_POSITION" jdbcType="VARCHAR" property="pilePosition" />
+    <result column="USER_PHONE" jdbcType="VARCHAR" property="phone" />
+    <result column="STORE_NAME" jdbcType="VARCHAR" property="storeName" />
+    <result column="PILE_POSITION" jdbcType="VARCHAR" property="pilePosition" />
+    <result column="FIRM_NAME" property="firmName" jdbcType="VARCHAR" />
+    <result column="STATION_NAME" property="stationName" jdbcType="VARCHAR" />
+    <result column="CITY" jdbcType="VARCHAR" property="city" />
+    <result column="CHARGE_TYPE" jdbcType="INTEGER" property="chargeType" />
+    <association property="pile"  column="PILE_ID" javaType="com.tox.bean.ElecPile" >  
+        <id column="PID" property="id" jdbcType="INTEGER" />
+	    <result column="PILE_NUM" property="pileNum" jdbcType="VARCHAR" />
+	    <result column="CHARGE_STANDARD_ID" property="chargeStandardId" jdbcType="INTEGER" />
+	    <result column="FIRM_ID" property="firmId" jdbcType="INTEGER" />
+	    <result column="TYPE" property="type" jdbcType="INTEGER" />
+	    <result column="PCREATE_TIME" property="createTime" jdbcType="TIMESTAMP" />
+	    <result column="ONLINE_DATE" property="onlineDate" jdbcType="TIMESTAMP" />
+    </association> 
+    <association property="coupon"  column="COUPON_ID" javaType="com.tox.bean.ElecCoupons" >  
+        <id column="CID" property="id" jdbcType="INTEGER" />
+	    <result column="NAME" property="name" jdbcType="VARCHAR" />
+	    <result column="FROM_DATE" property="fromDate" jdbcType="TIMESTAMP" />
+	    <result column="TO_DATE" property="toDate" jdbcType="TIMESTAMP" />
+	    <result column="AMOUNT" property="amount" jdbcType="DOUBLE" />
+	    <result column="CSTATUS" property="status" jdbcType="INTEGER" />
+	    <result column="TYPE" property="type" jdbcType="INTEGER" />
+	    <result column="CCREATE_DATE" property="createDate" jdbcType="TIMESTAMP" />
+	    <result column="CIS_DEL" property="isDel" jdbcType="INTEGER" />
+    </association> 
+    <collection property="details" ofType="com.tox.bean.ElecOrderDetail">
+        <id column="OD_ID" property="deId" jdbcType="INTEGER" />
+	    <result column="DFROM_DATE" property="fromDate" jdbcType="TIMESTAMP" />
+	    <result column="DTO_DATE" property="toDate" jdbcType="TIMESTAMP" />
+	    <result column="DPRICE" property="price" jdbcType="DOUBLE" />
+	    <result column="DDURATION" property="duration" jdbcType="DOUBLE" />
+	    <result column="DCOST" property="cost" jdbcType="DOUBLE" />
+	    <result column="DORDER_ID" property="orderId" jdbcType="INTEGER" />
+	    <result column="DSERVICE_AMOUNT" property="serviceAmount" jdbcType="DOUBLE" />
+	    <result column="DELEC_COUNT" property="elecCount" jdbcType="DOUBLE" />
+    </collection>
+    <collection property="recharges" ofType="com.tox.bean.ElecRecharge">
+        <id column="RE_ID" property="id" jdbcType="INTEGER" />
+	    <result column="RE_USER_ID" property="userId" jdbcType="INTEGER" />
+	    <result column="RE_ORDER_ID" property="orderId" jdbcType="INTEGER" />
+	    <result column="RE_PAY_IDE" property="payIde" jdbcType="VARCHAR" />
+	    <result column="RE_ORDER_IDE" property="orderIde" jdbcType="VARCHAR" />
+	    <result column="RE_RECHARGE_DATE" property="rechargeDate" jdbcType="TIMESTAMP" />
+	    <result column="RE_RECHARGE_MONEY" property="rechargeMoney" jdbcType="DOUBLE" />
+	    <result column="RE_PRESENT_MONEY" property="presentMoney" jdbcType="DOUBLE" />
+	    <result column="RE_TYPE" property="type" jdbcType="INTEGER" />
+	    <result column="RE_ISDEL" property="isdel" jdbcType="INTEGER" />
+    </collection>
+    <collection property="pageDetails" ofType="com.tox.bean.ElecOrderDetail" select="com.tox.dao.ElecOrderDetailMapper.selectPageDetails" column="id">
+        <id column="PAGE_ID" property="id" jdbcType="INTEGER" />
+	    <result column="FROM_DATE" property="fromDate" jdbcType="TIMESTAMP" />
+	    <result column="TO_DATE" property="toDate" jdbcType="TIMESTAMP" />
+	    <result column="PRICE" property="price" jdbcType="DOUBLE" />
+	    <result column="DURATION" property="duration" jdbcType="DOUBLE" />
+	    <result column="COST" property="cost" jdbcType="DOUBLE" />
+	    <result column="ORDER_ID" property="orderId" jdbcType="INTEGER" />
+	    <result column="SERVICE_AMOUNT" property="serviceAmount" jdbcType="DOUBLE" />
+	     <result column="ELEC_COUNT" property="elecCount" jdbcType="DOUBLE" />
+    </collection>
+  </resultMap>
+  <sql id="Base_Column_List">
+    ID, STATUS, ELEC_TOTAL_AMOUNT, ELEC_TOTAL_COUNT, CREATE_TIME, END_TIME, OPEN_ID,ORDER_FEE,ELEC_PRICE,
+    COUPON_ID, COUPON_STATUS, PILE_ID, SERVICE_CHARGE_TOTAL_SELF, SERVICE_CHARGE_TOTAL_THIRD, 
+    BASIC_CHARGE_TOTAL, ORDER_SOURCE, REAL_AMOUNT, REAL_COUNT, SERVICE_PAY_STATUS, BASIC_PAY_STATUS,GUN_NO,USE_OPENID
+  </sql>
+  <select id="getPageDetails" parameterType="java.lang.Integer">
+  	
+  </select>
+  <select id="orderIngCount" resultType="java.lang.Integer" parameterType="java.util.List">
+  	SELECT
+		COUNT(t1.ID)
+	FROM
+		elec_order t1
+	LEFT JOIN elec_user t2 ON t1.OPEN_ID = t2.OPEN_ID
+	WHERE
+		t2.ID IN 
+		<foreach collection="list" item="item" index="index" separator=",">
+            (#{item})
+        </foreach>
+	and t1.`STATUS`= 1
+  </select>
+  <select id="selectDetailById" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+      SELECT
+		t1.ID,
+		t2.PILE_NUM,
+		t1.CREATE_TIME,
+		t1.END_TIME,
+		t4.`NAME` AS STORE_NAME,
+		t1.`STATUS`,
+		t1.REAL_AMOUNT,
+		t1.REAL_COUNT,
+		t1.ELEC_TOTAL_AMOUNT,
+		t1.ELEC_TOTAL_COUNT,
+		t1.USE_OPENID,
+		t5.RECHARGE_MONEY AS RE_RECHARGE_MONEY,
+		t6.PHONE AS USER_PHONE,
+		t6.OPEN_ID,
+		t5.TYPE AS RE_TYPE,
+		c.id as CID,c.NAME, c.FROM_DATE, c.TO_DATE, c.AMOUNT, c.STATUS as CSTATUS, c.TYPE, c.CREATE_DATE as CCREATE_DATE, c.IS_DEL as CIS_DEL
+	FROM
+		elec_order t1
+	LEFT JOIN elec_pile t2 ON t1.PILE_ID = t2.ID
+	LEFT JOIN elec_station t3 ON t2.CHARGE_STANDARD_ID = t3.ID
+	LEFT JOIN elec_store t4 ON t4.ID = t3.STORE_ID
+	LEFT JOIN elec_recharge t5 ON t5.ORDER_ID = t1.ID
+	AND t5.TYPE = 2
+	LEFT JOIN elec_user t6 ON t1.OPEN_ID = t6.OPEN_ID
+	left join elec_user_coupons_rel ucr on ucr.ID= t1.COUPON_ID
+    left join elec_coupons c on ucr.COUPONS_ID=c.ID
+	WHERE
+		t1.ID = #{id}
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    o.ID, o.STATUS, ELEC_TOTAL_AMOUNT, ELEC_TOTAL_COUNT, o.CREATE_TIME, END_TIME, OPEN_ID,o.GUN_NO,USE_OPENID,
+    COUPON_ID, COUPON_STATUS, PILE_ID, SERVICE_CHARGE_TOTAL_SELF, SERVICE_CHARGE_TOTAL_THIRD, 
+    BASIC_CHARGE_TOTAL, ORDER_SOURCE, REAL_AMOUNT, REAL_COUNT, SERVICE_PAY_STATUS, BASIC_PAY_STATUS,
+    p.ID as PID, PILE_NUM, CHARGE_STANDARD_ID, FIRM_ID, p.CREATE_TIME as PCREATE_TIME,s.STATION_NAME AS PILE_POSITION,
+    FIRM_NAME
+    from elec_order o left join elec_pile p ON o.PILE_ID=p.id
+    left join elec_station s on p.CHARGE_STANDARD_ID=s.ID
+    left join elec_firm f on p.FIRM_ID=f.id
+    where o.ID = #{id,jdbcType=INTEGER}
+  </select>
+  <select id="getOrderAndCouponByOrderId" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    o.ID, o.STATUS, ELEC_TOTAL_AMOUNT, ELEC_TOTAL_COUNT, o.CREATE_TIME, END_TIME, OPEN_ID,ORDER_FEE,o.ELEC_PRICE,
+    COUPON_ID, COUPON_STATUS, PILE_ID, SERVICE_CHARGE_TOTAL_SELF, SERVICE_CHARGE_TOTAL_THIRD, 
+    BASIC_CHARGE_TOTAL, ORDER_SOURCE, REAL_AMOUNT, REAL_COUNT, SERVICE_PAY_STATUS, BASIC_PAY_STATUS,GUN_NO,USE_OPENID,
+    p.ID as PID, PILE_NUM,p.TYPE, CHARGE_STANDARD_ID, FIRM_ID, p.CREATE_TIME as PCREATE_TIME,s.STATION_NAME AS PILE_POSITION,
+    FIRM_NAME,c.id as CID,c.NAME, c.FROM_DATE, c.TO_DATE, c.AMOUNT, c.STATUS as CSTATUS, c.TYPE, c.CREATE_DATE as CCREATE_DATE, c.IS_DEL as CIS_DEL
+    from elec_order o left join elec_pile p ON o.PILE_ID=p.id
+    left join elec_station s on p.CHARGE_STANDARD_ID=s.ID
+    left join elec_firm f on p.FIRM_ID=f.id
+    left join elec_user_coupons_rel ucr on ucr.ID= o.COUPON_ID
+    left join elec_coupons c on ucr.COUPONS_ID=c.ID
+    where o.ID = #{orderId,jdbcType=INTEGER}
+  </select>
+  <select id="selectOrders" parameterType="com.tox.bean.ElecOrder" resultMap="BaseResultMap">
+	SELECT
+		t1.ID,t2.PILE_NUM,t2.ONLINE_DATE,t5.PHONE as USER_PHONE,t1.ELEC_TOTAL_AMOUNT,t1.ELEC_TOTAL_COUNT,t1.REAL_AMOUNT,t1.REAL_COUNT,t1.CREATE_TIME, t1.END_TIME,t1.`STATUS`,t3.STATION_NAME
+		,t3.CITY,c.id as CID,c.NAME, c.FROM_DATE, c.TO_DATE, c.AMOUNT, c.STATUS as CSTATUS, c.TYPE, c.CREATE_DATE as CCREATE_DATE, c.IS_DEL as CIS_DEL
+	FROM
+		elec_order t1
+	LEFT JOIN elec_pile t2 ON t1.PILE_ID = t2.ID
+	LEFT JOIN elec_station t3 ON t2.CHARGE_STANDARD_ID = t3.ID
+	LEFT JOIN elec_store t4 ON t3.STORE_ID = t4.ID
+	LEFT JOIN elec_user t5 ON t1.OPEN_ID = t5.OPEN_ID
+	left join elec_user_coupons_rel ucr on ucr.ID= t1.COUPON_ID
+    left join elec_coupons c on ucr.COUPONS_ID=c.ID
+	<where>
+	    1=1 and t5.ISDEL=0
+	    <if test="phone != null and phone != ''">
+	      and t5.PHONE = #{phone} 
+	    </if>
+	    <if test="type != null">
+	      and t5.TYPE = #{type} 
+	    </if>
+	    <if test="id != null and id != 0">
+	      and t1.ID = #{id}
+	    </if>
+	    <if test="onLineDate != null">
+	         and DATE_FORMAT(t2.ONLINE_DATE,'%Y-%m-%d') &lt;= DATE_FORMAT(#{onLineDate},'%Y-%m-%d')
+	    </if>
+	    <if test="startDate != null">
+	         and t1.END_TIME &gt;= DATE_FORMAT(#{startDate},'%Y-%m-%d 00:00:00')
+	    </if>
+	    <if test="endDate != null">
+	        and t1.END_TIME &lt;= DATE_FORMAT(#{endDate},'%Y-%m-%d 00:00:00')
+	    </if>
+	    <if test="status != null and status != ''">
+	        and t1.STATUS = #{status}
+	    </if>
+	    <if test="pileNum !=null and pileNum != ''">
+	    	<bind name="pileNum" value="'%'+pileNum+'%'"/>
+	      and t2.PILE_NUM like #{pileNum}
+	    </if>
+	    <if test="storeName != null and storeName != ''">
+        	<bind name="name" value="'%'+storeName+'%'"/>
+        		and t4.NAME like #{name}
+	    </if>
+	    <if test="stationName != null and stationName != ''">
+	        <bind name="sName" value="'%'+stationName+'%'"/>
+	        and t3.STATION_NAME like #{sName}
+	    </if>
+	    <if test="city != null and city != ''">
+        	<bind name="city" value="'%'+city+'%'"/>
+        		and t3.CITY like #{city}
+	    </if>
+	    order by t1.CREATE_TIME DESC
+	    <if test="pageSize>0">
+		    limit #{pageNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+		</if>
+	</where>      
+  </select>
+  <select id="selectOrdersByStationId" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+	SELECT
+		t1.ID,t2.PILE_NUM,t3.STATION_NAME,t2.PILE_NUM,t1.GUN_NO,t2.TYPE
+	FROM
+		elec_order t1
+	LEFT JOIN elec_pile t2 ON t1.PILE_ID = t2.ID
+	LEFT JOIN elec_station t3 ON t2.CHARGE_STANDARD_ID = t3.ID
+	where t1.status=1 and t3.ID = #{stationId}
+  </select>
+  <select id="selectOrderCount" parameterType="com.tox.bean.ElecOrder" resultType="java.lang.Integer">
+      SELECT
+      COUNT(t1.ID)
+	FROM
+		elec_order t1
+	LEFT JOIN elec_pile t2 ON t1.PILE_ID = t2.ID
+	LEFT JOIN elec_station t3 ON t2.CHARGE_STANDARD_ID = t3.ID
+	LEFT JOIN elec_store t4 ON t3.STORE_ID = t4.ID
+	LEFT JOIN elec_user t5 ON t1.OPEN_ID = t5.OPEN_ID
+	left join elec_user_coupons_rel ucr on ucr.ID= t1.COUPON_ID
+    left join elec_coupons c on ucr.COUPONS_ID=c.ID
+	<where>
+	    1=1 and t5.ISDEL=0
+	    <if test="phone != null and phone != ''">
+	      and t5.PHONE = #{phone} 
+	    </if>
+	    <if test="type != null">
+	      and t5.TYPE = #{type} 
+	    </if>
+	    <if test="id != null and id != 0">
+	      and t1.ID = #{id}
+	    </if>
+	    <if test="onLineDate != null">
+	         and DATE_FORMAT(t2.ONLINE_DATE,'%Y-%m-%d') &lt;= DATE_FORMAT(#{onLineDate},'%Y-%m-%d')
+	    </if>
+	    <if test="startDate != null">
+	         <!-- and t1.CREATE_TIME &gt;= DATE_FORMAT(#{startDate},'%Y-%m-%d 00:00:00') -->
+	        and t1.END_TIME &gt;= DATE_FORMAT(#{startDate},'%Y-%m-%d 00:00:00')
+	    </if>
+	    <if test="endDate != null">
+	        <!-- and t1.END_TIME &lt;= DATE_FORMAT(#{endDate},'%Y-%m-%d 23:59:59') -->
+	        and t1.END_TIME &lt;= DATE_FORMAT(#{endDate},'%Y-%m-%d 00:00:00')
+	    </if>
+	    <if test="status != null and status != ''">
+	        and t1.STATUS = #{status}
+	    </if>
+	    <if test="pileNum !=null and pileNum != ''">
+	    	<bind name="pileNum" value="'%'+pileNum+'%'"/>
+	      and t2.PILE_NUM like #{pileNum}
+	    </if>
+	    <if test="storeName != null and storeName != ''">
+        	<bind name="name" value="'%'+storeName+'%'"/>
+        		and t4.NAME like #{name}
+	    </if>
+	    <if test="stationName != null and stationName != ''">
+	        <bind name="sName" value="'%'+stationName+'%'"/>
+	        and t3.STATION_NAME like #{sName}
+	    </if>
+	    <if test="city != null and city != ''">
+        	<bind name="city" value="'%'+city+'%'"/>
+        		and t3.CITY like #{city}
+	    </if>
+	    order by t1.CREATE_TIME DESC
+	</where>      
+  </select>
+  <select id="selectSumAmount" resultType="java.lang.Double" parameterType="com.tox.bean.ElecOrder">
+	SELECT
+		COALESCE(SUM(t1.REAL_AMOUNT),0)
+	FROM
+		elec_order t1
+	LEFT JOIN elec_pile t2 ON t1.PILE_ID = t2.ID
+	LEFT JOIN elec_station t3 ON t2.CHARGE_STANDARD_ID = t3.ID
+	LEFT JOIN elec_store t4 ON t3.STORE_ID = t4.ID
+	LEFT JOIN elec_user t5 ON t1.OPEN_ID = t5.OPEN_ID
+	left join elec_user_coupons_rel ucr on ucr.ID= t1.COUPON_ID
+    left join elec_coupons c on ucr.COUPONS_ID=c.ID
+	<where>
+	    1=1 and t5.ISDEL=0
+	    <if test="phone != null and phone != ''">
+	      and t5.PHONE = #{phone} 
+	    </if>
+	    <if test="type != null">
+	      and t5.TYPE = #{type} 
+	    </if>
+	    <if test="id != null and id != 0">
+	      and t1.ID = #{id}
+	    </if>
+	    <if test="onLineDate != null">
+	         and DATE_FORMAT(t2.ONLINE_DATE,'%Y-%m-%d') &lt;= DATE_FORMAT(#{onLineDate},'%Y-%m-%d')
+	    </if>
+	    <if test="startDate != null">
+	         <!-- and t1.CREATE_TIME &gt;= DATE_FORMAT(#{startDate},'%Y-%m-%d 00:00:00') -->
+	         and t1.END_TIME &gt;= DATE_FORMAT(#{startDate},'%Y-%m-%d 00:00:00')
+	    </if>
+	    <if test="endDate != null">
+	        <!-- and t1.END_TIME &lt;= DATE_FORMAT(#{endDate},'%Y-%m-%d 23:59:59') -->
+	        and t1.END_TIME &lt;= DATE_FORMAT(#{endDate},'%Y-%m-%d 00:00:00')
+	    </if>
+	    <if test="status != null and status != ''">
+	        and t1.STATUS = #{status}
+	    </if>
+	    <if test="pileNum !=null and pileNum != ''">
+	    	<bind name="pileNum" value="'%'+pileNum+'%'"/>
+	      and t2.PILE_NUM like #{pileNum}
+	    </if>
+	    <if test="storeName != null and storeName != ''">
+        	<bind name="name" value="'%'+storeName+'%'"/>
+        		and t4.NAME like #{name}
+	    </if>
+	    <if test="stationName != null and stationName != ''">
+	        <bind name="sName" value="'%'+stationName+'%'"/>
+	        and t3.STATION_NAME like #{sName}
+	    </if>
+	    <if test="city != null and city != ''">
+        	<bind name="city" value="'%'+city+'%'"/>
+        		and t3.CITY like #{city}
+	    </if>
+	</where>      
+  </select>
+  <select id="selectSumCount" resultType="java.lang.Double" parameterType="com.tox.bean.ElecOrder">
+    SELECT
+		COALESCE(SUM(t1.REAL_COUNT),0)
+	FROM
+		elec_order t1
+	LEFT JOIN elec_pile t2 ON t1.PILE_ID = t2.ID
+	LEFT JOIN elec_station t3 ON t2.CHARGE_STANDARD_ID = t3.ID
+	LEFT JOIN elec_store t4 ON t3.STORE_ID = t4.ID
+	LEFT JOIN elec_user t5 ON t1.OPEN_ID = t5.OPEN_ID
+	left join elec_user_coupons_rel ucr on ucr.ID= t1.COUPON_ID
+    left join elec_coupons c on ucr.COUPONS_ID=c.ID
+	<where>
+	    1=1 and t5.ISDEL=0
+	    <if test="phone != null and phone != ''">
+	      and t5.PHONE = #{phone} 
+	    </if>
+	    <if test="type != null">
+	      and t5.TYPE = #{type} 
+	    </if>
+	    <if test="id != null and id != 0">
+	      and t1.ID = #{id}
+	    </if>
+	    <if test="onLineDate != null">
+	         and DATE_FORMAT(t2.ONLINE_DATE,'%Y-%m-%d') &lt;= DATE_FORMAT(#{onLineDate},'%Y-%m-%d')
+	    </if>
+	    <if test="startDate != null">
+	        <!--  and t1.CREATE_TIME &gt;= DATE_FORMAT(#{startDate},'%Y-%m-%d 00:00:00') -->
+	         and t1.END_TIME &gt;= DATE_FORMAT(#{startDate},'%Y-%m-%d 00:00:00')
+	    </if>
+	    <if test="endDate != null">
+	        <!-- and t1.END_TIME &lt;= DATE_FORMAT(#{endDate},'%Y-%m-%d 23:59:59') -->
+	        and t1.END_TIME &lt;= DATE_FORMAT(#{endDate},'%Y-%m-%d 00:00:00')
+	    </if>
+	    <if test="status != null and status != ''">
+	        and t1.STATUS = #{status}
+	    </if>
+	    <if test="pileNum !=null and pileNum != ''">
+	    	<bind name="pileNum" value="'%'+pileNum+'%'"/>
+	      and t2.PILE_NUM like #{pileNum}
+	    </if>
+	    <if test="storeName != null and storeName != ''">
+        	<bind name="name" value="'%'+storeName+'%'"/>
+        		and t4.NAME like #{name}
+	    </if>
+	    <if test="stationName != null and stationName != ''">
+	        <bind name="sName" value="'%'+stationName+'%'"/>
+	        and t3.STATION_NAME like #{sName}
+	    </if>
+	    <if test="city != null and city != ''">
+        	<bind name="city" value="'%'+city+'%'"/>
+        		and t3.CITY like #{city}
+	    </if>
+	</where>      
+  </select>
+  <select id="selectBills" parameterType="java.lang.String" resultMap="BaseResultMap">
+  	select 
+  		ID,ELEC_TOTAL_AMOUNT,CREATE_TIME
+  	from
+  		elec_order
+  	where OPEN_ID = #{id} and STATUS in (0,1)
+  </select>
+  <select id="getOrderByOpenid" resultMap="BaseResultMap">
+    select 
+    t1.*,
+    t3.STATION_NAME as PILE_POSITION
+    from elec_order t1
+    left join elec_pile t2
+    on t1.PILE_ID = t2.ID
+    left join elec_station t3 
+    on t2.CHARGE_STANDARD_ID = t3.ID
+    where t1.OPEN_ID = #{id} AND t1.STATUS=1
+  </select>	
+   <select id="getPageOrderListByOpenidPages" resultMap="BaseResultMap">
+    select 
+    t1.*,t3.STATION_NAME as PILE_POSITION,t2.PILE_NUM AS PILE_NUM,t3.CHARGE_TYPE,
+    c.id as CID,c.NAME, c.FROM_DATE, c.TO_DATE, c.AMOUNT, c.STATUS as CSTATUS, c.TYPE, c.CREATE_DATE as CCREATE_DATE, c.IS_DEL as CIS_DEL
+    from elec_order t1
+    left join elec_pile t2 on t1.PILE_ID = t2.ID
+    left join elec_station t3 on t2.CHARGE_STANDARD_ID = t3.ID
+    left join elec_user_coupons_rel ucr on ucr.ID= t1.COUPON_ID
+    left join elec_coupons c on ucr.COUPONS_ID=c.ID
+    where t1.OPEN_ID = #{openId}
+    and t1.STATUS in (0,1)
+    order by t1.STATUS desc, t1.CREATE_TIME DESC
+    <if test="pageSize>0">
+    	limit #{pageNum},#{pageSize}
+    </if>
+  </select>
+  <select id="getOrderListByOpenidPages" resultMap="BaseResultMap">
+    select 
+    t1.*,t3.STATION_NAME as PILE_POSITION,t2.PILE_NUM AS PILE_NUM,
+    c.id as CID,c.NAME, c.FROM_DATE, c.TO_DATE, c.AMOUNT, c.STATUS as CSTATUS, c.TYPE, c.CREATE_DATE as CCREATE_DATE, c.IS_DEL as CIS_DEL
+    , eod.FROM_DATE as DFROM_DATE, eod.TO_DATE as DTO_DATE, eod.PRICE as DPRICE, eod.DURATION as DDURATION, eod.COST as DCOST,eod.SERVICE_AMOUNT as DSERVICE_AMOUNT,eod.ELEC_COUNT as DELEC_COUNT
+    from elec_order t1
+    left join elec_pile t2 on t1.PILE_ID = t2.ID
+    left join elec_station t3 on t2.CHARGE_STANDARD_ID = t3.ID
+    left join elec_user_coupons_rel ucr on ucr.ID= t1.COUPON_ID
+    left join elec_coupons c on ucr.COUPONS_ID=c.ID
+    left join elec_order_detail eod on t1.ID= eod.ORDER_ID
+    where t1.OPEN_ID = #{openId}
+    and t1.STATUS in (0,1)
+    group by t1.ID
+    order by t1.STATUS desc, t1.CREATE_TIME DESC
+    <if test="pageSize>0">
+    	limit #{pageNum},#{pageSize}
+    </if>
+  </select>
+  <select id="getOrderListByOpenidPagesCount" resultType="java.lang.Integer">
+    select 
+    count(t1.ID)
+    from elec_order t1
+    left join elec_pile t2 on t1.PILE_ID = t2.ID
+    left join elec_station t3 on t2.CHARGE_STANDARD_ID = t3.ID
+    left join elec_user_coupons_rel ucr on ucr.ID= t1.COUPON_ID
+    left join elec_coupons c on ucr.COUPONS_ID=c.ID
+    left join elec_order_detail eod on eod.ORDER_ID=t1.ID
+    where t1.OPEN_ID = #{openId}
+    and t1.STATUS in (0,1)
+  </select>
+  <select id="getOrderListByOpenid" resultMap="BaseResultMap">
+    select 
+    t1.*,t3.STATION_NAME as PILE_POSITION,t2.PILE_NUM AS PILE_NUM,
+    c.id as CID,c.NAME, c.FROM_DATE, c.TO_DATE, c.AMOUNT, c.STATUS as CSTATUS, c.TYPE, c.CREATE_DATE as CCREATE_DATE, c.IS_DEL as CIS_DEL
+    from elec_order t1
+    left join elec_pile t2 on t1.PILE_ID = t2.ID
+    left join elec_station t3 on t2.CHARGE_STANDARD_ID = t3.ID
+    left join elec_user_coupons_rel ucr on ucr.ID= t1.COUPON_ID
+    left join elec_coupons c on ucr.COUPONS_ID=c.ID
+    where t1.OPEN_ID = #{openId}
+    and t1.STATUS in (0,1)
+    order by t1.CREATE_TIME DESC
+  </select>
+  <select id="getOverOrderListByOpenid" resultMap="BaseResultMap">
+    select 
+    t1.*,t3.STATION_NAME as PILE_POSITION,t2.PILE_NUM AS PILE_NUM
+    from elec_order t1
+    left join elec_pile t2
+    on t1.PILE_ID = t2.ID
+    left join elec_station t3 
+    on t2.CHARGE_STANDARD_ID = t3.ID
+    where t1.OPEN_ID = #{openId}
+    and t1.STATUS =0
+    order by t1.CREATE_TIME DESC
+  </select>
+  
+  <select id="selectOrdersByOpenIdPages" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    o.ID, STATUS, ELEC_TOTAL_AMOUNT, ELEC_TOTAL_COUNT, o.CREATE_TIME, END_TIME, OPEN_ID, 
+    COUPON_ID, COUPON_STATUS, PILE_ID, SERVICE_CHARGE_TOTAL_SELF, SERVICE_CHARGE_TOTAL_THIRD, 
+    BASIC_CHARGE_TOTAL, ORDER_SOURCE, REAL_AMOUNT, REAL_COUNT, SERVICE_PAY_STATUS, BASIC_PAY_STATUS,
+    p.ID as PID, PILE_NUM, CHARGE_STANDARD_ID, FIRM_ID, p.CREATE_TIME as PCREATE_TIME,u.PHONE AS USER_PHONE
+    from elec_order o left join elec_pile p ON o.PILE_ID=p.id
+    where 1=1
+    <if test="order.status != null and order.status != '' ">
+       and STATUS =#{order.status,jdbcType=VARCHAR}
+    </if>
+    <if test="order.openId != null and order.openId != '' ">
+       and OPEN_ID = #{order.openId,jdbcType=INTEGER}
+    </if>
+    order by CREATE_TIME desc 
+    <if test="order.pageSize>0">
+		limit #{order.pageNum,jdbcType=INTEGER},#{order.pageSize,jdbcType=INTEGER}
+	</if>
+  </select>
+  <select id="selectOrdersByOpenIdPagesCount" resultType="java.lang.Integer" parameterType="java.util.Map" >
+    select count(*)
+    from elec_order
+    where 1=1
+    <if test="order.status != null and order.status != '' ">
+       and STATUS =#{order.status,jdbcType=VARCHAR}
+    </if>
+    <if test="order.openId != null and order.openId != '' ">
+       and OPEN_ID = #{order.openId,jdbcType=INTEGER}
+    </if>
+  </select>
+  <select id="selectOrdersPages" resultType ="java.util.HashMap" parameterType="java.util.Map" >
+    select 
+    o.ID, STATUS, ELEC_TOTAL_AMOUNT, ELEC_TOTAL_COUNT, o.CREATE_TIME, END_TIME, OPEN_ID, 
+    COUPON_ID, COUPON_STATUS, PILE_ID, SERVICE_CHARGE_TOTAL_SELF, SERVICE_CHARGE_TOTAL_THIRD, 
+    BASIC_CHARGE_TOTAL, ORDER_SOURCE, REAL_AMOUNT, REAL_COUNT, SERVICE_PAY_STATUS, BASIC_PAY_STATUS,
+    p.ID as PID, PILE_NUM, CHARGE_STANDARD_ID, FIRM_ID, p.CREATE_TIME as PCREATE_TIME,
+    STATION_NAME, SERVICE_CHARGE_AMOUNT, BASIC_CHARGE_AMOUNT, s.PERSON_NAME as S_PERSON_NAME, s.PERSON_PHONE as S_PERSON_PHONE, s.PERSON_OPENID as S_PERSON_OPENID,
+    FIRM_NAME, f.PERSON_NAME as F_PERSON_NAME, f.PERSON_PHONE as F_PERSON_PHONE, f.PERSON_OPENID as F_PERSON_OPENID, PAY_RATIO
+    from elec_order o 
+    left join elec_pile p ON o.PILE_ID=p.id
+    left join elec_station s on p.CHARGE_STANDARD_ID = s.id
+    left join elec_firm f on p.FIRM_ID = f.id
+    where 1=1
+    <if test="order.id != null and order.id != ''">
+       and o.ID = #{order.id,jdbcType=INTEGER}
+    </if>
+    <if test="order.status != null and order.status != ''">
+       and o.STATUS =# {order.status,jdbcType=VARCHAR}
+    </if>
+    <if test="order.stationName != null and order.stationName != ''">
+    	<bind name="stationName" value="'%'+order.stationName+'%'"/>
+       and s.STATION_NAME like #{stationName}
+    </if>
+    <if test="order.firmName != null and order.firmName != ''">
+    	<bind name="firmName" value="'%'+order.firmName+'%'"/>
+       and f.FIRM_NAME like #{firmName}
+    </if>
+    <if test="order.pileNum != null and order.pileNum != ''">
+    	<bind name="pileNum" value="'%'+order.pileNum+'%'"/>
+       and p.PILE_NUM like #{pileNum}
+    </if>
+    <if test="order.openId != null and order.openId != ''">
+       and o.OPEN_ID = #{order.openId}
+    </if>
+    <if test="order.createTime != null">
+    	<bind name="createTime" value="order.createTime"/>
+       <![CDATA[and date(o.CREATE_TIME) >= date(#{createTime})]]>
+    </if>
+    <if test="order.endTime != null">
+    	<bind name="endTime" value="order.endTime"/>
+    	<![CDATA[and date(o.END_TIME) <= date(#{endTime})]]>
+    </if>
+        order by o.CREATE_TIME desc 
+    <if test="order.pageSize>0">
+		limit #{order.pageNum,jdbcType=INTEGER},#{order.pageSize,jdbcType=INTEGER}
+	</if>
+  </select>
+  <select id="selectOrdersPagesCount" resultType="java.lang.Integer" parameterType="java.util.Map" >
+    select count(*)
+    from elec_order o 
+    left join elec_pile p ON o.PILE_ID=p.id
+    left join elec_station s on p.CHARGE_STANDARD_ID = s.id
+    left join elec_firm f on p.FIRM_ID = f.id
+    where 1=1
+    <if test="order.id != null and order.id != ''">
+       and o.ID = #{order.id,jdbcType=INTEGER}
+    </if>
+    <if test="order.status != null and order.status != ''">
+       and o.STATUS = #{order.status,jdbcType=VARCHAR}
+    </if>
+    <if test="order.stationName != null and order.stationName != ''">
+    	<bind name="stationName" value="'%'+order.stationName+'%'"/>
+       and s.STATION_NAME like #{stationName}
+    </if>
+    <if test="order.firmName != null and order.firmName != ''">
+    	<bind name="firmName" value="'%'+order.firmName+'%'"/>
+       and f.FIRM_NAME like #{firmName}
+    </if>
+    <if test="order.pileNum != null and order.pileNum != ''">
+    	<bind name="pileNum" value="'%'+order.pileNum+'%'"/>
+       and p.PILE_NUM like #{pileNum}
+    </if>
+    <if test="order.openId != null and order.openId != ''">
+       and o.OPEN_ID = #{order.openId}
+    </if>
+   <if test="order.createTime != null">
+    	<bind name="createTime" value="order.createTime"/>
+       <![CDATA[and date(o.CREATE_TIME) >= date(#{createTime})]]>
+    </if>
+    <if test="order.endTime != null">
+    	<bind name="endTime" value="order.endTime"/>
+    	<![CDATA[and date(o.END_TIME) <= date(#{endTime})]]>
+    </if>
+  </select>
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from elec_order
+    where ID = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.tox.bean.ElecOrder">
+    insert into elec_order (ID, STATUS, ELEC_TOTAL_AMOUNT, 
+      ELEC_TOTAL_COUNT, CREATE_TIME, END_TIME, 
+      OPEN_ID, COUPON_ID, COUPON_STATUS, 
+      PILE_ID, SERVICE_CHARGE_TOTAL_SELF, SERVICE_CHARGE_TOTAL_THIRD, 
+      BASIC_CHARGE_TOTAL, ORDER_SOURCE, REAL_AMOUNT, 
+      REAL_COUNT, SERVICE_PAY_STATUS, BASIC_PAY_STATUS
+      )
+    values (#{id,jdbcType=INTEGER}, #{status,jdbcType=VARCHAR}, #{elecTotalAmount,jdbcType=DOUBLE}, 
+      #{elecTotalCount,jdbcType=DOUBLE}, #{createTime,jdbcType=TIMESTAMP}, #{endTime,jdbcType=TIMESTAMP}, 
+      #{openId,jdbcType=VARCHAR}, #{couponId,jdbcType=INTEGER}, #{couponStatus,jdbcType=VARCHAR}, 
+      #{pileId,jdbcType=INTEGER}, #{serviceChargeTotalSelf,jdbcType=DOUBLE}, #{serviceChargeTotalThird,jdbcType=DOUBLE}, 
+      #{basicChargeTotal,jdbcType=DOUBLE}, #{orderSource,jdbcType=VARCHAR}, #{realAmount,jdbcType=DOUBLE}, 
+      #{realCount,jdbcType=DOUBLE}, #{servicePayStatus,jdbcType=VARCHAR}, #{basicPayStatus,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.tox.bean.ElecOrder" useGeneratedKeys="true" keyColumn="ID" keyProperty="id">
+    insert into elec_order
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        ID,
+      </if>
+      <if test="status != null">
+        STATUS,
+      </if>
+      <if test="elecTotalAmount != null">
+        ELEC_TOTAL_AMOUNT,
+      </if>
+      <if test="elecTotalCount != null">
+        ELEC_TOTAL_COUNT,
+      </if>
+      <if test="elecPrice != null">
+        ELEC_PRICE,
+      </if>
+      <if test="createTime != null">
+        CREATE_TIME,
+      </if>
+      <if test="endTime != null">
+        END_TIME,
+      </if>
+      <if test="openId != null">
+        OPEN_ID,
+      </if>
+      <if test="couponId != null">
+        COUPON_ID,
+      </if>
+      <if test="couponStatus != null">
+        COUPON_STATUS,
+      </if>
+      <if test="pileId != null">
+        PILE_ID,
+      </if>
+      <if test="serviceChargeTotalSelf != null">
+        SERVICE_CHARGE_TOTAL_SELF,
+      </if>
+      <if test="serviceChargeTotalThird != null">
+        SERVICE_CHARGE_TOTAL_THIRD,
+      </if>
+      <if test="basicChargeTotal != null">
+        BASIC_CHARGE_TOTAL,
+      </if>
+      <if test="orderSource != null">
+        ORDER_SOURCE,
+      </if>
+      <if test="realAmount != null">
+        REAL_AMOUNT,
+      </if>
+      <if test="realCount != null">
+        REAL_COUNT,
+      </if>
+      <if test="servicePayStatus != null">
+        SERVICE_PAY_STATUS,
+      </if>
+      <if test="basicPayStatus != null">
+        BASIC_PAY_STATUS,
+      </if>
+      <if test="gunNo != null">
+        GUN_NO,
+      </if>
+      <if test="useOpenid != null">
+        USE_OPENID,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="elecTotalAmount != null">
+        #{elecTotalAmount,jdbcType=DOUBLE},
+      </if>
+      <if test="elecTotalCount != null">
+        #{elecTotalCount,jdbcType=DOUBLE},
+      </if>
+      <if test="elecPrice != null">
+        #{elecPrice,jdbcType=DOUBLE},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="endTime != null">
+        #{endTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="openId != null">
+        #{openId,jdbcType=VARCHAR},
+      </if>
+      <if test="couponId != null">
+        #{couponId,jdbcType=INTEGER},
+      </if>
+      <if test="couponStatus != null">
+        #{couponStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="pileId != null">
+        #{pileId,jdbcType=INTEGER},
+      </if>
+      <if test="serviceChargeTotalSelf != null">
+        #{serviceChargeTotalSelf,jdbcType=DOUBLE},
+      </if>
+      <if test="serviceChargeTotalThird != null">
+        #{serviceChargeTotalThird,jdbcType=DOUBLE},
+      </if>
+      <if test="basicChargeTotal != null">
+        #{basicChargeTotal,jdbcType=DOUBLE},
+      </if>
+      <if test="orderSource != null">
+        #{orderSource,jdbcType=VARCHAR},
+      </if>
+      <if test="realAmount != null">
+        #{realAmount,jdbcType=DOUBLE},
+      </if>
+      <if test="realCount != null">
+        #{realCount,jdbcType=DOUBLE},
+      </if>
+      <if test="servicePayStatus != null">
+        #{servicePayStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="basicPayStatus != null">
+        #{basicPayStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="gunNo != null">
+        #{gunNo,jdbcType=INTEGER},
+      </if>
+        <if test="useOpenid != null">
+        #{useOpenid,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.tox.bean.ElecOrder">
+    update elec_order
+    <set>
+      <if test="status != null">
+        STATUS = #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="elecTotalAmount != null">
+        ELEC_TOTAL_AMOUNT = #{elecTotalAmount,jdbcType=DOUBLE},
+      </if>
+      <if test="elecTotalCount != null">
+        ELEC_TOTAL_COUNT = #{elecTotalCount,jdbcType=DOUBLE},
+      </if>
+      <if test="createTime != null">
+        CREATE_TIME = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="endTime != null">
+        END_TIME = #{endTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="openId != null">
+        OPEN_ID = #{openId,jdbcType=VARCHAR},
+      </if>
+      <if test="couponId != null">
+        COUPON_ID = #{couponId,jdbcType=INTEGER},
+      </if>
+      <if test="couponStatus != null">
+        COUPON_STATUS = #{couponStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="pileId != null">
+        PILE_ID = #{pileId,jdbcType=INTEGER},
+      </if>
+      <if test="serviceChargeTotalSelf != null">
+        SERVICE_CHARGE_TOTAL_SELF = #{serviceChargeTotalSelf,jdbcType=DOUBLE},
+      </if>
+      <if test="serviceChargeTotalThird != null">
+        SERVICE_CHARGE_TOTAL_THIRD = #{serviceChargeTotalThird,jdbcType=DOUBLE},
+      </if>
+      <if test="basicChargeTotal != null">
+        BASIC_CHARGE_TOTAL = #{basicChargeTotal,jdbcType=DOUBLE},
+      </if>
+      <if test="orderSource != null">
+        ORDER_SOURCE = #{orderSource,jdbcType=VARCHAR},
+      </if>
+      <if test="realAmount != null">
+        REAL_AMOUNT = #{realAmount,jdbcType=DOUBLE},
+      </if>
+      <if test="orderFee != null">
+        ORDER_FEE = #{orderFee,jdbcType=DOUBLE},
+      </if>
+      <if test="realCount != null">
+        REAL_COUNT = #{realCount,jdbcType=DOUBLE},
+      </if>
+      <if test="servicePayStatus != null">
+        SERVICE_PAY_STATUS = #{servicePayStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="basicPayStatus != null">
+        BASIC_PAY_STATUS = #{basicPayStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="gunNo != null">
+        GUN_NO = #{gunNo,jdbcType=INTEGER},
+      </if>
+       <if test="useOpenid != null">
+        USE_OPENID = #{useOpenid,jdbcType=INTEGER},
+      </if>
+    </set>
+    where ID = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.tox.bean.ElecOrder">
+    update elec_order
+    set STATUS = #{status,jdbcType=VARCHAR},
+      ELEC_TOTAL_AMOUNT = #{elecTotalAmount,jdbcType=DOUBLE},
+      ELEC_TOTAL_COUNT = #{elecTotalCount,jdbcType=DOUBLE},
+      CREATE_TIME = #{createTime,jdbcType=TIMESTAMP},
+      END_TIME = #{endTime,jdbcType=TIMESTAMP},
+      OPEN_ID = #{openId,jdbcType=VARCHAR},
+      COUPON_ID = #{couponId,jdbcType=INTEGER},
+      COUPON_STATUS = #{couponStatus,jdbcType=VARCHAR},
+      PILE_ID = #{pileId,jdbcType=INTEGER},
+      SERVICE_CHARGE_TOTAL_SELF = #{serviceChargeTotalSelf,jdbcType=DOUBLE},
+      SERVICE_CHARGE_TOTAL_THIRD = #{serviceChargeTotalThird,jdbcType=DOUBLE},
+      BASIC_CHARGE_TOTAL = #{basicChargeTotal,jdbcType=DOUBLE},
+      ORDER_SOURCE = #{orderSource,jdbcType=VARCHAR},
+      REAL_AMOUNT = #{realAmount,jdbcType=DOUBLE},
+      REAL_COUNT = #{realCount,jdbcType=DOUBLE},
+      SERVICE_PAY_STATUS = #{servicePayStatus,jdbcType=VARCHAR},
+      BASIC_PAY_STATUS = #{basicPayStatus,jdbcType=VARCHAR}
+    where ID = #{id,jdbcType=INTEGER}
+  </update>
+  <select id="selectOrdersByStatus" parameterType="String" resultMap="BaseResultMap">
+  	  select * from elec_order WHERE COUPON_STATUS = 1
+  </select>
+  <update id="updateOrderStatus" parameterType="java.lang.Integer">
+  	  update elec_order set COUPON_STATUS = 3 WHERE ID = #{ID}
+  </update>
+  <update id="updateOrderCid" parameterType="java.lang.Integer">
+  	  update elec_order set COUPON_ID = #{CID} WHERE ID = #{ID}
+  </update>
+</mapper>

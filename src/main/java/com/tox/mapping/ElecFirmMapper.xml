@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.tox.dao.ElecFirmMapper" >
+  <resultMap id="BaseResultMap" type="com.tox.bean.ElecFirm" >
+    <id column="ID" property="id" jdbcType="INTEGER" />
+    <result column="FIRM_NAME" property="firmName" jdbcType="VARCHAR" />
+    <result column="PERSON_NAME" property="personName" jdbcType="VARCHAR" />
+    <result column="PERSON_PHONE" property="personPhone" jdbcType="VARCHAR" />
+    <result column="PERSON_OPENID" property="personOpenid" jdbcType="VARCHAR" />
+    <result column="PAY_RATIO" property="payRatio" jdbcType="DOUBLE" />
+    <result column="ADDRESS" property="address" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    ID, FIRM_NAME, PERSON_NAME, PERSON_PHONE, PERSON_OPENID, PAY_RATIO,ADDRESS
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from elec_firm
+    where ID = #{id,jdbcType=INTEGER}
+  </select>
+  <select id="selectFirmsPages" resultMap="BaseResultMap" parameterType="java.util.Map">
+    select 
+    <include refid="Base_Column_List" />
+    from elec_firm
+    where 1=1
+    <if test="firm.firmName != null and firm.firmName != '' ">
+    	<bind name="firmName" value="'%'+firm.firmName+'%'"/>
+       and FIRM_NAME like #{firmName,jdbcType=VARCHAR}
+    </if>
+    order by ID desc
+    <if test="firm.pageSize>0">
+		limit #{firm.pageNum,jdbcType=INTEGER},#{firm.pageSize,jdbcType=INTEGER}
+	</if>
+  </select>
+  <select id="selectFirmName" resultMap="BaseResultMap">
+      select ID,FIRM_NAME
+      from elec_firm
+  </select>
+  <select id="selectFirmsPagesPagesCount" resultType="java.lang.Integer" parameterType="java.util.Map">
+  	select count(*)
+    from elec_firm
+    where 1=1
+    <if test="firm.firmName != null and firm.firmName != '' ">
+    	<bind name="firmName" value="'%'+firm.firmName+'%'"/>
+       and FIRM_NAME like #{firmName,jdbcType=VARCHAR}
+    </if>
+  </select>
+   <select id="selectByPrimaryPileId" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    f.ID, f.FIRM_NAME, f.PERSON_NAME, f.PERSON_PHONE, f.PERSON_OPENID, f.PAY_RATIO,f.ADDRESS
+   	FROM
+	elec_firm f LEFT JOIN elec_pile p ON f.ID = p.FIRM_ID
+    where  p.ID = #{pileid,jdbcType=INTEGER}
+  </select>
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from elec_firm
+    where ID = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.tox.bean.ElecFirm" >
+    insert into elec_firm (ID, FIRM_NAME, PERSON_NAME, 
+      PERSON_PHONE, PERSON_OPENID, PAY_RATIO,ADDRESS
+      )
+    values (#{id,jdbcType=INTEGER}, #{firmName,jdbcType=VARCHAR}, #{personName,jdbcType=VARCHAR}, 
+      #{personPhone,jdbcType=VARCHAR}, #{personOpenid,jdbcType=VARCHAR}, #{payRatio,jdbcType=DOUBLE}
+      ,#{address,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.tox.bean.ElecFirm" >
+    insert into elec_firm
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        ID,
+      </if>
+      <if test="firmName != null" >
+        FIRM_NAME,
+      </if>
+      <if test="personName != null" >
+        PERSON_NAME,
+      </if>
+      <if test="personPhone != null" >
+        PERSON_PHONE,
+      </if>
+      <if test="personOpenid != null" >
+        PERSON_OPENID,
+      </if>
+      <if test="payRatio != null" >
+        PAY_RATIO,
+      </if>
+      <if test="address != null" >
+        ADDRESS,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="firmName != null" >
+        #{firmName,jdbcType=VARCHAR},
+      </if>
+      <if test="personName != null" >
+        #{personName,jdbcType=VARCHAR},
+      </if>
+      <if test="personPhone != null" >
+        #{personPhone,jdbcType=VARCHAR},
+      </if>
+      <if test="personOpenid != null" >
+        #{personOpenid,jdbcType=VARCHAR},
+      </if>
+      <if test="payRatio != null" >
+        #{payRatio,jdbcType=DOUBLE},
+      </if>
+      <if test="address != null" >
+        #{address,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.tox.bean.ElecFirm" >
+    update elec_firm
+    <set >
+      <if test="firmName != null" >
+        FIRM_NAME = #{firmName,jdbcType=VARCHAR},
+      </if>
+      <if test="personName != null" >
+        PERSON_NAME = #{personName,jdbcType=VARCHAR},
+      </if>
+      <if test="personPhone != null" >
+        PERSON_PHONE = #{personPhone,jdbcType=VARCHAR},
+      </if>
+      <if test="personOpenid != null" >
+        PERSON_OPENID = #{personOpenid,jdbcType=VARCHAR},
+      </if>
+      <if test="payRatio != null" >
+        PAY_RATIO = #{payRatio,jdbcType=DOUBLE},
+      </if>
+      <if test="address != null" >
+        ADDRESS = #{address,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where ID = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.tox.bean.ElecFirm" >
+    update elec_firm
+    set FIRM_NAME = #{firmName,jdbcType=VARCHAR},
+      PERSON_NAME = #{personName,jdbcType=VARCHAR},
+      PERSON_PHONE = #{personPhone,jdbcType=VARCHAR},
+      PERSON_OPENID = #{personOpenid,jdbcType=VARCHAR},
+      PAY_RATIO = #{payRatio,jdbcType=DOUBLE},
+      ADDRESS = #{address,jdbcType=VARCHAR}
+    where ID = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

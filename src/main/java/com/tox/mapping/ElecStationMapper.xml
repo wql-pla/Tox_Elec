@@ -1,0 +1,896 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.tox.dao.ElecStationMapper" >
+  <resultMap id="BaseResultMap" type="com.tox.bean.ElecStation">
+    <id column="ID" jdbcType="INTEGER" property="id" />
+    <result column="STATION_NAME" jdbcType="VARCHAR" property="stationName" />
+    <result column="SERVICE_CHARGE_AMOUNT" jdbcType="DOUBLE" property="serviceChargeAmount" />
+    <result column="BASIC_CHARGE_AMOUNT" jdbcType="DOUBLE" property="basicChargeAmount" />
+    <result column="THIRD_SERVICE_AMOUNT" jdbcType="DOUBLE" property="thirdServiceAmount" />
+    <result column="PERSON_SERVICE_AMOUNT" jdbcType="DOUBLE" property="personServiceAmount" />
+    <result column="PERSON_NAME" jdbcType="VARCHAR" property="personName" />
+    <result column="PERSON_PHONE" jdbcType="VARCHAR" property="personPhone" />
+    <result column="PERSON_OPENID" jdbcType="VARCHAR" property="personOpenid" />
+    <result column="PERSON_TYPE" jdbcType="INTEGER" property="personType" />
+    <result column="CREATE_TIME" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="PROVINCE" jdbcType="VARCHAR" property="province" />
+    <result column="CITY" jdbcType="VARCHAR" property="city" />
+    <result column="REGION" jdbcType="VARCHAR" property="region" />
+    <result column="ADDRESS" jdbcType="VARCHAR" property="address" />
+    <result column="COORD" jdbcType="VARCHAR" property="coord" />
+    <result column="STATUS" jdbcType="INTEGER" property="status" />
+    <result column="STORE_ID" jdbcType="INTEGER" property="storeId" />
+    <result column="PILES_NUM" jdbcType="INTEGER" property="pilesNum" />
+    <result column="DC_NUM" jdbcType="INTEGER" property="DCNum" />
+    <result column="AC_NUM" jdbcType="INTEGER" property="ACNum" />
+    <result column="PLAN_USE_TIME" jdbcType="TIMESTAMP" property="planUseTime" />
+    <result column="IS_FORMAL" jdbcType="INTEGER" property="isFormal" />
+    <result column="IS_DIRECT" jdbcType="INTEGER" property="isDirect" />
+    <result column="CHARGE_TYPE" jdbcType="INTEGER" property="chargeType" />
+  </resultMap>
+  <resultMap id="ExtendResultMap" type="com.tox.bean.DirectStation" extends="BaseResultMap">
+    <result column="DIRECT_SERVICE_CHARGE_AMOUNT" jdbcType="DOUBLE" property="directServiceChargeAmount" />
+    <result column="DIRECT_BASIC_CHARGE_AMOUNT" jdbcType="DOUBLE" property="directBasicChargeAmount" />
+    <result column="DIRECT_PERSON_SERVICE_AMOUNT" jdbcType="DOUBLE" property="directPersonServiceAmount" />
+    <result column="DIRECT_THIRD_SERVICE_AMOUNT" jdbcType="DOUBLE" property="directThirdServiceAmount" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    ID, STATION_NAME, SERVICE_CHARGE_AMOUNT, BASIC_CHARGE_AMOUNT, PERSON_NAME, PERSON_PHONE, PERSON_TYPE,
+    PERSON_OPENID, CREATE_TIME, PROVINCE, CITY, REGION, ADDRESS, COORD, STATUS, STORE_ID,THIRD_SERVICE_AMOUNT,PERSON_SERVICE_AMOUNT,
+    DC_NUM,AC_NUM,PLAN_USE_TIME,IS_DIRECT,IS_FORMAL,CHARGE_TYPE
+  </sql>
+  <sql id="Extend_Column_List">
+  	ID, STATION_NAME, SERVICE_CHARGE_AMOUNT, BASIC_CHARGE_AMOUNT, PERSON_NAME, PERSON_PHONE, PERSON_TYPE,
+    PERSON_OPENID, CREATE_TIME, PROVINCE, CITY, REGION, ADDRESS, COORD, STATUS, STORE_ID,THIRD_SERVICE_AMOUNT,PERSON_SERVICE_AMOUNT,
+    DC_NUM,AC_NUM,PLAN_USE_TIME,DIRECT_SERVICE_CHARGE_AMOUNT,DIRECT_BASIC_CHARGE_AMOUNT,DIRECT_PERSON_SERVICE_AMOUNT,
+    DIRECT_THIRD_SERVICE_AMOUNT,IS_DIRECT,IS_FORMAL,CHARGE_TYPE
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from elec_station
+    where ID = #{id,jdbcType=INTEGER}
+  </select>
+  <select id="selectDirectStationByPrimaryKey" resultMap="ExtendResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Extend_Column_List" />
+    from elec_station
+    where ID = #{id,jdbcType=INTEGER}
+  </select>
+  <select id="selectStationCity" resultType="java.util.Map" >
+    SELECT DISTINCT(CITY) FROM
+	elec_station
+  </select>
+  
+  <select id="selectDS" resultType="java.lang.Double" parameterType="com.tox.bean.ElecStation">
+      SELECT
+		COALESCE(SUM(REAL_COUNT),0)
+	FROM
+		elec_order
+	<where>
+		PILE_ID IN (
+			SELECT
+				ID
+			FROM
+				elec_pile
+			WHERE
+				CHARGE_STANDARD_ID = #{id})
+		<if test="startDate != null">
+		  and END_TIME &gt;= DATE_FORMAT(#{startDate},'%Y-%m-%d 00:00:00')
+		</if>
+		<if test="endDate != null">
+		  and END_TIME &lt;= DATE_FORMAT(#{endDate},'%Y-%m-%d 23:59:59')
+		</if>
+	</where>
+  </select>
+  <select id="selectAllStations" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from elec_station
+  </select>
+  <select id="selectStationsAndPilesNum" resultMap="BaseResultMap" parameterType="com.tox.bean.ElecStation" >
+    select 
+    ID, STATION_NAME, SERVICE_CHARGE_AMOUNT, BASIC_CHARGE_AMOUNT, PERSON_NAME, PERSON_PHONE,CHARGE_TYPE,
+    PERSON_OPENID, CREATE_TIME, PROVINCE, CITY, REGION, ADDRESS, COORD, STATUS, STORE_ID,DC_NUM,AC_NUM,PLAN_USE_TIME,IS_FORMAL,IS_DIRECT,
+    (select count(p.ID) from elec_pile p where p.CHARGE_STANDARD_ID = s.id and p.STATUS=1 and (case when p.TYPE in(3,5) then p.IS_USED!=1 when p.TYPE in(4,6) then p.IS_USED!=3 END)) as PILES_NUM
+    from elec_station s
+    where 1=1
+    <if test="station.id != null and station.id != '' " >
+        and ID = #{station.id,jdbcType=INTEGER}
+    </if>
+        and STATUS in (1,2)
+    <if test="station.stationName != null and station.stationName != '' " >
+    	<bind name="stationName" value=" '%'+station.stationName+'%' "/>
+        and STATION_NAME like #{stationName,jdbcType=VARCHAR}
+    </if>
+    <if test="station.province != null and station.province != '' " >
+        and PROVINCE = #{station.province,jdbcType=VARCHAR}
+    </if>
+    <if test="station.city != null and station.city != '' " >
+    	<bind name="city" value="station.city+'%' "/>
+        and CITY like #{city,jdbcType=VARCHAR}
+    </if>
+    <if test="station.region != null and station.region != '' " >
+        and REGION = #{station.region,jdbcType=VARCHAR}
+    </if>
+    <if test="station.isFormal != null" >
+        and IS_FORMAL = #{station.isFormal}
+    </if>
+    order by CREATE_TIME desc
+    <if test="station.pageSize>0">
+		limit #{station.pageNum,jdbcType=INTEGER},#{station.pageSize,jdbcType=INTEGER}
+	</if>
+  </select>
+  <select id="selectStations" resultMap="BaseResultMap" parameterType="com.tox.bean.ElecStation" >
+    select 
+    <include refid="Base_Column_List" />
+    from elec_station
+    where 1=1
+    <if test="station.id != null and station.id != '' " >
+        and ID = #{station.id,jdbcType=INTEGER}
+    </if>
+    <if test="station.status != null" >
+        and STATUS = #{station.status,jdbcType=INTEGER}
+    </if>
+    <if test="station.stationName != null and station.stationName != '' " >
+    	<bind name="stationName" value=" '%'+station.stationName+'%' "/>
+        and STATION_NAME like #{stationName,jdbcType=VARCHAR}
+    </if>
+    <if test="station.province != null and station.province != '' " >
+        and PROVINCE = #{station.province,jdbcType=INTEGER}
+    </if>
+    <if test="station.city != null and station.city != '' " >
+        and CITY = #{station.city,jdbcType=INTEGER}
+    </if>
+    <if test="station.region != null and station.region != '' " >
+        and REGION = #{station.region,jdbcType=INTEGER}
+    </if>
+    <if test="station.isFormal != null" >
+        and IS_FORMAL = #{station.isFormal}
+    </if>
+    order by CREATE_TIME desc
+    <if test="station.pageSize>0">
+		limit #{station.pageNum,jdbcType=INTEGER},#{station.pageSize,jdbcType=INTEGER}
+	</if>
+  </select>
+  <select id="selectStationsCount" resultType="java.lang.Integer" parameterType="com.tox.bean.ElecStation" >
+    select count(*)
+    from elec_station
+    where 1=1
+    <if test="station.id != null and station.id != '' " >
+        and ID = #{station.id,jdbcType=INTEGER}
+    </if>
+    <if test="station.status != null " >
+        and STATUS = #{station.status,jdbcType=INTEGER}
+    </if>
+    <if test="station.stationName != null and station.stationName != '' " >
+    	<bind name="stationName" value=" '%'+station.stationName+'%' "/>
+        and STATION_NAME like #{stationName,jdbcType=VARCHAR}
+    </if>
+    <if test="station.province != null and station.province != '' " >
+        and PROVINCE = #{station.province,jdbcType=INTEGER}
+    </if>
+    <if test="station.city != null and station.city != '' " >
+        and CITY = #{station.city,jdbcType=INTEGER}
+    </if>
+    <if test="station.region != null and station.region != '' " >
+        and REGION = #{station.region,jdbcType=INTEGER}
+    </if>
+    <if test="station.isFormal != null" >
+        and IS_FORMAL = #{station.isFormal}
+    </if>
+  </select>
+  
+   <select id="selectByPrimaryPileId" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    s.ID, STATION_NAME, SERVICE_CHARGE_AMOUNT, BASIC_CHARGE_AMOUNT, PERSON_NAME, PERSON_PHONE, CHARGE_TYPE, 
+    s.PERSON_OPENID, s.CREATE_TIME,s.IS_FORMAL,s.IS_DIRECT
+   	FROM
+	elec_station s LEFT JOIN elec_pile p ON s.ID = p.CHARGE_STANDARD_ID
+    where  p.ID = #{pileid,jdbcType=INTEGER}
+  </select>
+  <select id="selectStationNames" resultMap="BaseResultMap">
+      select 
+      	ID,STATION_NAME
+      from 
+      	elec_station
+  </select>
+  <select id="queryStationsInfo" resultMap="BaseResultMap" parameterType="com.tox.bean.BaiduStationParams" >
+    SELECT
+		ID,
+		STATION_NAME,
+		ADDRESS,
+		PERSON_PHONE,
+		PROVINCE,
+		CITY,
+		REGION,
+		50,
+		(
+			CASE `STATUS`
+			WHEN 1 THEN
+				50
+			WHEN 0 THEN
+				5
+			ELSE
+				1
+			END
+		) AS STATUS,
+		COORD
+	FROM
+		elec_station
+	<where>
+		1=1 
+		<if test="param.createDate != null">
+			and CREATE_TIME > #{param.createDate}
+		</if>
+	</where>
+	order by CREATE_TIME desc
+	<if test="param.pageSize>0">
+		limit #{param.pageNo,jdbcType=INTEGER},#{param.pageSize,jdbcType=INTEGER}
+	</if>
+  </select>
+  <select id="queryStationsInfoCount" resultType="java.lang.Integer" parameterType="com.tox.bean.BaiduStationParams" >
+    select count(ID)
+    from elec_station
+    <where>
+    	<if test="param.createDate != null">
+			and CREATE_TIME > #{param.createDate}
+		</if>
+    </where>
+  </select>
+  <select id="selectCityAndRegion" resultType="java.util.Map">
+  	SELECT
+		CITY,
+		REGION
+	FROM
+		elec_station
+	GROUP BY
+		REGION
+	ORDER BY
+		CITY
+  </select>
+  
+  <select id="elecPriceMap" resultMap="ExtendResultMap" parameterType="com.tox.bean.DirectStation">
+	SELECT
+		ID,
+		STATION_NAME,
+		SERVICE_CHARGE_AMOUNT,
+		BASIC_CHARGE_AMOUNT,
+		PERSON_SERVICE_AMOUNT,
+		THIRD_SERVICE_AMOUNT,
+		CREATE_TIME,
+		PROVINCE,
+		CITY,
+		REGION,
+		COORD,
+		IS_DIRECT,
+		DIRECT_BASIC_CHARGE_AMOUNT,
+		DIRECT_PERSON_SERVICE_AMOUNT,
+		DIRECT_SERVICE_CHARGE_AMOUNT,
+		DIRECT_THIRD_SERVICE_AMOUNT,
+		IS_FORMAL,
+		CASE
+			WHEN IS_DIRECT = 0
+			AND `STATUS` != 2 THEN
+				1
+			WHEN IS_DIRECT = 1
+			AND `STATUS` != 2 THEN
+				2
+			WHEN IS_DIRECT = 0
+			AND `STATUS` = 2 THEN
+				3
+			WHEN IS_DIRECT = 1
+			AND `STATUS` = 2 THEN
+				4
+			ELSE
+				0
+			END `STATUS`
+	FROM
+		elec_station
+	<where>
+		1=1
+		and STATUS != 0 
+		<if test="province != null">
+			and PROVINCE = #{province}
+		</if>
+		<if test="city != null">
+		<bind name="city" value=" '%'+city+'%' "/>
+			and CITY like #{city}
+		</if>
+		<if test="price != null">
+			and  (((SERVICE_CHARGE_AMOUNT+BASIC_CHARGE_AMOUNT) &lt; #{price}+0.1 and (SERVICE_CHARGE_AMOUNT+BASIC_CHARGE_AMOUNT) &gt;= #{price})
+			or ((DIRECT_BASIC_CHARGE_AMOUNT+DIRECT_SERVICE_CHARGE_AMOUNT) &lt; #{price}+0.1 and (DIRECT_BASIC_CHARGE_AMOUNT+DIRECT_SERVICE_CHARGE_AMOUNT) &gt;= #{price}))
+		</if>
+		<if test="region != null">
+		<bind name="region" value=" '%'+region+'%' "/>
+			and REGION like #{region}
+		</if>
+	</where>
+  </select>
+  <select id="minAndMaxPrice" resultType="java.util.Map" parameterType="com.tox.bean.DirectStation">
+  	SELECT
+		MAX(
+			BASIC_CHARGE_AMOUNT + SERVICE_CHARGE_AMOUNT
+		) AS maxPrice,
+		MIN(
+			BASIC_CHARGE_AMOUNT + SERVICE_CHARGE_AMOUNT
+		) AS minPrice,
+		MAX(
+			DIRECT_SERVICE_CHARGE_AMOUNT + DIRECT_BASIC_CHARGE_AMOUNT
+		) AS maxDirectPrice,
+		MIN(
+			DIRECT_SERVICE_CHARGE_AMOUNT + DIRECT_BASIC_CHARGE_AMOUNT
+		) AS minDirectPrice
+	FROM
+		elec_station
+	<where>
+		1=1
+		and STATUS != 0 
+		<if test="province != null">
+			and PROVINCE = #{province}
+		</if>
+		<if test="city != null">
+			<bind name="city" value=" '%'+city+'%' "/>
+			and CITY like #{city}
+		</if>
+		<if test="region != null">
+		<bind name="region" value=" '%'+region+'%' "/>
+			and REGION like #{region}
+		</if>
+	</where>
+  </select>
+  <select id="priceMapDetail" resultMap="ExtendResultMap" parameterType="java.lang.Integer">
+  	SELECT
+		STATION_NAME,
+		SERVICE_CHARGE_AMOUNT,
+		BASIC_CHARGE_AMOUNT,
+		IS_DIRECT,
+		DIRECT_BASIC_CHARGE_AMOUNT,
+		DIRECT_SERVICE_CHARGE_AMOUNT
+		<!-- COUNT(p.ID) AS PILES_NUM -->
+	FROM
+		elec_station 
+	where
+		ID = #{id}
+  </select>
+  <select id="selectPileNumById" resultType="java.lang.Integer" parameterType="java.lang.Integer">
+  	SELECT
+		COUNT(p.ID)
+	FROM
+		elec_station s
+	LEFT JOIN elec_pile p ON s.ID = p.CHARGE_STANDARD_ID
+	<where>
+		1=1
+		AND s.ID = #{id}
+		<if test="type == 0">
+			AND p.TYPE IN (3, 4)
+		</if>
+		<if test="type == 1">
+			AND p.TYPE IN (5, 6)
+		</if>
+	</where>
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from elec_station
+    where ID = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.tox.bean.ElecStation" >
+    insert into elec_station (ID, STATION_NAME, SERVICE_CHARGE_AMOUNT, 
+      BASIC_CHARGE_AMOUNT, PERSON_NAME, PERSON_PHONE, 
+      PERSON_OPENID, CREATE_TIME,PROVINCE,CITY,REGION,ADDRESS,COORD,STATUS,STORE_ID)
+    values (#{id,jdbcType=INTEGER}, #{stationName,jdbcType=VARCHAR}, #{serviceChargeAmount,jdbcType=DOUBLE}, 
+      #{basicChargeAmount,jdbcType=DOUBLE}, #{personName,jdbcType=VARCHAR}, #{personPhone,jdbcType=VARCHAR}, 
+      #{personOpenid,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, #{province,jdbcType=VARCHAR},
+      #{city,jdbcType=VARCHAR}, #{region,jdbcType=VARCHAR}, #{address,jdbcType=VARCHAR}, #{coord,jdbcType=VARCHAR},
+      #{status,jdbcType=INTEGER}, #{storeId,jdbcType=INTEGER})
+  </insert>
+  <insert id="insertSelective" parameterType="com.tox.bean.ElecStation" keyProperty="id" keyColumn="ID" useGeneratedKeys="true">
+    insert into elec_station
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        ID,
+      </if>
+      <if test="stationName != null" >
+        STATION_NAME,
+      </if>
+      <if test="serviceChargeAmount != null" >
+        SERVICE_CHARGE_AMOUNT,
+      </if>
+      <if test="basicChargeAmount != null" >
+        BASIC_CHARGE_AMOUNT,
+      </if>
+      <if test="thirdServiceAmount != null" >
+        THIRD_SERVICE_AMOUNT,
+      </if>
+      <if test="personServiceAmount != null" >
+        PERSON_SERVICE_AMOUNT,
+      </if>
+      <if test="personName != null" >
+        PERSON_NAME,
+      </if>
+      <if test="personPhone != null" >
+        PERSON_PHONE,
+      </if>
+      <if test="personOpenid != null" >
+        PERSON_OPENID,
+      </if>
+      <if test="personType != null" >
+        PERSON_TYPE,
+      </if>
+      <if test="createTime != null" >
+        CREATE_TIME,
+      </if>
+      <if test="province != null" >
+        PROVINCE,
+      </if>
+      <if test="city != null" >
+        CITY,
+      </if>
+      <if test="region != null" >
+        REGION,
+      </if>
+      <if test="address != null" >
+        ADDRESS,
+      </if>
+      <if test="coord != null" >
+        COORD,
+      </if>
+      <if test="status != null" >
+        STATUS,
+      </if>
+      <if test="storeId != null" >
+        STORE_ID,
+      </if>
+      <if test="DCNum != null" >
+        DC_NUM,
+      </if>
+      <if test="ACNum != null" >
+        AC_NUM,
+      </if>
+      <if test="planUseTime != null" >
+        PLAN_USE_TIME,
+      </if>
+      <if test="isFormal != null" >
+        IS_FORMAL,
+      </if>
+      <if test="chargeType != null" >
+        CHARGE_TYPE,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="stationName != null" >
+        #{stationName,jdbcType=VARCHAR},
+      </if>
+      <if test="serviceChargeAmount != null" >
+        #{serviceChargeAmount,jdbcType=DOUBLE},
+      </if>
+      <if test="basicChargeAmount != null" >
+        #{basicChargeAmount,jdbcType=DOUBLE},
+      </if>
+      <if test="thirdServiceAmount != null" >
+        #{thirdServiceAmount,jdbcType=DOUBLE},
+      </if>
+      <if test="personServiceAmount != null" >
+        #{personServiceAmount,jdbcType=DOUBLE},
+      </if>
+      <if test="personName != null" >
+        #{personName,jdbcType=VARCHAR},
+      </if>
+      <if test="personPhone != null" >
+        #{personPhone,jdbcType=VARCHAR},
+      </if>
+      <if test="personOpenid != null" >
+        #{personOpenid,jdbcType=VARCHAR},
+      </if>
+      <if test="personType != null" >
+        #{personType,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="province != null" >
+        #{province,jdbcType=VARCHAR},
+      </if>
+      <if test="city != null" >
+        #{city,jdbcType=VARCHAR},
+      </if>
+      <if test="region != null" >
+        #{region,jdbcType=VARCHAR},
+      </if>
+      <if test="address != null" >
+        #{address,jdbcType=VARCHAR},
+      </if>
+      <if test="coord != null" >
+        #{coord,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="storeId != null" >
+        #{storeId,jdbcType=INTEGER},
+      </if>
+      <if test="DCNum != null" >
+        #{DCNum,jdbcType=INTEGER},
+      </if>
+      <if test="ACNum != null" >
+        #{ACNum,jdbcType=INTEGER},
+      </if>
+      <if test="planUseTime != null" >
+        #{planUseTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isFormal != null" >
+        #{isFormal,jdbcType=INTEGER},
+      </if>
+      <if test="chargeType != null" >
+        #{chargeType,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <insert id="insertDirectStation" parameterType="com.tox.bean.DirectStation" keyProperty="id" keyColumn="ID" useGeneratedKeys="true">
+    insert into elec_station
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        ID,
+      </if>
+      <if test="stationName != null" >
+        STATION_NAME,
+      </if>
+      <if test="serviceChargeAmount != null" >
+        SERVICE_CHARGE_AMOUNT,
+      </if>
+      <if test="basicChargeAmount != null" >
+        BASIC_CHARGE_AMOUNT,
+      </if>
+      <if test="thirdServiceAmount != null" >
+        THIRD_SERVICE_AMOUNT,
+      </if>
+      <if test="personServiceAmount != null" >
+        PERSON_SERVICE_AMOUNT,
+      </if>
+      <if test="personName != null" >
+        PERSON_NAME,
+      </if>
+      <if test="personPhone != null" >
+        PERSON_PHONE,
+      </if>
+      <if test="personOpenid != null" >
+        PERSON_OPENID,
+      </if>
+      <if test="personType != null" >
+        PERSON_TYPE,
+      </if>
+      <if test="createTime != null" >
+        CREATE_TIME,
+      </if>
+      <if test="province != null" >
+        PROVINCE,
+      </if>
+      <if test="city != null" >
+        CITY,
+      </if>
+      <if test="region != null" >
+        REGION,
+      </if>
+      <if test="address != null" >
+        ADDRESS,
+      </if>
+      <if test="coord != null" >
+        COORD,
+      </if>
+      <if test="status != null" >
+        STATUS,
+      </if>
+      <if test="storeId != null" >
+        STORE_ID,
+      </if>
+      <if test="DCNum != null" >
+        DC_NUM,
+      </if>
+      <if test="ACNum != null" >
+        AC_NUM,
+      </if>
+      <if test="planUseTime != null" >
+        PLAN_USE_TIME,
+      </if>
+      <if test="isDirect != null" >
+        IS_DIRECT,
+      </if>
+      <if test="directServiceChargeAmount != null" >
+        DIRECT_SERVICE_CHARGE_AMOUNT,
+      </if>
+      <if test="directBasicChargeAmount != null" >
+        DIRECT_BASIC_CHARGE_AMOUNT,
+      </if>
+      <if test="directPersonServiceAmount != null" >
+        DIRECT_PERSON_SERVICE_AMOUNT,
+      </if>
+      <if test="directThirdServiceAmount != null" >
+        DIRECT_THIRD_SERVICE_AMOUNT,
+      </if>
+      <if test="isFormal != null" >
+        IS_FORMAL,
+      </if>
+      <if test="chargeType != null" >
+        CHARGE_TYPE,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="stationName != null" >
+        #{stationName,jdbcType=VARCHAR},
+      </if>
+      <if test="serviceChargeAmount != null" >
+        #{serviceChargeAmount,jdbcType=DOUBLE},
+      </if>
+      <if test="basicChargeAmount != null" >
+        #{basicChargeAmount,jdbcType=DOUBLE},
+      </if>
+      <if test="thirdServiceAmount != null" >
+        #{thirdServiceAmount,jdbcType=DOUBLE},
+      </if>
+      <if test="personServiceAmount != null" >
+        #{personServiceAmount,jdbcType=DOUBLE},
+      </if>
+      <if test="personName != null" >
+        #{personName,jdbcType=VARCHAR},
+      </if>
+      <if test="personPhone != null" >
+        #{personPhone,jdbcType=VARCHAR},
+      </if>
+      <if test="personOpenid != null" >
+        #{personOpenid,jdbcType=VARCHAR},
+      </if>
+      <if test="personType != null" >
+        #{personType,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="province != null" >
+        #{province,jdbcType=VARCHAR},
+      </if>
+      <if test="city != null" >
+        #{city,jdbcType=VARCHAR},
+      </if>
+      <if test="region != null" >
+        #{region,jdbcType=VARCHAR},
+      </if>
+      <if test="address != null" >
+        #{address,jdbcType=VARCHAR},
+      </if>
+      <if test="coord != null" >
+        #{coord,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="storeId != null" >
+        #{storeId,jdbcType=INTEGER},
+      </if>
+      <if test="DCNum != null" >
+        #{DCNum,jdbcType=INTEGER},
+      </if>
+      <if test="ACNum != null" >
+        #{ACNum,jdbcType=INTEGER},
+      </if>
+      <if test="planUseTime != null" >
+        #{planUseTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDirect != null" >
+        #{isDirect},
+      </if>
+      <if test="directServiceChargeAmount != null" >
+        #{directServiceChargeAmount},
+      </if>
+      <if test="directBasicChargeAmount != null" >
+        #{directBasicChargeAmount},
+      </if>
+      <if test="directPersonServiceAmount != null" >
+        #{directPersonServiceAmount},
+      </if>
+      <if test="directThirdServiceAmount != null" >
+        #{directThirdServiceAmount},
+      </if>
+      <if test="isFormal != null" >
+        #{isFormal},
+      </if>
+      <if test="chargeType != null" >
+        #{chargeType},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.tox.bean.ElecStation" >
+    update elec_station
+    <set >
+      <if test="stationName != null" >
+        STATION_NAME = #{stationName,jdbcType=VARCHAR},
+      </if>
+      <if test="serviceChargeAmount != null" >
+        SERVICE_CHARGE_AMOUNT = #{serviceChargeAmount,jdbcType=DOUBLE},
+      </if>
+      <if test="basicChargeAmount != null" >
+        BASIC_CHARGE_AMOUNT = #{basicChargeAmount,jdbcType=DOUBLE},
+      </if>
+      <if test="thirdServiceAmount != null" >
+        THIRD_SERVICE_AMOUNT = #{thirdServiceAmount,jdbcType=DOUBLE},
+      </if>
+      <if test="personServiceAmount != null" >
+        PERSON_SERVICE_AMOUNT = #{personServiceAmount,jdbcType=DOUBLE},
+      </if>
+      <if test="personName != null" >
+        PERSON_NAME = #{personName,jdbcType=VARCHAR},
+      </if>
+      <if test="personPhone != null" >
+        PERSON_PHONE = #{personPhone,jdbcType=VARCHAR},
+      </if>
+      <if test="personOpenid != null" >
+        PERSON_OPENID = #{personOpenid,jdbcType=VARCHAR},
+      </if>
+      <if test="personType != null" >
+        PERSON_TYPE = #{personType,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null" >
+        CREATE_TIME = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="province != null" >
+        PROVINCE = #{province,jdbcType=VARCHAR},
+      </if>
+      <if test="city != null" >
+        CITY = #{city,jdbcType=VARCHAR},
+      </if>
+      <if test="region != null" >
+        REGION = #{region,jdbcType=VARCHAR},
+      </if>
+      <if test="address != null" >
+        ADDRESS = #{address,jdbcType=VARCHAR},
+      </if>
+      <if test="coord != null" >
+        COORD = #{coord,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        STATUS = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="storeId != null" >
+        STORE_ID = #{storeId,jdbcType=INTEGER},
+      </if>
+      <if test="DCNum != null" >
+        DC_NUM = #{DCNum,jdbcType=INTEGER},
+      </if>
+      <if test="ACNum != null" >
+        AC_NUM = #{ACNum,jdbcType=INTEGER},
+      </if>
+      <if test="planUseTime != null" >
+        PLAN_USE_TIME = #{planUseTime,jdbcType=TIMESTAMP},
+      </if>
+       <if test="isDirect != null" >
+        IS_DIRECT = #{isDirect},
+      </if>
+      <if test="isFormal != null" >
+        IS_FORMAL = #{isFormal},
+      </if>
+      <if test="chargeType != null" >
+        CHARGE_TYPE = #{chargeType},
+      </if>
+    </set>
+    where ID = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKeyDirectStation" parameterType="com.tox.bean.DirectStation" >
+    update elec_station
+    <set >
+      <if test="stationName != null" >
+        STATION_NAME = #{stationName,jdbcType=VARCHAR},
+      </if>
+      <if test="serviceChargeAmount != null" >
+        SERVICE_CHARGE_AMOUNT = #{serviceChargeAmount,jdbcType=DOUBLE},
+      </if>
+      <if test="basicChargeAmount != null" >
+        BASIC_CHARGE_AMOUNT = #{basicChargeAmount,jdbcType=DOUBLE},
+      </if>
+      <if test="thirdServiceAmount != null" >
+        THIRD_SERVICE_AMOUNT = #{thirdServiceAmount,jdbcType=DOUBLE},
+      </if>
+      <if test="personServiceAmount != null" >
+        PERSON_SERVICE_AMOUNT = #{personServiceAmount,jdbcType=DOUBLE},
+      </if>
+      <if test="personName != null" >
+        PERSON_NAME = #{personName,jdbcType=VARCHAR},
+      </if>
+      <if test="personPhone != null" >
+        PERSON_PHONE = #{personPhone,jdbcType=VARCHAR},
+      </if>
+      <if test="personOpenid != null" >
+        PERSON_OPENID = #{personOpenid,jdbcType=VARCHAR},
+      </if>
+      <if test="personType != null" >
+        PERSON_TYPE = #{personType,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null" >
+        CREATE_TIME = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="province != null" >
+        PROVINCE = #{province,jdbcType=VARCHAR},
+      </if>
+      <if test="city != null" >
+        CITY = #{city,jdbcType=VARCHAR},
+      </if>
+      <if test="region != null" >
+        REGION = #{region,jdbcType=VARCHAR},
+      </if>
+      <if test="address != null" >
+        ADDRESS = #{address,jdbcType=VARCHAR},
+      </if>
+      <if test="coord != null" >
+        COORD = #{coord,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        STATUS = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="storeId != null" >
+        STORE_ID = #{storeId,jdbcType=INTEGER},
+      </if>
+      <if test="DCNum != null" >
+        DC_NUM = #{DCNum,jdbcType=INTEGER},
+      </if>
+      <if test="ACNum != null" >
+        AC_NUM = #{ACNum,jdbcType=INTEGER},
+      </if>
+      <if test="planUseTime != null" >
+        PLAN_USE_TIME = #{planUseTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDirect != null" >
+        IS_DIRECT = #{isDirect},
+      </if>
+      <if test="directServiceChargeAmount != null" >
+        DIRECT_SERVICE_CHARGE_AMOUNT = #{directServiceChargeAmount},
+      </if>
+      <if test="directBasicChargeAmount != null" >
+        DIRECT_BASIC_CHARGE_AMOUNT = #{directBasicChargeAmount},
+      </if>
+      <if test="directPersonServiceAmount!= null" >
+        DIRECT_PERSON_SERVICE_AMOUNT = #{directPersonServiceAmount},
+      </if>
+      <if test="directThirdServiceAmount != null" >
+        DIRECT_THIRD_SERVICE_AMOUNT = #{directThirdServiceAmount},
+      </if>
+      <if test="isFormal != null" >
+        IS_FORMAL = #{isFormal},
+      </if>
+      <if test="chargeType != null" >
+        CHARGE_TYPE = #{chargeType},
+      </if>
+    </set>
+    where ID = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.tox.bean.ElecStation" >
+    update elec_station
+    set STATION_NAME = #{stationName,jdbcType=VARCHAR},
+      SERVICE_CHARGE_AMOUNT = #{serviceChargeAmount,jdbcType=DOUBLE},
+      BASIC_CHARGE_AMOUNT = #{basicChargeAmount,jdbcType=DOUBLE},
+      PERSON_NAME = #{personName,jdbcType=VARCHAR},
+      PERSON_PHONE = #{personPhone,jdbcType=VARCHAR},
+      PERSON_OPENID = #{personOpenid,jdbcType=VARCHAR},
+      CREATE_TIME = #{createTime,jdbcType=TIMESTAMP},
+      PROVINCE = #{province,jdbcType=VARCHAR},
+      CITY = #{city,jdbcType=VARCHAR},
+      REGION = #{region,jdbcType=VARCHAR},
+      ADDRESS = #{address,jdbcType=VARCHAR},
+      COORD = #{coord,jdbcType=VARCHAR},
+      STATUS = #{status,jdbcType=INTEGER},
+      STORE_ID = #{storeId,jdbcType=INTEGER}
+    where ID = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByIds" parameterType="java.lang.Integer">
+    	update elec_station 
+    		set  status = #{status}
+    	where ID in
+		<foreach collection="array" index="index" item="item" 
+        separator="," open="(" close=")">
+        #{item}
+    </foreach>
+	</update>
+</mapper>

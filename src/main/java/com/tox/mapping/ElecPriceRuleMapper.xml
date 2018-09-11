@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.tox.dao.ElecPriceRuleMapper" >
+  <resultMap id="BaseResultMap" type="com.tox.bean.ElecPriceRule" >
+    <id column="ID" property="id" jdbcType="INTEGER" />
+    <result column="STATION_ID" property="stationId" jdbcType="INTEGER" />
+    <result column="SET_AMOUNT" property="setAmount" jdbcType="DOUBLE" />
+    <result column="DISC_RATIO" property="discRatio" jdbcType="DOUBLE" />
+    <result column="RELE_COUNT" property="releCount" jdbcType="DOUBLE" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    ID, STATION_ID, SET_AMOUNT, DISC_RATIO, RELE_COUNT
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from elec_price_rule
+    where ID = #{id,jdbcType=INTEGER}
+  </select>
+  <select id="selectByStationId" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from elec_price_rule
+    where STATION_ID = #{id,jdbcType=INTEGER}
+  </select>
+  
+  <select id="selectListByPrimaryKey" resultMap="BaseResultMap"
+		parameterType="java.util.Map">
+		select
+		<include refid="Base_Column_List" />
+		from elec_price_rule 
+		<where>
+			1=1
+			<if test="infoVo.stationId!=null">
+				<bind name="param_stationId" value=" infoVo.stationId "/>
+				and elec_price_rule.STATION_ID = #{param_stationId}
+			</if>
+			
+		</where>
+	</select>
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from elec_price_rule
+    where ID = #{id,jdbcType=INTEGER}
+  </delete>
+  
+  <delete id="deleteByPrimary"  parameterType="java.util.Map">
+    delete from elec_price_rule
+    <where>
+			<if test="prInfo.stationId!=null">
+				<bind name="param_stationId" value=" prInfo.stationId "/>
+				and elec_price_rule.STATION_ID = #{param_stationId}
+			</if>
+			<if test="prInfo.id!=null">
+				<bind name="param_id" value=" prInfo.id "/>
+				and elec_price_rule.ID = #{param_id}
+			</if>
+			
+		</where>
+  </delete>
+  
+  <insert id="insert" parameterType="com.tox.bean.ElecPriceRule" >
+    insert into elec_price_rule (ID, STATION_ID, SET_AMOUNT, 
+      DISC_RATIO, RELE_COUNT)
+    values (#{id,jdbcType=INTEGER}, #{stationId,jdbcType=INTEGER}, #{setAmount,jdbcType=DOUBLE}, 
+      #{discRatio,jdbcType=DOUBLE}, #{releCount,jdbcType=DOUBLE})
+  </insert>
+  <insert id="insertSelective" parameterType="com.tox.bean.ElecPriceRule" >
+    insert into elec_price_rule
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        ID,
+      </if>
+      <if test="stationId != null" >
+        STATION_ID,
+      </if>
+      <if test="setAmount != null" >
+        SET_AMOUNT,
+      </if>
+      <if test="discRatio != null" >
+        DISC_RATIO,
+      </if>
+      <if test="releCount != null" >
+        RELE_COUNT,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="stationId != null" >
+        #{stationId,jdbcType=INTEGER},
+      </if>
+      <if test="setAmount != null" >
+        #{setAmount,jdbcType=DOUBLE},
+      </if>
+      <if test="discRatio != null" >
+        #{discRatio,jdbcType=DOUBLE},
+      </if>
+      <if test="releCount != null" >
+        #{releCount,jdbcType=DOUBLE},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.tox.bean.ElecPriceRule" >
+    update elec_price_rule
+    <set >
+      <if test="stationId != null" >
+        STATION_ID = #{stationId,jdbcType=INTEGER},
+      </if>
+      <if test="setAmount != null" >
+        SET_AMOUNT = #{setAmount,jdbcType=DOUBLE},
+      </if>
+      <if test="discRatio != null" >
+        DISC_RATIO = #{discRatio,jdbcType=DOUBLE},
+      </if>
+      <if test="releCount != null" >
+        RELE_COUNT = #{releCount,jdbcType=DOUBLE},
+      </if>
+    </set>
+    where ID = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.tox.bean.ElecPriceRule" >
+    update elec_price_rule
+    set STATION_ID = #{stationId,jdbcType=INTEGER},
+      SET_AMOUNT = #{setAmount,jdbcType=DOUBLE},
+      DISC_RATIO = #{discRatio,jdbcType=DOUBLE},
+      RELE_COUNT = #{releCount,jdbcType=DOUBLE}
+    where ID = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

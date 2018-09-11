@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.tox.dao.ElecWeblogMapper" >
+  <resultMap id="BaseResultMap" type="com.tox.bean.ElecWeblog" >
+    <id column="ID" property="id" jdbcType="INTEGER" />
+    <result column="HTTP_METHOD" property="httpMethod" jdbcType="VARCHAR" />
+    <result column="IP" property="ip" jdbcType="VARCHAR" />
+    <result column="CLASS_METHOD" property="classMethod" jdbcType="VARCHAR" />
+    <result column="ARGS" property="args" jdbcType="VARCHAR" />
+    <result column="URL" property="url" jdbcType="VARCHAR" />
+    <result column="SIGN" property="sign" jdbcType="VARCHAR" />
+    <result column="CPNAME" property="cpname" jdbcType="VARCHAR" />
+    <result column="CREATEDATE" property="createDate" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    ID, HTTP_METHOD, IP, CLASS_METHOD, ARGS, URL, SIGN, CPNAME,CREATEDATE
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from elec_weblog
+    where ID = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from elec_weblog
+    where ID = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.tox.bean.ElecWeblog" >
+    insert into elec_weblog (ID, HTTP_METHOD, IP, 
+      CLASS_METHOD, ARGS, URL, 
+      SIGN, CPNAME)
+    values (#{id,jdbcType=INTEGER}, #{httpMethod,jdbcType=VARCHAR}, #{ip,jdbcType=VARCHAR}, 
+      #{classMethod,jdbcType=VARCHAR}, #{args,jdbcType=VARCHAR}, #{url,jdbcType=VARCHAR}, 
+      #{sign,jdbcType=VARCHAR}, #{cpname,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.tox.bean.ElecWeblog" >
+    insert into elec_weblog
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        ID,
+      </if>
+      <if test="httpMethod != null" >
+        HTTP_METHOD,
+      </if>
+      <if test="ip != null" >
+        IP,
+      </if>
+      <if test="classMethod != null" >
+        CLASS_METHOD,
+      </if>
+      <if test="args != null" >
+        ARGS,
+      </if>
+      <if test="url != null" >
+        URL,
+      </if>
+      <if test="sign != null" >
+        SIGN,
+      </if>
+      <if test="cpname != null" >
+        CPNAME,
+      </if>
+       <if test="createDate != null" >
+        CREATEDATE,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="httpMethod != null" >
+        #{httpMethod,jdbcType=VARCHAR},
+      </if>
+      <if test="ip != null" >
+        #{ip,jdbcType=VARCHAR},
+      </if>
+      <if test="classMethod != null" >
+        #{classMethod,jdbcType=VARCHAR},
+      </if>
+      <if test="args != null" >
+        #{args,jdbcType=VARCHAR},
+      </if>
+      <if test="url != null" >
+        #{url,jdbcType=VARCHAR},
+      </if>
+      <if test="sign != null" >
+        #{sign,jdbcType=VARCHAR},
+      </if>
+      <if test="cpname != null" >
+        #{cpname,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null" >
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.tox.bean.ElecWeblog" >
+    update elec_weblog
+    <set >
+      <if test="httpMethod != null" >
+        HTTP_METHOD = #{httpMethod,jdbcType=VARCHAR},
+      </if>
+      <if test="ip != null" >
+        IP = #{ip,jdbcType=VARCHAR},
+      </if>
+      <if test="classMethod != null" >
+        CLASS_METHOD = #{classMethod,jdbcType=VARCHAR},
+      </if>
+      <if test="args != null" >
+        ARGS = #{args,jdbcType=VARCHAR},
+      </if>
+      <if test="url != null" >
+        URL = #{url,jdbcType=VARCHAR},
+      </if>
+      <if test="sign != null" >
+        SIGN = #{sign,jdbcType=VARCHAR},
+      </if>
+      <if test="cpname != null" >
+        CPNAME = #{cpname,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where ID = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.tox.bean.ElecWeblog" >
+    update elec_weblog
+    set HTTP_METHOD = #{httpMethod,jdbcType=VARCHAR},
+      IP = #{ip,jdbcType=VARCHAR},
+      CLASS_METHOD = #{classMethod,jdbcType=VARCHAR},
+      ARGS = #{args,jdbcType=VARCHAR},
+      URL = #{url,jdbcType=VARCHAR},
+      SIGN = #{sign,jdbcType=VARCHAR},
+      CPNAME = #{cpname,jdbcType=VARCHAR}
+    where ID = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

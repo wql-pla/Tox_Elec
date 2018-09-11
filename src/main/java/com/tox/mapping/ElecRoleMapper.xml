@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.tox.dao.ElecRoleMapper" >
+  <resultMap id="BaseResultMap" type="com.tox.bean.ElecRole" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="rolename" property="rolename" jdbcType="VARCHAR" />
+    <result column="createdate" property="createdate" jdbcType="TIMESTAMP" />
+    <result column="organid" property="organid" jdbcType="INTEGER" />
+    <result column="department" property="department" jdbcType="VARCHAR" />
+    <result column="organName" property="organName" jdbcType="VARCHAR" />
+    <result column="region" property="region" jdbcType="VARCHAR" />
+    <collection property="basisList" ofType="com.tox.bean.ElecBasisRoleRel">
+	    <id column="relid" property="id" jdbcType="INTEGER" />
+	    <result column="roleid" property="roleid" jdbcType="INTEGER" />
+	    <result column="basisid" property="basisid" jdbcType="INTEGER" />
+	    <result column="faid" property="faid" jdbcType="INTEGER" />
+	</collection>
+  </resultMap>
+  <sql id="Base_Column_List" >
+    elec_role.id, rolename, elec_role.createdate, organid, department
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    
+    <include refid="Base_Column_List" />,
+    
+    res.id as relid , res.roleid , res.basisid 
+    
+    , eor.name as organName , eor.region , eb.faid
+    
+    from elec_role
+    
+    LEFT JOIN elec_basis_role_rel res ON res.roleid = elec_role.id
+    
+    LEFT JOIN elec_basis eb ON eb.id = res.basisid
+    
+    LEFT JOIN elec_organization eor ON eor.id = elec_role.organid
+    
+    where elec_role.id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from elec_role
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  
+   <select id="selectrole" resultMap="BaseResultMap" parameterType="com.tox.bean.ElecRole" >
+    select 
+    <include refid="Base_Column_List" />,
+    eor.name as organName
+    from elec_role
+    LEFT JOIN elec_organization eor ON eor.id = elec_role.organid
+    where 1=1 
+    <if test="role.id != null and role.id != '' " >
+        and id = #{role.id,jdbcType=INTEGER}
+    </if>
+    <if test="role.rolename != null and role.rolename != ''">
+        <bind name="rolename" value="'%'+role.rolename+'%'"/>
+        and rolename like #{rolename}
+	 </if>
+	<if test="role.organid != null and role.organid != '' " >
+        and organid = #{role.organid,jdbcType=INTEGER}
+    </if>
+    order by elec_role.createdate desc
+    <if test="role.pageSize>0">
+		limit #{role.pageNum,jdbcType=INTEGER},#{role.pageSize,jdbcType=INTEGER}
+	</if>
+  </select>
+  <select id="selectroleCount" resultType="java.lang.Integer" parameterType="com.tox.bean.ElecRole" >
+    select count(*)
+    from elec_role
+    where 1=1 
+   <if test="role.id != null and role.id != '' " >
+        and id = #{role.id,jdbcType=INTEGER}
+    </if>
+    <if test="role.rolename != null and role.rolename != ''">
+        <bind name="rolename" value="'%'+role.rolename+'%'"/>
+        and rolename like #{rolename}
+	 </if>
+	<if test="role.organid != null and role.organid != '' " >
+        and organid = #{role.organid,jdbcType=INTEGER}
+    </if>
+  </select>
+  
+  <insert id="insert" parameterType="com.tox.bean.ElecRole" >
+    insert into elec_role (id, rolename, createdate, 
+      organid, department)
+    values (#{id,jdbcType=INTEGER}, #{rolename,jdbcType=VARCHAR}, #{createdate,jdbcType=TIMESTAMP}, 
+      #{organid,jdbcType=INTEGER}, #{department,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" useGeneratedKeys="true" keyProperty="id" parameterType="com.tox.bean.ElecRole" >
+    insert into elec_role
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="rolename != null" >
+        rolename,
+      </if>
+      <if test="createdate != null" >
+        createdate,
+      </if>
+      <if test="organid != null" >
+        organid,
+      </if>
+      <if test="department != null" >
+        department,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="rolename != null" >
+        #{rolename,jdbcType=VARCHAR},
+      </if>
+      <if test="createdate != null" >
+        #{createdate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="organid != null" >
+        #{organid,jdbcType=INTEGER},
+      </if>
+      <if test="department != null" >
+        #{department,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.tox.bean.ElecRole" >
+    update elec_role
+    <set >
+      <if test="rolename != null" >
+        rolename = #{rolename,jdbcType=VARCHAR},
+      </if>
+      <if test="createdate != null" >
+        createdate = #{createdate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="organid != null" >
+        organid = #{organid,jdbcType=INTEGER},
+      </if>
+      <if test="department != null" >
+        department = #{department,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.tox.bean.ElecRole" >
+    update elec_role
+    set rolename = #{rolename,jdbcType=VARCHAR},
+      createdate = #{createdate,jdbcType=TIMESTAMP},
+      organid = #{organid,jdbcType=INTEGER},
+      department = #{department,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>
