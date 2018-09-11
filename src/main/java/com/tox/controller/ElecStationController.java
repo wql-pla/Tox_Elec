@@ -2,53 +2,24 @@ package com.tox.controller;
 
 //import static org.mockito.Matchers.startsWith;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.commons.collections.bag.SynchronizedSortedBag;
+import com.tox.bean.*;
+import com.tox.dao.*;
+import com.tox.utils.ExcelUtil;
+import com.tox.utils.MapUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.tox.bean.DirectStation;
-import com.tox.bean.ElecPile;
-import com.tox.bean.ElecStation;
-import com.tox.bean.ElecStationNorm;
-import com.tox.bean.ElecStore;
-import com.tox.bean.PageView;
-import com.tox.dao.ElecOrderMapper;
-import com.tox.dao.ElecPileMapper;
-import com.tox.dao.ElecPriceRuleMapper;
-import com.tox.dao.ElecStationMapper;
-import com.tox.dao.ElecStationNormMapper;
-import com.tox.dao.ElecStoreMapper;
-import com.tox.utils.ExcelUtil;
-import com.tox.utils.MapUtil;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
@@ -69,7 +40,7 @@ public class ElecStationController {
     private ElecStoreMapper storeDao;
     @Autowired
     private ElecStationNormMapper stationNormDao;
-    
+
   //查询所有场站所属城市
     @RequestMapping(value = "/selectStationCity")
     public @ResponseBody
@@ -106,12 +77,12 @@ public class ElecStationController {
         }
         data.put("station", elecStation);
         data.put("pileCount", pileCount);
-        data.put("ds", ds);		
+        data.put("ds", ds);
         data.put("stores", stores);
         map.put("result", "100");
         map.put("data", data);
         map.put("msg", "场站详情查询成功!");
-        
+
         return map;
     }
     //根据场站id查询相关信息 for web
@@ -178,30 +149,30 @@ public class ElecStationController {
     	map.put("result", "100");
     	map.put("data", data);
     	map.put("msg", "场站详情查询成功!");
-    	
+
     	return map;
     }
-    
+
     /**
-     * 
+     *
      * @param station
      * @return
      */
     @RequestMapping(value = "/selectDSById")
     public @ResponseBody
     Map<String, Object> selectDSById(@RequestBody ElecStation station){
-    	
+
     	Map<String, Object> map = new HashMap<String, Object>();
-    	
+
     	double ds = stationDao.selectDS(station);
-    	
+
     	map.put("result", "100");
         map.put("data", ds);
         map.put("msg", "度数查询成功!");
-    	
+
     	return map;
     }
-    
+
     //查询启用场站及场站内启用电桩的数量
     @RequestMapping(value = "/selectStationsAndPilesNum")
     public @ResponseBody
@@ -242,7 +213,7 @@ public class ElecStationController {
     	return map;
     }
 
-    
+
     //查询所有场站及计费规则
    /* @RequestMapping(value = "/selectStationsAndPriceRules")
     public @ResponseBody
@@ -288,7 +259,7 @@ public class ElecStationController {
     	Map<String, Object> map = new HashMap<String, Object>();
     	List<ElecStation> stations = stationDao.selectAllStations();
     	logger.info(String.format("查询结果：%s", stations.toString()));
-    	
+
     	map.put("data", stations);
     	return map;
     }
@@ -308,13 +279,13 @@ public class ElecStationController {
         }
         station.setCreateTime(new Date());
         int insert = 0;
-        
+
         if(station.getIsDirect() == 1) {
         	insert = stationDao.insertDirectStation(station);
         }else {
         	insert = stationDao.insertSelective((ElecStation)station);
         }
-        
+
         //-------------------添加场站电价------------------------------
         if (station.getChargeType() == 2 && station.getNormList() != null && station.getNormList().size() > 0) {
 			//赋值插入数据
@@ -331,7 +302,7 @@ public class ElecStationController {
 			norm.setToDate("23:59:00");
 			stationNormDao.insertSelective(norm);
 		}
-        
+
         if (insert > 0) {
             map.put("result", true);
             map.put("stationId", station.getId());
@@ -361,10 +332,10 @@ public class ElecStationController {
         	i = stationDao.updateByPrimaryKeySelective((ElecStation)station);
         }
         stationNormDao.deleteByStationId(station.getId());
-        
+
         //-------------------添加场站电价------------------------------
         if (station.getChargeType() == 2 && station.getNormList() != null && station.getNormList().size() > 0 ) {
-		
+
         	//-------------------删除之前的电价信息-------------------------
             	//赋值插入数据
         	station.getNormList().forEach(	norm -> {
@@ -380,7 +351,7 @@ public class ElecStationController {
 			norm.setToDate("23:59:00");
 			stationNormDao.insertSelective(norm);
 		}
-        
+
         if (i > 0) {
             map.put("result", true);
         } else {
@@ -388,14 +359,14 @@ public class ElecStationController {
         }
         return map;
     }
-    
+
     //修改启用状态
     @RequestMapping(value = "/updateStats")
     public @ResponseBody
     Map<String, Object> updateStats(@RequestParam Integer status,@RequestParam Integer...id){
     	logger.info(String.format("需要修改的桩站id为：%s", id.toString()));
     	Map<String, Object> map = new HashMap<String, Object>();
-    	
+
     	int up = stationDao.updateByIds(status,id);
     	if(up !=0 ){
     		map.put("result", "100");
@@ -408,64 +379,64 @@ public class ElecStationController {
     	}
     	return map;
     }
-    
+
     /**
      * 批量建站
-     * 
+     *
      * @param request
      * @param myfile
      * @param response
      * @return
      * @throws IllegalStateException
      * @throws IOException
-     * @throws ParseException 
+     * @throws ParseException
      */
    // @Transactional(isolation = Isolation.SERIALIZABLE)
     @RequestMapping(value="/insertStationByExcel",method=RequestMethod.POST,produces="application/json")
 	public @ResponseBody Map<String,Object> insertStationByExcel (HttpServletRequest request,
 			@RequestParam("myfile") MultipartFile myfile,HttpServletResponse response)
 			throws IllegalStateException, IOException, ParseException{
-		
+
     	Map<String,Object> map = new HashMap<String,Object>();
-    	
+
     	String realPath = request.getSession().getServletContext().getRealPath("");
-		
+
         String path = realPath + "//excel";
-        
+
         File fi = new File(path);
-        
+
         if (!fi.exists()) {
-        	
+
            fi.mkdirs();
-           
+
         }
-        
+
         String fileName = System.currentTimeMillis() + myfile.getOriginalFilename();
-        
+
         File targetFile = new File(path, fileName);
 
         myfile.transferTo(targetFile);
-        
+
         System.out.println(targetFile.getAbsolutePath());
-        
+
 		map = ExcelUtil.readExcel(targetFile.getAbsolutePath());
-		
+
 		List<Object> NUM = (List<Object>) map.get("data");
-		
+
 		//----------创建桩站对象------
 		ElecStation station =  new ElecStation();
-		
-		
+
+
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		
+
 		//----------遍历添加桩站信息----
 		for (int i = 0; i < NUM.size(); i++) {
-			
+
 			List<String> ln = (List<String>) NUM.get(i);
 			//---------------桩站信息赋值--------
 			station.setId(null);
 			station.setStationName(ln.get(0)); 								//桩站名称
-			station.setServiceChargeAmount(Double.valueOf(ln.get(1)));		//桩站服务费	
+			station.setServiceChargeAmount(Double.valueOf(ln.get(1)));		//桩站服务费
 			station.setBasicChargeAmount(Double.valueOf(ln.get(2)));		//桩站基础费
 			station.setThirdServiceAmount(Double.valueOf(ln.get(3)));		//桩站分润费
 			station.setPersonServiceAmount(Double.valueOf(ln.get(4)));		//桩站个人服务费
@@ -478,16 +449,16 @@ public class ElecStationController {
 			station.setRegion(ln.get(10));									//桩站所在区域
 			station.setAddress(ln.get(11));									//桩站地址
 			station.setCoord(ln.get(12));									//桩站坐标
-			station.setStatus(Integer.valueOf(ln.get(13)));					//桩站状态	
+			station.setStatus(Integer.valueOf(ln.get(13)));					//桩站状态
 			station.setStoreId(Integer.valueOf(ln.get(14)));				//庄站所属门店id
 			station.setDCNum(Integer.valueOf(ln.get(15)));					//预计建设直流桩个数
 			station.setACNum(Integer.valueOf(ln.get(16)));					//预计建设交流桩个数
 			station.setPlanUseTime(sdf.parse(ln.get(17)));					//预计上线时间
-			station.setChargeType(1);										//默认为全天候		
-			
+			station.setChargeType(1);										//默认为全天候
+
 			//--------------添加桩站信息-----------------------
 				 stationDao.insertSelective(station);
-				 
+
 				 //---------------全天候插入附表信息-------------
 			 	ElecStationNorm norm = new ElecStationNorm();
 			 	norm.setBasicChargeAmount(station.getBasicChargeAmount());
@@ -496,19 +467,19 @@ public class ElecStationController {
 				norm.setFromDate("00:00:00");
 				norm.setToDate("23:59:00");
 				stationNormDao.insertSelective(norm);
-		
+
 		}
-	
+
 		map.put("result", "100");
 		map.put("data", true);
 		map.put("msg", "电桩更新成功!");
-    	
+
     	return map;
-    
+
     }
-    
+
     /**
-     * 
+     *
      * @param request
      * @param myfile
      * @param stationName
@@ -520,86 +491,86 @@ public class ElecStationController {
      * @throws ParseException
      */
     @RequestMapping(value="/UpdateStationByExcel",method=RequestMethod.POST,produces="application/json")
-   	public @ResponseBody Map<String,Object> UpdateStationByExcel (HttpServletRequest request, @RequestParam("myfile") MultipartFile myfile, 
+   	public @ResponseBody Map<String,Object> UpdateStationByExcel (HttpServletRequest request, @RequestParam("myfile") MultipartFile myfile,
    			@RequestParam Integer stationId ,@RequestParam Integer flg,HttpServletResponse response) throws IllegalStateException, IOException, ParseException{
-    	
+
     	Map<String,Object> map = new HashMap<String,Object>();
-    	
+
     	String realPath = request.getSession().getServletContext().getRealPath("");
-		
+
         String path = realPath + "//excel";
-        
+
         File fi = new File(path);
-        
+
         if (!fi.exists()) {
-        	
+
            fi.mkdirs();
-           
+
         }
-        
+
         String fileName = System.currentTimeMillis() + myfile.getOriginalFilename();
-        
+
         File targetFile = new File(path, fileName);
 
         myfile.transferTo(targetFile);
-        
+
         System.out.println(targetFile.getAbsolutePath());
-        
+
 		map = ExcelUtil.readExcel(targetFile.getAbsolutePath());
-		
+
 		List<Object> NUM = (List<Object>) map.get("data");
-		
+
 		List<Integer> pileList = new  ArrayList<Integer>();
-	
+
 		//--------------遍寻判断电桩编号是否存在------------
-		
+
 		for (int i = 0; i < NUM.size(); i++) {
-			
+
 			List<String> ln = (List<String>) NUM.get(i);
-			
+
 			for (String string : ln) {
-				
+
 				ElecPile info = pileDao.findChargeInfoByPileNum2(string);
-				
+
 				if (info==null) {
-					
+
 					map.put("result", "101");
 		    		map.put("data", string);
 		    		map.put("msg", "电桩编号不存在!");
 		    		return map;
-		    		
+
 				}
 				pileList.add(info.getId());
 			}
-				
+
 		}
-		
+
 		//----------------声明电桩对象-----------------
-		
+
 		ElecPile pileInfo = new ElecPile();
-		
+
 		pileInfo.setChargeStandardId(stationId);				//场站id赋值
-		
+
 		if (flg == 1) {
-			
+
 			pileInfo.setOnlineDate(new Date());
 		}
-		
+
 		for (int i = 0; i < pileList.size(); i++) {
-			
+
 			pileInfo.setId(pileList.get(i));
-			
+
 			pileDao.updateByPrimaryKeySelective(pileInfo);
 		}
-		
+
 		map.put("result", "100");
 		map.put("data", true);
 		map.put("msg", "电桩更新成功!");
-		
+
 		return map;
     }
 
-    
+
     /**
      * 电价地图
      * @return
@@ -638,7 +609,7 @@ public class ElecStationController {
     	map.put("price", maxAndMin);
     	return map;
     }
-    
+
     /**
      * 庄站价格，名称
      * @param param
@@ -658,6 +629,6 @@ public class ElecStationController {
     	map.put("msg", "查询成功!");
     	return map;
     }
-    
-    
+
+
 }
