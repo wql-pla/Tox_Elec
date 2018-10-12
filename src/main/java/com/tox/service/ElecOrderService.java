@@ -231,7 +231,7 @@ public class ElecOrderService {
 					pile.setAllCount((pile.getAllCount()==null?0:pile.getAllCount())+multiply.doubleValue());
 				}
 				elecOrder.setRealCount(multiply.doubleValue());
-				if(elecOrder.getElecTotalCount()==elecOrder.getRealCount()){
+				if(elecOrder.getElecTotalCount()<=Double.valueOf(bean.getTotalAmmeterDegree())){
 					elecOrder.setOrderFee(elecOrder.getElecTotalAmount());
 					elecOrder.setRealAmount(elecOrder.getElecTotalAmount());
 				}else{
@@ -388,7 +388,7 @@ public class ElecOrderService {
 				if(Double.valueOf(bean.getTotalAmmeterDegree())==0 || Double.valueOf(bean.getTotalAmmeterDegree())>(elecOrder.getRealCount() ==null?0:elecOrder.getRealCount())){
 //					BigDecimal multiply = BigDecimal.valueOf(Double.valueOf(bean.getTotalAmmeterDegree())).multiply(BigDecimal.valueOf(1.05D)).setScale(2, BigDecimal.ROUND_UP);
 					elecOrder.setRealCount(elecSum);
-					if(elecOrder.getElecTotalCount()==elecOrder.getRealCount()){
+					if(elecOrder.getElecTotalCount()<=Double.valueOf(bean.getTotalAmmeterDegree())){
 						elecOrder.setOrderFee(elecOrder.getElecTotalAmount());
 						elecOrder.setRealAmount(elecOrder.getElecTotalAmount());
 					}else{
@@ -412,7 +412,7 @@ public class ElecOrderService {
 					pile.setAllCount((pile.getAllCount()==null?0:pile.getAllCount())+elecSum);
 				}
 				elecOrder.setRealCount(elecSum);
-				if(elecOrder.getElecTotalCount()==elecOrder.getRealCount()){
+				if(elecOrder.getElecTotalCount()<=Double.valueOf(bean.getTotalAmmeterDegree())){
 					elecOrder.setOrderFee(elecOrder.getElecTotalAmount());
 					elecOrder.setRealAmount(elecOrder.getElecTotalAmount());
 				}else{
