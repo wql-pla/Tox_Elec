@@ -53,8 +53,11 @@ public class ElecPileUpdateController {
 	 * @param result
 	 */
 	@RequestMapping(value="/getQrCode")
-	public @ResponseBody Map<String, Object> getQrCode(String args){
+	public @ResponseBody Map<String, Object> getQrCode(String args,@RequestBody String kstar){
 		Map<String, Object> map = new HashMap<>();
+		if(null == args || "".equals(args)){
+			args= kstar;
+		}
 		logger.info(String.format("获取微信码参数：%s", args));
 		if("".equals(args)||null==args){
 			map.put("code", 1);
