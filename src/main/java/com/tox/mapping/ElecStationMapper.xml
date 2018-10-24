@@ -6,6 +6,7 @@
     <result column="STATION_NAME" jdbcType="VARCHAR" property="stationName" />
     <result column="SERVICE_CHARGE_AMOUNT" jdbcType="DOUBLE" property="serviceChargeAmount" />
     <result column="BASIC_CHARGE_AMOUNT" jdbcType="DOUBLE" property="basicChargeAmount" />
+    <result column="PERSON_BASIC_CHARGE_AMOUNT" jdbcType="DOUBLE" property="personBasicChargeAmount" />
     <result column="THIRD_SERVICE_AMOUNT" jdbcType="DOUBLE" property="thirdServiceAmount" />
     <result column="PERSON_SERVICE_AMOUNT" jdbcType="DOUBLE" property="personServiceAmount" />
     <result column="PERSON_NAME" jdbcType="VARCHAR" property="personName" />
@@ -37,13 +38,13 @@
   <sql id="Base_Column_List">
     ID, STATION_NAME, SERVICE_CHARGE_AMOUNT, BASIC_CHARGE_AMOUNT, PERSON_NAME, PERSON_PHONE, PERSON_TYPE,
     PERSON_OPENID, CREATE_TIME, PROVINCE, CITY, REGION, ADDRESS, COORD, STATUS, STORE_ID,THIRD_SERVICE_AMOUNT,PERSON_SERVICE_AMOUNT,
-    DC_NUM,AC_NUM,PLAN_USE_TIME,IS_DIRECT,IS_FORMAL,CHARGE_TYPE
+    DC_NUM,AC_NUM,PLAN_USE_TIME,IS_DIRECT,IS_FORMAL,CHARGE_TYPE,PERSON_BASIC_CHARGE_AMOUNT
   </sql>
   <sql id="Extend_Column_List">
   	ID, STATION_NAME, SERVICE_CHARGE_AMOUNT, BASIC_CHARGE_AMOUNT, PERSON_NAME, PERSON_PHONE, PERSON_TYPE,
     PERSON_OPENID, CREATE_TIME, PROVINCE, CITY, REGION, ADDRESS, COORD, STATUS, STORE_ID,THIRD_SERVICE_AMOUNT,PERSON_SERVICE_AMOUNT,
     DC_NUM,AC_NUM,PLAN_USE_TIME,DIRECT_SERVICE_CHARGE_AMOUNT,DIRECT_BASIC_CHARGE_AMOUNT,DIRECT_PERSON_SERVICE_AMOUNT,
-    DIRECT_THIRD_SERVICE_AMOUNT,IS_DIRECT,IS_FORMAL,CHARGE_TYPE
+    DIRECT_THIRD_SERVICE_AMOUNT,IS_DIRECT,IS_FORMAL,CHARGE_TYPE,PERSON_BASIC_CHARGE_AMOUNT
   </sql>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
     select 
@@ -90,7 +91,7 @@
   </select>
   <select id="selectStationsAndPilesNum" resultMap="BaseResultMap" parameterType="com.tox.bean.ElecStation" >
     select 
-    ID, STATION_NAME, SERVICE_CHARGE_AMOUNT, BASIC_CHARGE_AMOUNT, PERSON_NAME, PERSON_PHONE,CHARGE_TYPE,
+    ID, STATION_NAME, SERVICE_CHARGE_AMOUNT, BASIC_CHARGE_AMOUNT, PERSON_NAME, PERSON_PHONE,CHARGE_TYPE,PERSON_BASIC_CHARGE_AMOUNT,
     PERSON_OPENID, CREATE_TIME, PROVINCE, CITY, REGION, ADDRESS, COORD, STATUS, STORE_ID,DC_NUM,AC_NUM,PLAN_USE_TIME,IS_FORMAL,IS_DIRECT,
     (select count(p.ID) from elec_pile p where p.CHARGE_STANDARD_ID = s.id and p.STATUS=1 and (case when p.TYPE in(3,5) then p.IS_USED!=1 when p.TYPE in(4,6) then p.IS_USED!=3 END)) as PILES_NUM
     from elec_station s
@@ -184,7 +185,7 @@
    <select id="selectByPrimaryPileId" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
     select 
     s.ID, STATION_NAME, SERVICE_CHARGE_AMOUNT, BASIC_CHARGE_AMOUNT, PERSON_NAME, PERSON_PHONE, CHARGE_TYPE, 
-    s.PERSON_OPENID, s.CREATE_TIME,s.IS_FORMAL,s.IS_DIRECT
+    s.PERSON_OPENID, s.CREATE_TIME,s.IS_FORMAL,s.IS_DIRECT,PERSON_BASIC_CHARGE_AMOUNT
    	FROM
 	elec_station s LEFT JOIN elec_pile p ON s.ID = p.CHARGE_STANDARD_ID
     where  p.ID = #{pileid,jdbcType=INTEGER}
@@ -399,6 +400,9 @@
       <if test="basicChargeAmount != null" >
         BASIC_CHARGE_AMOUNT,
       </if>
+      <if test="personBasicChargeAmount != null" >
+        PERSON_BASIC_CHARGE_AMOUNT,
+      </if>
       <if test="thirdServiceAmount != null" >
         THIRD_SERVICE_AMOUNT,
       </if>
@@ -469,6 +473,9 @@
       </if>
       <if test="basicChargeAmount != null" >
         #{basicChargeAmount,jdbcType=DOUBLE},
+      </if>
+      <if test="personBasicChargeAmount != null" >
+        #{personBasicChargeAmount,jdbcType=DOUBLE},
       </if>
       <if test="thirdServiceAmount != null" >
         #{thirdServiceAmount,jdbcType=DOUBLE},
@@ -543,6 +550,9 @@
       </if>
       <if test="basicChargeAmount != null" >
         BASIC_CHARGE_AMOUNT,
+      </if>
+      <if test="personBasicChargeAmount != null" >
+        PERSON_BASIC_CHARGE_AMOUNT,
       </if>
       <if test="thirdServiceAmount != null" >
         THIRD_SERVICE_AMOUNT,
@@ -630,6 +640,9 @@
       <if test="basicChargeAmount != null" >
         #{basicChargeAmount,jdbcType=DOUBLE},
       </if>
+      <if test="personBasicChargeAmount != null" >
+        #{personBasicChargeAmount,jdbcType=DOUBLE},
+      </if>
       <if test="thirdServiceAmount != null" >
         #{thirdServiceAmount,jdbcType=DOUBLE},
       </if>
@@ -716,6 +729,9 @@
       <if test="basicChargeAmount != null" >
         BASIC_CHARGE_AMOUNT = #{basicChargeAmount,jdbcType=DOUBLE},
       </if>
+      <if test="personBasicChargeAmount != null" >
+        PERSON_BASIC_CHARGE_AMOUNT = #{personBasicChargeAmount,jdbcType=DOUBLE},
+      </if>
       <if test="thirdServiceAmount != null" >
         THIRD_SERVICE_AMOUNT = #{thirdServiceAmount,jdbcType=DOUBLE},
       </if>
@@ -790,6 +806,9 @@
       </if>
       <if test="basicChargeAmount != null" >
         BASIC_CHARGE_AMOUNT = #{basicChargeAmount,jdbcType=DOUBLE},
+      </if>
+      <if test="personBasicChargeAmount != null" >
+        PERSON_BASIC_CHARGE_AMOUNT = #{personBasicChargeAmount,jdbcType=DOUBLE},
       </if>
       <if test="thirdServiceAmount != null" >
         THIRD_SERVICE_AMOUNT = #{thirdServiceAmount,jdbcType=DOUBLE},

@@ -1,50 +1,24 @@
 	package com.tox.controller;
 
+import com.tox.bean.*;
+import com.tox.dao.*;
+import com.tox.service.ElecActivityService;
+import com.tox.service.ElecOrderService;
+import com.tox.utils.ElecUtil;
+import com.tox.utils.date.dateUtil;
+import net.sf.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.tox.bean.ElecFirm;
-import com.tox.bean.ElecOrder;
-import com.tox.bean.ElecOrderDetail;
-import com.tox.bean.ElecPile;
-import com.tox.bean.ElecRecharge;
-import com.tox.bean.ElecRole;
-import com.tox.bean.ElecStation;
-import com.tox.bean.ElecUser;
-import com.tox.bean.ElecUserCouponsRel;
-import com.tox.bean.PageView;
-import com.tox.bean.ResultXYDF;
-import com.tox.dao.ElecFirmMapper;
-import com.tox.dao.ElecOrderDetailMapper;
-import com.tox.dao.ElecOrderMapper;
-import com.tox.dao.ElecPileMapper;
-import com.tox.dao.ElecRechargeMapper;
-import com.tox.dao.ElecRoleMapper;
-import com.tox.dao.ElecStationMapper;
-import com.tox.dao.ElecUserCouponsRelMapper;
-import com.tox.dao.ElecUserMapper;
-import com.tox.service.ElecActivityService;
-import com.tox.service.ElecOrderService;
-import com.tox.utils.ElecUtil;
-import com.tox.utils.date.dateUtil;
-
-import net.sf.json.JSONObject;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
@@ -380,8 +354,8 @@ public class ElecOrderController {
 			map.put("msg", "电桩已停用");
 			return map;
 		}
-		
-		
+
+
 		orderService.setOrderMoney(pile, user, order, balance);
 		int status = orderDao.insertSelective(order);
 		if (1 == status) {
@@ -576,6 +550,7 @@ public class ElecOrderController {
 				if(null!=station.getPersonType()&& 1==station.getPersonType()&&user.getPhone().equals(station.getPersonPhone())){
 					logger.info("桩东结束充电============");
 					serviceAmount=station.getPersonServiceAmount();
+					basicAmount=station.getPersonBasicChargeAmount();
 				}else{
 					serviceAmount= station.getServiceChargeAmount();
 				}

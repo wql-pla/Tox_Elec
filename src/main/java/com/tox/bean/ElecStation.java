@@ -56,9 +56,11 @@ public class ElecStation extends PageView<ElecStation> {
     
     //个人车位东所收取的三方服务费--- 2018-5-30
     private Double personServiceAmount;
+    //个人车位东所收取的基础电费
+    private Double personBasicChargeAmount;
     
     private ElecPriceTemplateMaster master;//价格模板
-    
+
     //是否有直流电桩
     private Integer isDirect;
     
@@ -308,19 +310,48 @@ public class ElecStation extends PageView<ElecStation> {
 	public void setChargeType(Integer chargeType) {
 		this.chargeType = chargeType;
 	}
+    public Double getPersonBasicChargeAmount() {
+        return personBasicChargeAmount;
+    }
 
-	@Override
-	public String toString() {
-		return "ElecStation [id=" + id + ", stationName=" + stationName + ", serviceChargeAmount=" + serviceChargeAmount
-				+ ", basicChargeAmount=" + basicChargeAmount + ", personName=" + personName + ", personPhone="
-				+ personPhone + ", personOpenid=" + personOpenid + ", personType=" + personType + ", createTime="
-				+ createTime + ", province=" + province + ", city=" + city + ", region=" + region + ", address="
-				+ address + ", coord=" + coord + ", status=" + status + ", storeId=" + storeId + ", pilesNum="
-				+ pilesNum + ", DCNum=" + DCNum + ", ACNum=" + ACNum + ", planUseTime=" + planUseTime + ", startDate="
-				+ startDate + ", endDate=" + endDate + ", thirdServiceAmount=" + thirdServiceAmount
-				+ ", personServiceAmount=" + personServiceAmount + ", master=" + master + "]";
-	}
+    public void setPersonBasicChargeAmount(Double personBasicChargeAmount) {
+        this.personBasicChargeAmount = personBasicChargeAmount;
+    }
 
-		
-    
+    @Override
+    public String toString() {
+        return "ElecStation{" +
+                "id=" + id +
+                ", price=" + price +
+                ", stationName='" + stationName + '\'' +
+                ", serviceChargeAmount=" + serviceChargeAmount +
+                ", basicChargeAmount=" + basicChargeAmount +
+                ", personName='" + personName + '\'' +
+                ", personPhone='" + personPhone + '\'' +
+                ", personOpenid='" + personOpenid + '\'' +
+                ", personType=" + personType +
+                ", createTime=" + createTime +
+                ", province='" + province + '\'' +
+                ", city='" + city + '\'' +
+                ", region='" + region + '\'' +
+                ", address='" + address + '\'' +
+                ", coord='" + coord + '\'' +
+                ", status=" + status +
+                ", storeId=" + storeId +
+                ", pilesNum=" + pilesNum +
+                ", DCNum=" + DCNum +
+                ", ACNum=" + ACNum +
+                ", planUseTime=" + planUseTime +
+                ", startDate=" + startDate +
+                ", endDate=" + endDate +
+                ", thirdServiceAmount=" + thirdServiceAmount +
+                ", personServiceAmount=" + personServiceAmount +
+                ", personBasicChargeAmount=" + personBasicChargeAmount +
+                ", master=" + master +
+                ", isDirect=" + isDirect +
+                ", isFormal=" + isFormal +
+                ", chargeType=" + chargeType +
+                ", normList=" + normList +
+                '}';
+    }
 }

@@ -91,7 +91,11 @@ public class ElecOrderService {
 		String result = "";
 		for(int i =1;i<=2;i++){
 			logger.info(String.format("开启电桩第：%s次请求", i));
-			result = ElecUtil.sendPost(pile.getPileNum(),order.getGunNo(), "4", order.getElecTotalCount(), order.getId(),tradeTypeCode,pile.getType());
+			if(order.getElecPrice()==0){
+				result = ElecUtil.sendPost(pile.getPileNum(), order.getGunNo(),"1", 0, order.getId(),tradeTypeCode,pile.getType());
+			}else{
+				result = ElecUtil.sendPost(pile.getPileNum(),order.getGunNo(), "4", order.getElecTotalCount(), order.getId(),tradeTypeCode,pile.getType());
+			}
 			logger.info(String.format("充电桩第：%s 次返回结果：%s", i,result));
 			if("SUCCESS".equals(result)){
 				order.setStatus("1");//开启充电桩 成功
@@ -167,7 +171,7 @@ public class ElecOrderService {
 		if(null!=station.getPersonType()&& 1==station.getPersonType()&&user.getPhone().equals(station.getPersonPhone())){
 			logger.info("桩东充电============");
 			serviceAmount=BigDecimal.valueOf(station.getPersonServiceAmount());
-			basicChargeAmount =station.getBasicChargeAmount();
+			basicChargeAmount =station.getPersonBasicChargeAmount();
 		}else{
 			if(chargeType==1&& (pile.getType()==3 ||pile.getType()==4)){//全时 交流价格
 				basicChargeAmount = station.getBasicChargeAmount();
@@ -189,10 +193,15 @@ public class ElecOrderService {
 		BigDecimal basicAmount = BigDecimal.valueOf(basicChargeAmount);
 //		serviceAmount= BigDecimal.valueOf(serviceChargeAmount);
 		BigDecimal balanceAmount = BigDecimal.valueOf(balance);
-		BigDecimal setScale = balanceAmount.divide((basicAmount.add(serviceAmount)),2,BigDecimal.ROUND_DOWN);
-		BigDecimal divide = setScale.divide(BigDecimal.valueOf(1.05),2,BigDecimal.ROUND_DOWN);//增加5%的收费
-		order.setElecTotalAmount(balance);
-		order.setElecTotalCount(divide.doubleValue());
+		if(basicAmount.add(serviceAmount).doubleValue()!=0){
+			BigDecimal setScale = balanceAmount.divide((basicAmount.add(serviceAmount)),2,BigDecimal.ROUND_DOWN);
+			BigDecimal divide = setScale.divide(BigDecimal.valueOf(1.05),2,BigDecimal.ROUND_DOWN);//增加5%的收费
+			order.setElecTotalAmount(balance);
+			order.setElecTotalCount(divide.doubleValue());
+		}else{
+			order.setElecTotalAmount(0.00);
+			order.setElecTotalCount(0.00);
+		}
 		order.setElecPrice(basicAmount.add(serviceAmount).doubleValue());
 	}
 	public void updateOrderAndPile(ElecOrder order, ElecPile pile) {
@@ -332,7 +341,7 @@ public class ElecOrderService {
 								json.element("ordernum", elecOrder.getId());
 								json.element("phone", station.getPersonPhone());
 								json.element("eleccount", elecOrder.getRealCount());
-								json.element("elecPrice", station.getBasicChargeAmount());
+								json.element("elecPrice", station.getPersonBasicChargeAmount());
 								json.element("money", 0);
 							//非本人充值给基础费加服务费
 							}else {
