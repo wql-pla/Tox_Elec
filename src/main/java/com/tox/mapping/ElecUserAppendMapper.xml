@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.tox.dao.ElecUserAppendMapper" >
+  <resultMap id="BaseResultMap" type="com.tox.bean.ElecUserAppend" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="user_phone" property="userPhone" jdbcType="INTEGER" />
+    <result column="station_id" property="stationId" jdbcType="INTEGER" />
+    <result column="create_date" property="createDate" jdbcType="TIMESTAMP" />
+    <result column="id_del" property="idDel" jdbcType="INTEGER" />
+
+    <result column="STATION_NAME" property="stationName" jdbcType="VARCHAR" />
+    <result column="PERSON_PHONE" property="userAccount" jdbcType="VARCHAR" />
+
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, user_phone, station_id, create_date, id_del
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from elec_user_append
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  
+  
+    <select id="selectStationAndAppent" resultMap="BaseResultMap"  parameterType="com.tox.bean.ElecUserAppend">
+    select 
+   		a.id,a.user_phone,s.PERSON_PHONE,s.STATION_NAME,a.create_date
+    from 
+    	elec_user_append a,elec_station s where a.station_id=s.id
+    	
+    <if test="append.stationName != null and append.stationName != '' " >
+     and 
+        s.STATION_NAME like #{append.stationName}
+    </if>
+    
+    <if test="append.userAccount != null and append.userAccount != '' " >
+     and 
+        s.PERSON_PHONE = #{append.userAccount}
+    </if>
+    
+    <if test="append.userPhone != null and append.userPhone != '' " >
+     and 
+        a.user_phone = #{append.userPhone}
+    </if>
+    
+     <if test="append.startDate != null " >
+     and 
+        a.create_date &gt;=DATE_FORMAT(#{append.startDate},'%Y-%m-%d 00:00:00')
+    </if>
+    
+    <if test="append.endDate != null " >
+     and 
+        a.create_date &lt;= DATE_FORMAT(#{append.endDate},'%Y-%m-%d 23:59:59')
+    </if>
+    
+    order by a.create_date DESC
+	    <if test="append.pageSize>0">
+		    limit #{append.pageNum,jdbcType=INTEGER},#{append.pageSize,jdbcType=INTEGER}
+		</if>
+  	</select>
+  
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from elec_user_append
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.tox.bean.ElecUserAppend" >
+    insert into elec_user_append (id, user_phone, station_id, 
+      create_date, id_del)
+    values (#{id,jdbcType=INTEGER}, #{userPhone,jdbcType=INTEGER}, #{stationId,jdbcType=INTEGER}, 
+      #{createDate,jdbcType=TIMESTAMP}, #{idDel,jdbcType=INTEGER})
+  </insert>
+  <insert id="insertSelective" parameterType="com.tox.bean.ElecUserAppend" >
+    insert into elec_user_append
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="userPhone != null" >
+        user_phone,
+      </if>
+      <if test="stationId != null" >
+        station_id,
+      </if>
+      <if test="createDate != null" >
+        create_date,
+      </if>
+      <if test="idDel != null" >
+        id_del,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="userPhone != null" >
+        #{userPhone,jdbcType=INTEGER},
+      </if>
+      <if test="stationId != null" >
+        #{stationId,jdbcType=INTEGER},
+      </if>
+      <if test="createDate != null" >
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="idDel != null" >
+        #{idDel,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.tox.bean.ElecUserAppend" >
+    update elec_user_append
+    <set >
+      <if test="userPhone != null" >
+        user_phone = #{userPhone,jdbcType=INTEGER},
+      </if>
+      <if test="stationId != null" >
+        station_id = #{stationId,jdbcType=INTEGER},
+      </if>
+      <if test="createDate != null" >
+        create_date = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="idDel != null" >
+        id_del = #{idDel,jdbcType=INTEGER},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.tox.bean.ElecUserAppend" >
+    update elec_user_append
+    set user_phone = #{userPhone,jdbcType=INTEGER},
+      station_id = #{stationId,jdbcType=INTEGER},
+      create_date = #{createDate,jdbcType=TIMESTAMP},
+      id_del = #{idDel,jdbcType=INTEGER}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>
