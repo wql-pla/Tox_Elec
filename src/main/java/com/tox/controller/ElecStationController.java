@@ -6,6 +6,10 @@ import com.tox.bean.*;
 import com.tox.dao.*;
 import com.tox.utils.ExcelUtil;
 import com.tox.utils.MapUtil;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +28,7 @@ import java.util.*;
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @Transactional
+@Api("ElecStationController相关的api")
 @RequestMapping(value = "/station")
 public class ElecStationController {
 
@@ -40,6 +45,8 @@ public class ElecStationController {
     private ElecStoreMapper storeDao;
     @Autowired
     private ElecStationNormMapper stationNormDao;
+    @Autowired
+    private ElecUserAppendMapper appendMapper;
 
   //查询所有场站所属城市
     @RequestMapping(value = "/selectStationCity")
@@ -627,6 +634,86 @@ public class ElecStationController {
     	map.put("result", 100);
     	map.put("data", detail);
     	map.put("msg", "查询成功!");
+    	return map;
+    }
+    
+    
+    /**
+     * 追加产站负责人
+     * @param stationId
+     * @param phones
+     * @return
+     */
+    @Transactional
+    @RequestMapping(value = "/appentStationAdmin")
+    public @ResponseBody
+    Map<String, Object> appentStationAdmin(@RequestParam Integer stationId,@RequestParam Integer[] phones){
+    	logger.info(String.format("需要追加的桩站id为：%s", stationId.toString()));
+    	Map<String, Object> map = new HashMap<String, Object>();
+
+    	try {
+    		//根据上传的多个电话号和产站ID进行保存
+    	for(Integer phone : phones) {
+    		ElecUserAppend append= new ElecUserAppend();
+    		//是否有效1：有效，0：无效
+    		append.setIdDel(1);
+    		//庄站ID
+    		append.setStationId(stationId);
+    		//创建时间
+    		append.setCreateDate(new Date());
+    		//追加电话信息
+    		append.setUserPhone(phone);
+    		appendMapper.insertSelective(append);
+    	}
+    	map.put("result", 100);
+    	map.put("msg", "保存成功!");
+    	}catch (Exception e) {
+    		map.put("result", 200);
+        	map.put("msg", "保存失败!"+e.getMessage());
+		}
+			return map;
+    	
+    }
+    
+    
+    /**
+     * 查询追加人信息列表
+     * @param param
+     * @return
+     */
+    @ApiOperation(value = "查询追加人信息列表", notes = "查询追加人信息列表")
+    @RequestMapping(value="/appendtUsers",method=RequestMethod.POST,produces="application/json")
+    public @ResponseBody Map<String, Object> appendtUsers(@RequestBody ElecUserAppend append){
+    	Map<String,Object> map = new HashMap<String,Object>();
+    	
+    	//查询追加人信息
+    	 List<ElecUserAppend> appends = appendMapper.selectStationAndAppent(append);
+    	
+    	map.put("result", 100);
+    	map.put("data", appends);
+    	map.put("msg", "查询成功!");
+    	return map;
+    }
+    
+    /**
+     * 解绑追加人信息
+     * @param param
+     * @return
+     */
+    @ApiOperation(value = "解绑追加人信息", notes = "解绑追加人信息")
+    @RequestMapping(value="/UpdateAppendtUsers",method=RequestMethod.POST,produces="application/json")
+    public @ResponseBody Map<String, Object> appendtUsers(@RequestBody Integer appendid){
+    	Map<String,Object> map = new HashMap<String,Object>();
+    	
+    	//查询追加人信息
+    	ElecUserAppend elecUserAppend = appendMapper.selectByPrimaryKey(appendid);
+    	//修改状态为失效
+    	elecUserAppend.setIdDel(0);
+    	//保存信息
+    	int result = appendMapper.updateByPrimaryKeySelective(elecUserAppend);
+    	
+    	map.put("result", 100);
+    	map.put("msg", "保存成功!");
     	return map;
     }
 

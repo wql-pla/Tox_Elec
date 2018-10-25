@@ -48,7 +48,7 @@ import com.tox.dao.ElecStationMapper;
 import com.tox.dao.ElecStationNormMapper;
 import com.tox.dao.ElecUserCouponsRelMapper;
 import com.tox.utils.ElecUtil;
-import com.tox.utils.RabbitMQ;
+//import com.tox.utils.RabbitMQ;
 import net.sf.json.JSONObject;
 
 @Service
