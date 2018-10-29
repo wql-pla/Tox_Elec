@@ -647,13 +647,13 @@ public class ElecStationController {
     @Transactional
     @RequestMapping(value = "/appentStationAdmin")
     public @ResponseBody
-    Map<String, Object> appentStationAdmin(@RequestParam Integer stationId,@RequestParam Integer[] phones){
+    Map<String, Object> appentStationAdmin(@RequestParam Integer stationId,@RequestParam String[] phones){
     	logger.info(String.format("需要追加的桩站id为：%s", stationId.toString()));
     	Map<String, Object> map = new HashMap<String, Object>();
 
     	try {
     		//根据上传的多个电话号和产站ID进行保存
-    	for(Integer phone : phones) {
+    	for(String phone : phones) {
     		ElecUserAppend append= new ElecUserAppend();
     		//是否有效1：有效，0：无效
     		append.setIdDel(1);

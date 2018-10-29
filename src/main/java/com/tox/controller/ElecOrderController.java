@@ -15,12 +15,9 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.text.ParseException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-@CrossOrigin(origins = "*", maxAge = 3600)
+	@CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping(value = "/order")
 @Transactional
@@ -55,6 +52,8 @@ public class ElecOrderController {
 	private ElecRoleMapper roleDao;
 	@Autowired
 	private ElecOrderDetailMapper orderDetail;
+	@Autowired
+	private ElecUserAppendMapper appendDao;
 	
 //	private static AtomicLong at = new AtomicLong();
 //
@@ -547,7 +546,17 @@ public class ElecOrderController {
 				ElecStation station = pile.getStation();
 				Double basicAmount = station.getBasicChargeAmount();
 				Double serviceAmount=0D;
-				if(null!=station.getPersonType()&& 1==station.getPersonType()&&user.getPhone().equals(station.getPersonPhone())){
+				List<String> phones = new ArrayList<String>();
+				if(null!=station.getPersonType()&& 1==station.getPersonType()){
+					ElecUserAppend append = new ElecUserAppend();
+					append.setUserAccount(station.getPersonPhone());
+					List<ElecUserAppend> elecUserAppends = appendDao.selectStationAndAppent(append);
+					phones.add(station.getPersonPhone());
+					for (ElecUserAppend elecUserAppend : elecUserAppends) {
+						phones.add(String.valueOf(elecUserAppend.getUserPhone()));
+					}
+				}
+				if(null!=station.getPersonType()&& 1==station.getPersonType()&&phones.contains(user.getPhone())){
 					logger.info("桩东结束充电============");
 					serviceAmount=station.getPersonServiceAmount();
 					basicAmount=station.getPersonBasicChargeAmount();
@@ -556,7 +565,7 @@ public class ElecOrderController {
 				}
 				Double totalAmout = basicAmount+serviceAmount;
 				//上报的充电电量大于上次的电量才会修改充电信息，否则不修改
-				orderService.endOrder(elecOrder,user, pile, station, bean, basicAmount, serviceAmount, totalAmout);
+				orderService.endOrder(elecOrder,user, pile, station, bean, basicAmount, serviceAmount, totalAmout,phones);
 				if(user.getType()==1){
 					map.put("result", "success");
 					return map;

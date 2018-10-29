@@ -1,50 +1,25 @@
 package com.tox.controller;
 
 
+import com.tox.bean.*;
+import com.tox.dao.*;
+import com.tox.service.ElecPriceTemplateService;
+import com.tox.utils.ElecUtil;
+import com.tox.utils.ExcelUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
-
-import com.tox.bean.ElecFirm;
-import com.tox.bean.ElecOrder;
-import com.tox.bean.ElecPile;
-import com.tox.bean.ElecPriceRule;
-import com.tox.bean.ElecPriceTemplateMaster;
-import com.tox.bean.ElecStation;
-import com.tox.bean.ElecStationNorm;
-import com.tox.bean.PageView;
-import com.tox.dao.ElecFirmMapper;
-import com.tox.dao.ElecOrderMapper;
-import com.tox.dao.ElecPileMapper;
-import com.tox.dao.ElecPriceRuleMapper;
-import com.tox.dao.ElecStationMapper;
-import com.tox.dao.ElecStationNormMapper;
-import com.tox.service.ElecPriceTemplateService;
-import com.tox.utils.ElecUtil;
-import com.tox.utils.ExcelUtil;
+import java.util.*;
 
 
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -74,6 +49,8 @@ public class ElecPileController {
 	
     @Autowired
     private ElecStationNormMapper stationNormDao;
+    @Autowired
+    private ElecUserAppendMapper appendDao;
 	
 	private static final DateFormat format = new SimpleDateFormat("yyyy-MM-dd 00:00:00");
 	/**
@@ -128,6 +105,15 @@ public class ElecPileController {
  		if(elecPileInfo.getType()==3||elecPileInfo.getType()==4){
  			type=2;
  		}
+ 		if(null !=elecPileInfo.getStation().getPersonType()&&elecPileInfo.getStation().getPersonType()==1){
+				ElecUserAppend append = new ElecUserAppend();
+				append.setUserAccount(elecPileInfo.getStation().getPersonPhone());
+				List<ElecUserAppend> elecUserAppends = appendDao.selectStationAndAppent(append);
+			for (ElecUserAppend elecUserAppend : elecUserAppends) {
+				elecPileInfo.getStation().getPhones().add(String.valueOf(elecUserAppend.getUserPhone()));
+			}
+
+		}
  		List<ElecStationNorm> normList = stationNormDao.selectByStationIdandType(elecPileInfo.getChargeStandardId(),type);
  		SimpleDateFormat sdf_input = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//输入格式
     	Calendar calendar = Calendar.getInstance();//日历对象

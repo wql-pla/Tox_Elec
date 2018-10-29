@@ -17,6 +17,7 @@ public class ElecStation extends PageView<ElecStation> {
     private String personName;
 
     private String personPhone;
+    private List<String> phones;//车位东子账号
 
     private String personOpenid;
     
@@ -318,6 +319,14 @@ public class ElecStation extends PageView<ElecStation> {
         this.personBasicChargeAmount = personBasicChargeAmount;
     }
 
+    public List<String> getPhones() {
+        return phones;
+    }
+
+    public void setPhones(List<String> phones) {
+        this.phones = phones;
+    }
+
     @Override
     public String toString() {
         return "ElecStation{" +
@@ -328,6 +337,7 @@ public class ElecStation extends PageView<ElecStation> {
                 ", basicChargeAmount=" + basicChargeAmount +
                 ", personName='" + personName + '\'' +
                 ", personPhone='" + personPhone + '\'' +
+                ", phones=" + phones +
                 ", personOpenid='" + personOpenid + '\'' +
                 ", personType=" + personType +
                 ", createTime=" + createTime +
