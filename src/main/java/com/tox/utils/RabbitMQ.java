@@ -1,11 +1,8 @@
 package com.tox.utils;
 
+import com.rabbitmq.client.Channel;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
-
-import com.rabbitmq.client.Channel;
-import com.rabbitmq.client.Connection;
-import com.rabbitmq.client.ConnectionFactory;
 @PropertySource("classpath:config.properties")
 @Component
 public class RabbitMQ {
@@ -25,9 +22,9 @@ public class RabbitMQ {
      */
     public RabbitMQ(){
     	//成员变量赋值
-    	this.channel = initChannel();
-    	//绑定队列
-    	bind(this.channel);
+//    	this.channel = initChannel();
+//    	//绑定队列
+//    	bind(this.channel);
     }
     
     public Channel getChannel(){
@@ -49,7 +46,7 @@ public class RabbitMQ {
      * 初始化通道 
      * @return
      */
-    public Channel initChannel() {
+    /*public Channel initChannel() {
     	ConnectionFactory factory = new ConnectionFactory();
 //		设置RabbitMQ地址
 		factory.setHost("140.143.237.20");
@@ -66,7 +63,7 @@ public class RabbitMQ {
 			e.printStackTrace();
 		}
 		return null;
-    }
+    }*/
     
     /**
      * @param channel
