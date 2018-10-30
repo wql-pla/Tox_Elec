@@ -688,9 +688,13 @@ public class ElecStationController {
     	
     	//查询追加人信息
     	 List<ElecUserAppend> appends = appendMapper.selectStationAndAppent(append);
+    	//查询数量
+    	 Integer appendsCount = appendMapper.selectStationAndAppentCount(append);
+    	 
     	
     	map.put("result", 100);
     	map.put("data", appends);
+    	map.put("total", appendsCount);
     	map.put("msg", "查询成功!");
     	return map;
     }

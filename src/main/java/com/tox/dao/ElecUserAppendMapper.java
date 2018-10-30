@@ -22,4 +22,6 @@ public interface ElecUserAppendMapper {
     int updateByPrimaryKey(ElecUserAppend record);
     //通过条件查询追加人信息
     List<ElecUserAppend> selectStationAndAppent(@Param("append")ElecUserAppend append);
+    //通过条件查询追加人信息
+    Integer selectStationAndAppentCount(@Param("append")ElecUserAppend append);
 }
