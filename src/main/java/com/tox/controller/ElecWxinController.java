@@ -1,9 +1,11 @@
 package com.tox.controller;
 
 import com.tox.bean.ActivityNewOrder;
+import com.tox.bean.ActivityNewUser;
 import com.tox.bean.ElecRecharge;
 import com.tox.bean.WxinInfo;
 import com.tox.dao.ActivityNewOrderMapper;
+import com.tox.dao.ActivityNewUserMapper;
 import com.tox.utils.WeixinUtil;
 import com.tox.utils.wxsdk.WXPayUtil;
 import net.sf.json.JSONObject;
@@ -55,6 +57,9 @@ public class ElecWxinController {
 
     //订单对象
     private ActivityNewOrderMapper acOrderDao;
+
+    //创建用户对象
+    private ActivityNewUserMapper acUserDao;
 
     /**
      *
@@ -188,12 +193,15 @@ public class ElecWxinController {
 
         //签名成功修改订单
         if (checkSign(xmlString)) {
-            ActivityNewOrder record = new ActivityNewOrder();
+           ActivityNewUser userinfo = new ActivityNewUser();
+            ActivityNewOrder record = acOrderDao.selectByTno(map.get("out_trade_no"));
             record.settNo(map.get("out_trade_no"));
             record.setwNo(map.get("transaction_id"));
             record.setIsDel(0);
             acOrderDao.updateByPrimaryKeySelective(record);
-            //acOrderDao.giveUserCoupons(record.getUserId());
+            userinfo.setId(record.getUserId());
+            userinfo.setIsPay("1");
+            acUserDao.updateByPrimaryKeySelective(userinfo);
             return "SUCCESS";
 
             //签名失败直接返回失败
