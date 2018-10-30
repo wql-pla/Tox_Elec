@@ -4,14 +4,11 @@ import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 
+import com.tox.bean.*;
+import com.tox.dao.*;
 import org.apache.poi.ss.formula.functions.EDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,33 +17,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.tox.bean.ChargeResult;
-import com.tox.bean.ChargeResult_DC;
-import com.tox.bean.DirectStation;
-import com.tox.bean.ElecChargeRecord;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.QueueingConsumer;
 import com.rabbitmq.client.AMQP.BasicProperties;
-import com.tox.bean.ElecCoupons;
-import com.tox.bean.ElecFirm;
-import com.tox.bean.ElecOrder;
-import com.tox.bean.ElecOrderDetail;
-import com.tox.bean.ElecPile;
-import com.tox.bean.ElecStation;
-import com.tox.bean.ElecStationNorm;
-import com.tox.bean.ElecUser;
-import com.tox.bean.ElecUserCouponsRel;
-import com.tox.bean.ResultXYDF;
 import com.tox.controller.ElecOrderController;
-import com.tox.dao.ElecChargeRecordMapper;
-import com.tox.dao.ElecCouponsMapper;
-import com.tox.dao.ElecFirmMapper;
-import com.tox.dao.ElecOrderDetailMapper;
-import com.tox.dao.ElecOrderMapper;
-import com.tox.dao.ElecPileMapper;
-import com.tox.dao.ElecStationMapper;
-import com.tox.dao.ElecStationNormMapper;
-import com.tox.dao.ElecUserCouponsRelMapper;
 import com.tox.utils.ElecUtil;
 //import com.tox.utils.RabbitMQ;
 import net.sf.json.JSONObject;
@@ -74,6 +48,8 @@ public class ElecOrderService {
     private ElecStationNormMapper stationNormDao;
     @Autowired
     private ElecStationMapper stationDao;
+    @Autowired
+    private ElecUserAppendMapper appendDao;
 	
 	private String callBackQueue = "carportQueue";
 	
@@ -162,13 +138,25 @@ public class ElecOrderService {
 	public void setOrderMoney(ElecPile pile,ElecUser user,ElecOrder order,Double balance){
 		order.setPileId(pile.getId());
 		ElecStation station = pile.getStation();
+
+
 		DirectStation directStation = stationDao.selectDirectStationByPrimaryKey(pile.getChargeStandardId());
 		Integer chargeType = station.getChargeType();
 		Double basicChargeAmount=0D;
 		Double serviceChargeAmount =0D;
 		
 		BigDecimal serviceAmount = BigDecimal.ZERO;
-		if(null!=station.getPersonType()&& 1==station.getPersonType()&&user.getPhone().equals(station.getPersonPhone())){
+		List<String> phones = new ArrayList<String>();
+		if(null!=station.getPersonType()&& 1==station.getPersonType()){
+			ElecUserAppend append = new ElecUserAppend();
+			append.setUserAccount(station.getPersonPhone());
+			List<ElecUserAppend> elecUserAppends = appendDao.selectStationAndAppent(append);
+			phones.add(station.getPersonPhone());
+			for (ElecUserAppend elecUserAppend : elecUserAppends) {
+				phones.add(String.valueOf(elecUserAppend.getUserPhone()));
+			}
+		}
+		if(null!=station.getPersonType()&& 1==station.getPersonType()&&phones.contains(user.getPhone())){
 			logger.info("桩东充电============");
 			serviceAmount=BigDecimal.valueOf(station.getPersonServiceAmount());
 			basicChargeAmount =station.getPersonBasicChargeAmount();
@@ -208,8 +196,8 @@ public class ElecOrderService {
 		orderDao.updateByPrimaryKeySelective(order);
 		pileDao.updateByPrimaryKeySelective(pile);
 	}
-	public void endOrder(ElecOrder elecOrder,ElecUser user, ElecPile pile,ElecStation station,ResultXYDF bean,Double basicAmount,Double serviceAmount,Double totalAmout) throws NumberFormatException, ParseException {
-		if(null!=station.getPersonType()&& 1==station.getPersonType()&&user.getPhone().equals(station.getPersonPhone())){
+	public void endOrder(ElecOrder elecOrder,ElecUser user, ElecPile pile,ElecStation station,ResultXYDF bean,Double basicAmount,Double serviceAmount,Double totalAmout,List<String>phones) throws NumberFormatException, ParseException {
+		if(null!=station.getPersonType()&& 1==station.getPersonType()&&phones.contains(user.getPhone())){
 			logger.info("桩东结束充电============");
 			if("99".equals(bean.getEndReason())){//充满,但是订单未结束
 				//上报的充电电量大于上次的电量才会修改充电信息，否则不修改

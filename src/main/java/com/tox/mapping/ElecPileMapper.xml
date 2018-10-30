@@ -44,6 +44,7 @@
 			<result column="STORE_ID" jdbcType="INTEGER" property="storeId" />
 			<result column="CHARGE_TYPE" jdbcType="INTEGER" property="chargeType" />
 			<result column="PERSON_BASIC_CHARGE_AMOUNT" jdbcType="DOUBLE" property="personBasicChargeAmount" />
+			<collection property="phones" column="PHONES" javaType="java.util.List"/>
 		</association>
 		<association property="firm" column="FIRM_ID"
 			javaType="com.tox.bean.ElecFirm">

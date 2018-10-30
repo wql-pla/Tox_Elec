@@ -1,16 +1,14 @@
 package com.tox.compant;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.stereotype.Component;
-
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.QueueingConsumer;
 import com.tox.controller.ElecOrderController;
 import com.tox.utils.RabbitMQ;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.boot.CommandLineRunner;
 
-@Component
+//@Component
 public class RabbitListener implements CommandLineRunner{
 	private static final Logger logger = LoggerFactory.getLogger(ElecOrderController.class);
 	@Override

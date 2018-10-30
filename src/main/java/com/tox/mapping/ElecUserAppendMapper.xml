@@ -3,7 +3,7 @@
 <mapper namespace="com.tox.dao.ElecUserAppendMapper" >
   <resultMap id="BaseResultMap" type="com.tox.bean.ElecUserAppend" >
     <id column="id" property="id" jdbcType="INTEGER" />
-    <result column="user_phone" property="userPhone" jdbcType="INTEGER" />
+    <result column="user_phone" property="userPhone" jdbcType="VARCHAR" />
     <result column="station_id" property="stationId" jdbcType="INTEGER" />
     <result column="create_date" property="createDate" jdbcType="TIMESTAMP" />
     <result column="id_del" property="idDel" jdbcType="INTEGER" />
@@ -145,7 +145,7 @@
     update elec_user_append
     <set >
       <if test="userPhone != null" >
-        user_phone = #{userPhone,jdbcType=INTEGER},
+        user_phone = #{userPhone,jdbcType=VARCHAR},
       </if>
       <if test="stationId != null" >
         station_id = #{stationId,jdbcType=INTEGER},
@@ -161,7 +161,7 @@
   </update>
   <update id="updateByPrimaryKey" parameterType="com.tox.bean.ElecUserAppend" >
     update elec_user_append
-    set user_phone = #{userPhone,jdbcType=INTEGER},
+    set user_phone = #{userPhone,jdbcType=VARCHAR},
       station_id = #{stationId,jdbcType=INTEGER},
       create_date = #{createDate,jdbcType=TIMESTAMP},
       id_del = #{idDel,jdbcType=INTEGER}

@@ -5,7 +5,7 @@ import java.util.Date;
 public class ElecUserAppend extends PageView<ElecUserAppend> {
     private Integer id;
 
-    private Integer userPhone;
+    private String userPhone;
 
     private Integer stationId;
 
@@ -31,11 +31,11 @@ public class ElecUserAppend extends PageView<ElecUserAppend> {
         this.id = id;
     }
 
-    public Integer getUserPhone() {
+    public String getUserPhone() {
         return userPhone;
     }
 
-    public void setUserPhone(Integer userPhone) {
+    public void setUserPhone(String userPhone) {
         this.userPhone = userPhone;
     }
 
@@ -94,6 +94,19 @@ public class ElecUserAppend extends PageView<ElecUserAppend> {
 	public void setEndDate(Date endDate) {
 		this.endDate = endDate;
 	}
-    
-    
+
+    @Override
+    public String toString() {
+        return "ElecUserAppend{" +
+                "id=" + id +
+                ", userPhone='" + userPhone + '\'' +
+                ", stationId=" + stationId +
+                ", createDate=" + createDate +
+                ", idDel=" + idDel +
+                ", stationName='" + stationName + '\'' +
+                ", userAccount='" + userAccount + '\'' +
+                ", startDate=" + startDate +
+                ", endDate=" + endDate +
+                '}';
+    }
 }
