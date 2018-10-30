@@ -136,4 +136,36 @@
       money = #{money,jdbcType=DECIMAL}
     where id = #{id,jdbcType=INTEGER}
   </update>
+  
+  <select id="findNewOrder" parameterType="com.tox.bean.ActivityNewOrder" resultMap="BaseResultMap">
+      select 
+      	<include refid="Base_Column_List" />
+      from 
+      	activity_new_user u ,activity_new_order o
+      <where>
+          o.user_id=u.id and ISDEL = 0
+          <if test="phone != null and phone != ''">
+              AND PHONE like #{phone}
+          </if>
+          <if test="startDate != null">
+              AND DATE_FORMAT(CREATE_DATE,'%Y-%m-%d') &gt;= DATE_FORMAT(#{startDate},'%Y-%m-%d')
+          </if>
+          <if test="endDate != null">
+              AND DATE_FORMAT(CREATE_DATE,'%Y-%m-%d') &lt;= DATE_FORMAT(#{endDate},'%Y-%m-%d')
+          </if>
+          <if test="city != null">
+             AND u.city = #{city}
+          </if>
+           <if test="wNo != null">
+             AND o.w_no = #{wNo}
+          </if>
+        
+          order by CREATE_DATE desc
+          <if test="pageSize>0">
+			limit #{pageNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+		 </if>
+	
+      </where>
+      
+  </select>
 </mapper>

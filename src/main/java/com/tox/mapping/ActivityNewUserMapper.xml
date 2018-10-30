@@ -11,9 +11,13 @@
     <result column="to_date" property="toDate" jdbcType="TIMESTAMP" />
     <result column="type" property="type" jdbcType="VARCHAR" />
     <result column="city" property="city" jdbcType="VARCHAR" />
+    <result column="is_sign" property="isSign" jdbcType="VARCHAR" />
+    <result column="first_online_date" property="firstOnlineDate" jdbcType="TIMESTAMP" />
+    
+    
   </resultMap>
   <sql id="Base_Column_List" >
-    id, phone, create_date, is_del, is_pay, from_date, to_date, type, city
+    id, phone, create_date, is_del, is_pay, from_date, to_date, type, city,is_sign,first_online_date
   </sql>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
     select 
@@ -80,6 +84,9 @@
       <if test="city != null" >
         city,
       </if>
+      <if test="isSign != null" >
+        is_sign,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides="," >
       <if test="id != null" >
@@ -109,6 +116,10 @@
       <if test="city != null" >
         #{city,jdbcType=VARCHAR},
       </if>
+      <if test="isSign != null" >
+        #{isSign,jdbcType=VARCHAR},
+      </if>
+      
     </trim>
   </insert>
   <update id="updateByPrimaryKeySelective" parameterType="com.tox.bean.ActivityNewUser" >
@@ -138,6 +149,13 @@
       <if test="city != null" >
         city = #{city,jdbcType=VARCHAR},
       </if>
+      <if test="isSign != null" >
+        is_sign = #{isSign,jdbcType=VARCHAR},
+      </if>
+      <if test="firstOnlineDate != null" >
+        first_online_date = #{firstOnlineDate,jdbcType=VARCHAR},
+      </if>
+      
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
@@ -153,4 +171,52 @@
       city = #{city,jdbcType=VARCHAR}
     where id = #{id,jdbcType=INTEGER}
   </update>
+  
+  
+  <select id="findNewUser" parameterType="com.tox.bean.ActivityNewUser" resultMap="BaseResultMap">
+      select 
+      	<include refid="Base_Column_List" />
+      from 
+      	activity_new_user
+      <where>
+          1=1 and ISDEL = 0
+          <if test="phone != null and phone != ''">
+              <bind name="phone" value="'%'+phone+'%'"/>
+              AND PHONE like #{phone}
+          </if>
+          <if test="startDate != null">
+              AND DATE_FORMAT(CREATE_DATE,'%Y-%m-%d') &gt;= DATE_FORMAT(#{startDate},'%Y-%m-%d')
+          </if>
+          <if test="endDate != null">
+              AND DATE_FORMAT(CREATE_DATE,'%Y-%m-%d') &lt;= DATE_FORMAT(#{endDate},'%Y-%m-%d')
+          </if>
+          <if test="city != null">
+             AND city = #{city}
+          </if>
+           <if test="isPay != null">
+             AND is_pay = #{isPay}
+          </if>
+          <!-- 月卡未生效 -->
+          <if test="monthStatus != null and monthStatus == '0' and monthStatus != '3'">
+             AND from_date is null 
+          </if>
+          <!-- 月卡生效 -->
+           <if test="monthStatus != null and monthStatus == '1' and monthStatus != '3'">
+             AND to_date &gt;= DATE_FORMAT(now(),'%Y-%m-%d') 
+          </if>
+          <!-- 月卡失效 -->
+           <if test="monthStatus != null and monthStatus == '2' and monthStatus != '3'">
+             AND to_date &lt; DATE_FORMAT(now(),'%Y-%m-%d') 
+          </if>
+          order by CREATE_DATE desc
+          <if test="pageSize>0">
+			limit #{pageNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+		 </if>
+	
+      </where>
+      
+  </select>
+  
+  
+  
 </mapper>

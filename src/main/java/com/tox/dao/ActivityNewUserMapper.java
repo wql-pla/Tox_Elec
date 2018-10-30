@@ -1,5 +1,7 @@
 package com.tox.dao;
 
+import java.util.List;
+
 import org.apache.ibatis.annotations.Mapper;
 
 import com.tox.bean.ActivityNewUser;
@@ -18,4 +20,7 @@ public interface ActivityNewUserMapper {
     int updateByPrimaryKey(ActivityNewUser record);
     
     ActivityNewUser selectByPhone(ActivityNewUser record);
+    
+    
+    List<ActivityNewUser> findNewUser(ActivityNewUser record);
 }

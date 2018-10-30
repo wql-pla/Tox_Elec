@@ -20,6 +20,12 @@ public class ActivityNewOrder {
     private String wNo;
 
     private Integer money;
+    
+    private Date startDate;
+    
+    private Date endDate;
+    
+    private String phone;
 
     public Integer getId() {
         return id;
@@ -77,7 +83,23 @@ public class ActivityNewOrder {
         this.tNo = tNo == null ? null : tNo.trim();
     }
 
-    public String getwNo() {
+    public Date getStartDate() {
+		return startDate;
+	}
+
+	public void setStartDate(Date startDate) {
+		this.startDate = startDate;
+	}
+
+	public Date getEndDate() {
+		return endDate;
+	}
+
+	public void setEndDate(Date endDate) {
+		this.endDate = endDate;
+	}
+
+	public String getwNo() {
         return wNo;
     }
 
@@ -92,4 +114,13 @@ public class ActivityNewOrder {
     public void setMoney(Integer money) {
         this.money = money;
     }
+
+	public String getPhone() {
+		return phone;
+	}
+
+	public void setPhone(String phone) {
+		this.phone = phone;
+	}
+    
 }

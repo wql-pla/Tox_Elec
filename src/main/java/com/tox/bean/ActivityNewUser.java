@@ -2,7 +2,7 @@ package com.tox.bean;
 
 import java.util.Date;
 
-public class ActivityNewUser {
+public class ActivityNewUser extends PageView<ActivityNewUser> {
     private Integer id;
 
     private String phone;
@@ -20,7 +20,17 @@ public class ActivityNewUser {
     private String type;
 
     private String city;
+    
+    private Integer isSign;
 
+    private Integer monthStatus;
+    
+    private Date startDate;
+
+    private Date endDate;
+    
+    private Date firstOnlineDate;
+    
     public Integer getId() {
         return id;
     }
@@ -92,4 +102,56 @@ public class ActivityNewUser {
     public void setCity(String city) {
         this.city = city == null ? null : city.trim();
     }
+
+	public Integer getIsSign() {
+		return isSign;
+	}
+
+	public void setIsSign(Integer isSign) {
+		this.isSign = isSign;
+	}
+
+	public Integer getMonthStatus() {
+		return monthStatus;
+	}
+
+	public void setMonthStatus(Integer monthStatus) {
+		this.monthStatus = monthStatus;
+	}
+
+	public Date getStartDate() {
+		return startDate;
+	}
+
+	public void setStartDate(Date startDate) {
+		this.startDate = startDate;
+	}
+
+	@Override
+	public String toString() {
+		return "ActivityNewUser [id=" + id + ", phone=" + phone + ", createDate=" + createDate + ", isDel=" + isDel
+				+ ", isPay=" + isPay + ", fromDate=" + fromDate + ", toDate=" + toDate + ", type=" + type + ", city="
+				+ city + ", isSign=" + isSign + ", monthStatus=" + monthStatus + ", startDate=" + startDate
+				+ ", endDate=" + endDate + ", firstOnlineDate=" + firstOnlineDate + "]";
+	}
+
+	public Date getEndDate() {
+		return endDate;
+	}
+	
+
+	public Date getFirstOnlineDate() {
+		return firstOnlineDate;
+	}
+
+	public void setFirstOnlineDate(Date firstOnlineDate) {
+		this.firstOnlineDate = firstOnlineDate;
+	}
+
+	public void setEndDate(Date endDate) {
+		this.endDate = endDate;
+	}
+
+	
+    
 }
