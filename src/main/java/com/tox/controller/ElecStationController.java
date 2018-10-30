@@ -461,6 +461,7 @@ public class ElecStationController {
 			station.setDCNum(Integer.valueOf(ln.get(15)));					//预计建设直流桩个数
 			station.setACNum(Integer.valueOf(ln.get(16)));					//预计建设交流桩个数
 			station.setPlanUseTime(sdf.parse(ln.get(17)));					//预计上线时间
+			station.setPersonBasicChargeAmount(Double.valueOf(ln.get(18)));	//个人车位东所收取的基础电费			
 			station.setChargeType(1);										//默认为全天候
 
 			//--------------添加桩站信息-----------------------
