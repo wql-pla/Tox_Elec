@@ -16,11 +16,18 @@
     id, user_id, create_date, is_del, status, openid, t_no, w_no, money
   </sql>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
-    select 
-    <include refid="Base_Column_List" />
-    from activity_new_order
-    where id = #{id,jdbcType=INTEGER}
-  </select>
+  select
+  <include refid="Base_Column_List" />
+  from activity_new_order
+  where id = #{id,jdbcType=INTEGER}
+</select>
+
+<select id="selectByTno" resultMap="BaseResultMap"  >
+  select
+  <include refid="Base_Column_List" />
+  from activity_new_order
+  where t_no = #{tNo,jdbcType=VARCHAR}
+</select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
     delete from activity_new_order
     where id = #{id,jdbcType=INTEGER}

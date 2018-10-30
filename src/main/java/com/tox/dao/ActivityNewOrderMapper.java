@@ -20,4 +20,6 @@ public interface ActivityNewOrderMapper {
     int updateByPrimaryKey(ActivityNewOrder record);
     
     List<ActivityNewOrder> findNewOrder(ActivityNewOrder record);
+
+    ActivityNewOrder selectByTno(String tNo);
 }
