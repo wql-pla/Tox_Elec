@@ -7,6 +7,7 @@ import com.tox.dao.*;
 import com.tox.utils.ExcelUtil;
 import com.tox.utils.MapUtil;
 
+import com.tox.utils.dateUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
@@ -48,7 +49,11 @@ public class ElecStationController {
     @Autowired
     private ElecUserAppendMapper appendMapper;
 
-  //查询所有场站所属城市
+	//创建用户对象
+	private ActivityNewUserMapper acUserDao;
+
+
+	//查询所有场站所属城市
     @RequestMapping(value = "/selectStationCity")
     public @ResponseBody
     Map<String, Object> selectStationCity() {
@@ -464,8 +469,26 @@ public class ElecStationController {
 			station.setPersonBasicChargeAmount(Double.valueOf(ln.get(18)));	//个人车位东所收取的基础电费			
 			station.setChargeType(1);										//默认为全天候
 
-			//--------------添加桩站信息-----------------------
-				 stationDao.insertSelective(station);
+
+				if (station.getPersonPhone() != null){
+					//--------------添加桩站信息-----------------------
+					stationDao.insertSelective(station);
+
+					//--------------负责人添加活动-----------------------、
+					ActivityNewUser record = new ActivityNewUser();
+					record.setPhone(station.getPersonPhone());
+					record = acUserDao.selectByPhone(record);
+					//判断是否有98活动上线时间
+					if (record.getIsPay().equals(1)){
+						record.setFromDate(station.getPlanUseTime());
+						record.setFirstOnlineDate(station.getPlanUseTime());
+						record.setToDate(dateUtil.reckonDays(station.getPlanUseTime(),30));
+						acUserDao.updateByPrimaryKeySelective(record);
+					}
+
+
+				}
+
 
 				 //---------------全天候插入附表信息-------------
 			 	ElecStationNorm norm = new ElecStationNorm();
