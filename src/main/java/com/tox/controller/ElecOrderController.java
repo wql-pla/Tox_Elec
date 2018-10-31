@@ -327,12 +327,12 @@ public class ElecOrderController {
 			return map;
 		}
 		Double balance = (user.getBalance()==null ?0:user.getBalance())+(user.getGiveMoney()==null? 0:user.getGiveMoney());
-		if(balance<5){
+		/*if(balance<5){
 			logger.info("余额不足5元，请先充值");
 			map.put("result", "200");
 			map.put("msg", "余额不足5元，请先充值");
 			return map;
-		}
+		}*/
 		ElecOrder elecOrder = orderDao.getOrderByOpenid(order.getOpenId());
 		//有正在充电订单时，不能开启新充电订单
 		if(null != elecOrder){
