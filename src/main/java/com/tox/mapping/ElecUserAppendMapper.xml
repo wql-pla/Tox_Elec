@@ -59,6 +59,39 @@
 		    limit #{append.pageNum,jdbcType=INTEGER},#{append.pageSize,jdbcType=INTEGER}
 		</if>
   	</select>
+  	
+  	
+  	
+  	 <select id="selectStationAndAppentCount" resultType="java.lang.Integer"  parameterType="com.tox.bean.ElecUserAppend">
+    select 
+   		count(s.id)
+    from 
+    	elec_user_append a,elec_station s where a.station_id=s.id
+    <if test="append.stationName != null and append.stationName != '' " >
+     and 
+        s.STATION_NAME like #{append.stationName}
+    </if>
+    
+    <if test="append.userAccount != null and append.userAccount != '' " >
+     and 
+        s.PERSON_PHONE = #{append.userAccount}
+    </if>
+    
+    <if test="append.userPhone != null and append.userPhone != '' " >
+     and 
+        a.user_phone = #{append.userPhone}
+    </if>
+    
+     <if test="append.startDate != null " >
+     and 
+        a.create_date &gt;=DATE_FORMAT(#{append.startDate},'%Y-%m-%d 00:00:00')
+    </if>
+    
+    <if test="append.endDate != null " >
+     and 
+        a.create_date &lt;= DATE_FORMAT(#{append.endDate},'%Y-%m-%d 23:59:59')
+    </if>
+  	</select>
   
   
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >

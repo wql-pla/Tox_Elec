@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.tox.dao.ActivityNewOrderMapper" >
+  <resultMap id="BaseResultMap" type="com.tox.bean.ActivityNewOrder" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="user_id" property="userId" jdbcType="INTEGER" />
+    <result column="create_date" property="createDate" jdbcType="TIMESTAMP" />
+    <result column="is_del" property="isDel" jdbcType="INTEGER" />
+    <result column="status" property="status" jdbcType="INTEGER" />
+    <result column="openid" property="openid" jdbcType="VARCHAR" />
+    <result column="t_no" property="tNo" jdbcType="VARCHAR" />
+    <result column="w_no" property="wNo" jdbcType="VARCHAR" />
+    <result column="money" property="money" jdbcType="DECIMAL" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, user_id, create_date, is_del, status, openid, t_no, w_no, money
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+  select
+  <include refid="Base_Column_List" />
+  from activity_new_order
+  where id = #{id,jdbcType=INTEGER}
+</select>
+
+<select id="selectByTno" resultMap="BaseResultMap"  >
+  select
+  <include refid="Base_Column_List" />
+  from activity_new_order
+  where t_no = #{tNo,jdbcType=VARCHAR}
+</select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from activity_new_order
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.tox.bean.ActivityNewOrder" >
+    insert into activity_new_order (id, user_id, create_date, 
+      is_del, status, openid, 
+      t_no, w_no, money)
+    values (#{id,jdbcType=INTEGER}, #{userId,jdbcType=INTEGER}, #{createDate,jdbcType=TIMESTAMP}, 
+      #{isDel,jdbcType=INTEGER}, #{status,jdbcType=INTEGER}, #{openid,jdbcType=VARCHAR}, 
+      #{tNo,jdbcType=VARCHAR}, #{wNo,jdbcType=VARCHAR}, #{money,jdbcType=DECIMAL})
+  </insert>
+  <insert id="insertSelective" parameterType="com.tox.bean.ActivityNewOrder" >
+    insert into activity_new_order
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="userId != null" >
+        user_id,
+      </if>
+      <if test="createDate != null" >
+        create_date,
+      </if>
+      <if test="isDel != null" >
+        is_del,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="openid != null" >
+        openid,
+      </if>
+      <if test="tNo != null" >
+        t_no,
+      </if>
+      <if test="wNo != null" >
+        w_no,
+      </if>
+      <if test="money != null" >
+        money,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="userId != null" >
+        #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="createDate != null" >
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDel != null" >
+        #{isDel,jdbcType=INTEGER},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="openid != null" >
+        #{openid,jdbcType=VARCHAR},
+      </if>
+      <if test="tNo != null" >
+        #{tNo,jdbcType=VARCHAR},
+      </if>
+      <if test="wNo != null" >
+        #{wNo,jdbcType=VARCHAR},
+      </if>
+      <if test="money != null" >
+        #{money,jdbcType=DECIMAL},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.tox.bean.ActivityNewOrder" >
+    update activity_new_order
+    <set >
+      <if test="userId != null" >
+        user_id = #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="createDate != null" >
+        create_date = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDel != null" >
+        is_del = #{isDel,jdbcType=INTEGER},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="openid != null" >
+        openid = #{openid,jdbcType=VARCHAR},
+      </if>
+      <if test="tNo != null" >
+        t_no = #{tNo,jdbcType=VARCHAR},
+      </if>
+      <if test="wNo != null" >
+        w_no = #{wNo,jdbcType=VARCHAR},
+      </if>
+      <if test="money != null" >
+        money = #{money,jdbcType=DECIMAL},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.tox.bean.ActivityNewOrder" >
+    update activity_new_order
+    set user_id = #{userId,jdbcType=INTEGER},
+      create_date = #{createDate,jdbcType=TIMESTAMP},
+      is_del = #{isDel,jdbcType=INTEGER},
+      status = #{status,jdbcType=INTEGER},
+      openid = #{openid,jdbcType=VARCHAR},
+      t_no = #{tNo,jdbcType=VARCHAR},
+      w_no = #{wNo,jdbcType=VARCHAR},
+      money = #{money,jdbcType=DECIMAL}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  
+  <select id="findNewOrder" parameterType="com.tox.bean.ActivityNewOrder" resultMap="BaseResultMap">
+      select 
+      	<include refid="Base_Column_List" />
+      from 
+      	activity_new_user u ,activity_new_order o
+      <where>
+          o.user_id=u.id and ISDEL = 0
+          <if test="phone != null and phone != ''">
+              AND PHONE like #{phone}
+          </if>
+          <if test="startDate != null">
+              AND DATE_FORMAT(CREATE_DATE,'%Y-%m-%d') &gt;= DATE_FORMAT(#{startDate},'%Y-%m-%d')
+          </if>
+          <if test="endDate != null">
+              AND DATE_FORMAT(CREATE_DATE,'%Y-%m-%d') &lt;= DATE_FORMAT(#{endDate},'%Y-%m-%d')
+          </if>
+          <if test="city != null">
+             AND u.city = #{city}
+          </if>
+           <if test="wNo != null">
+             AND o.w_no = #{wNo}
+          </if>
+        
+          order by CREATE_DATE desc
+          <if test="pageSize>0">
+			limit #{pageNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+		 </if>
+	
+      </where>
+      
+  </select>
+</mapper>
