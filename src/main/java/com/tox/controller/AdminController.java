@@ -8,6 +8,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.tox.utils.Constant;
 import org.apache.http.HttpRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,6 +69,7 @@ public class AdminController {
 			 List<ElecBasis> basis = basisDao.selectBasisByRoleIds(basisRoleRel);
 			 map.put("basis", basis);
 			 map.put("token", user.getId()+";"+user.getRoleId());
+			 map.put("auth", Constant.auth);
 			 map.put("result", 100);
 			 map.put("msg", "登录成功");
 			 //req.getSession().setAttribute("admin", user);

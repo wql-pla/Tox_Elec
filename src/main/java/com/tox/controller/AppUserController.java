@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import com.tox.utils.Constant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -203,6 +204,7 @@ public class AppUserController {
 				}
 				map.put("result", "100");
 				map.put("date", record2);
+				map.put("auth", Constant.auth);
 				map.put("msg", "登录成功!");
 				 
 			 }

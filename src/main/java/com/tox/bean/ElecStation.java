@@ -19,6 +19,8 @@ public class ElecStation extends PageView<ElecStation> {
     private String personPhone;
     private List<String> phones;//车位东子账号
 
+    private boolean isMonthlyRent;
+
     private String personOpenid;
     
     private Integer personType;//车位东类型 2018-5-30 1个人 2普通
@@ -325,6 +327,14 @@ public class ElecStation extends PageView<ElecStation> {
 
     public void setPhones(List<String> phones) {
         this.phones = phones;
+    }
+
+    public boolean isMonthlyRent() {
+        return isMonthlyRent;
+    }
+
+    public void setMonthlyRent(boolean monthlyRent) {
+        isMonthlyRent = monthlyRent;
     }
 
     @Override

@@ -50,6 +50,8 @@ public class ElecOrderService {
     private ElecStationMapper stationDao;
     @Autowired
     private ElecUserAppendMapper appendDao;
+    @Autowired
+    private ActivityNewUserMapper anuDao;
 	
 	private String callBackQueue = "carportQueue";
 	
@@ -146,8 +148,8 @@ public class ElecOrderService {
 		Double serviceChargeAmount =0D;
 		
 		BigDecimal serviceAmount = BigDecimal.ZERO;
-		List<String> phones = new ArrayList<String>();
-		if(null!=station.getPersonType()&& 1==station.getPersonType()){
+//		List<String> phones = new ArrayList<String>();
+		/*if(null!=station.getPersonType()&& 1==station.getPersonType()){
 			ElecUserAppend append = new ElecUserAppend();
 			append.setUserAccount(station.getPersonPhone());
 			List<ElecUserAppend> elecUserAppends = appendDao.selectStationAndAppent(append);
@@ -155,11 +157,12 @@ public class ElecOrderService {
 			for (ElecUserAppend elecUserAppend : elecUserAppends) {
 				phones.add(String.valueOf(elecUserAppend.getUserPhone()));
 			}
-		}
-		if(null!=station.getPersonType()&& 1==station.getPersonType()&&phones.contains(user.getPhone())){
+		}*/
+		//月租用户不收费
+		if(null!=station.getPersonType()&& 1==station.getPersonType()&&isMonthlyRent(user.getPhone())){
 			logger.info("桩东充电============");
-			serviceAmount=BigDecimal.valueOf(station.getPersonServiceAmount());
-			basicChargeAmount =station.getPersonBasicChargeAmount();
+			serviceAmount=BigDecimal.valueOf(0D);
+			basicChargeAmount =0D;
 		}else{
 			if(chargeType==1&& (pile.getType()==3 ||pile.getType()==4)){//全时 交流价格
 				basicChargeAmount = station.getBasicChargeAmount();
@@ -196,21 +199,29 @@ public class ElecOrderService {
 		orderDao.updateByPrimaryKeySelective(order);
 		pileDao.updateByPrimaryKeySelective(pile);
 	}
-	public void endOrder(ElecOrder elecOrder,ElecUser user, ElecPile pile,ElecStation station,ResultXYDF bean,Double basicAmount,Double serviceAmount,Double totalAmout,List<String>phones) throws NumberFormatException, ParseException {
-		if(null!=station.getPersonType()&& 1==station.getPersonType()&&phones.contains(user.getPhone())){
+	public void endOrder(ElecOrder elecOrder,ElecUser user, ElecPile pile,ElecStation station,ResultXYDF bean,List<String>phones) throws NumberFormatException, ParseException {
+		Double basicAmount = station.getBasicChargeAmount();
+		Double serviceAmount=0D;
+		if(null!=station.getPersonType()&& 1==station.getPersonType()&&isMonthlyRent(user.getPhone())&&phones.contains(user.getPhone())){
+			logger.info("桩东结束充电============");
+			serviceAmount=0D;
+			basicAmount=0D;
+		}else if(1==station.getPersonType()&&phones.contains(user.getPhone())){
+			basicAmount=station.getPersonBasicChargeAmount();
+			serviceAmount=station.getPersonServiceAmount();
+		}else{
+			serviceAmount= station.getServiceChargeAmount();
+		}
+		Double totalAmout = basicAmount+serviceAmount;
+		if(null!=station.getPersonType()&& 1==station.getPersonType()&&isMonthlyRent(user.getPhone())&&phones.contains(user.getPhone())){
 			logger.info("桩东结束充电============");
 			if("99".equals(bean.getEndReason())){//充满,但是订单未结束
 				//上报的充电电量大于上次的电量才会修改充电信息，否则不修改
 				if(Double.valueOf(bean.getTotalAmmeterDegree())==0 || Double.valueOf(bean.getTotalAmmeterDegree())>(elecOrder.getRealCount() ==null?0:elecOrder.getRealCount())){
 					BigDecimal multiply = BigDecimal.valueOf(Double.valueOf(bean.getTotalAmmeterDegree())).multiply(BigDecimal.valueOf(1.05D)).setScale(2, BigDecimal.ROUND_UP);
 					elecOrder.setRealCount(multiply.doubleValue());
-					if(elecOrder.getElecTotalCount()==elecOrder.getRealCount()){
-						elecOrder.setOrderFee(elecOrder.getElecTotalAmount());
-						elecOrder.setRealAmount(elecOrder.getElecTotalAmount());
-					}else{
-						elecOrder.setOrderFee(elecOrder.getRealCount()*totalAmout);
-						elecOrder.setRealAmount(elecOrder.getRealCount()*totalAmout);
-					}
+					elecOrder.setOrderFee(elecOrder.getRealCount()*totalAmout);
+					elecOrder.setRealAmount(elecOrder.getRealCount()*totalAmout);
 					elecOrder.setBasicChargeTotal(basicAmount*elecOrder.getRealCount());
 					elecOrder.setServiceChargeTotalSelf(serviceAmount*elecOrder.getRealCount());
 					elecOrder.setEndTime(new Date());
@@ -228,14 +239,8 @@ public class ElecOrderService {
 					pile.setAllCount((pile.getAllCount()==null?0:pile.getAllCount())+multiply.doubleValue());
 				}
 				elecOrder.setRealCount(multiply.doubleValue());
-				if(elecOrder.getElecTotalCount()<=Double.valueOf(bean.getTotalAmmeterDegree())){
-					elecOrder.setOrderFee(elecOrder.getElecTotalAmount());
-					elecOrder.setRealAmount(elecOrder.getElecTotalAmount());
-				}else{
-					elecOrder.setOrderFee(elecOrder.getRealCount()*totalAmout);
-					BigDecimal realAmountB = BigDecimal.valueOf(elecOrder.getRealCount()).multiply(BigDecimal.valueOf(totalAmout));
-					elecOrder.setRealAmount(realAmountB.doubleValue());
-				}
+				elecOrder.setOrderFee(elecOrder.getRealCount()*totalAmout);
+				elecOrder.setRealAmount(elecOrder.getRealCount()*totalAmout);
 				elecOrder.setBasicChargeTotal(basicAmount*elecOrder.getRealCount());
 				elecOrder.setServiceChargeTotalSelf(serviceAmount*elecOrder.getRealCount());
 				if(null==elecOrder.getEndTime()){
@@ -308,7 +313,7 @@ public class ElecOrderService {
 					elecOrder.setStatus("0");
 				}
 				orderDao.updateByPrimaryKeySelective(elecOrder);
-				Thread thread = new Thread(new Runnable() {
+				/*Thread thread = new Thread(new Runnable() {
 					@Override
 					public void run() {
 //						BigDecimal elecCount = BigDecimal.valueOf(elecOrder.getRealCount());
@@ -341,8 +346,8 @@ public class ElecOrderService {
 							}
 						}
 						
-						/********************************************************MQ代码********************************************************/
-						/*RabbitMQ rabbitMq = new RabbitMQ();
+						*//********************************************************MQ代码********************************************************//*
+						*//*RabbitMQ rabbitMq = new RabbitMQ();
 						Channel channel = rabbitMq.getChannel();
 						//声明关联编码(需要与回调队列的编码相对应)
 						String corrId = String.valueOf(elecOrder.getId());
@@ -363,13 +368,13 @@ public class ElecOrderService {
 							channel.getConnection().close();
 						}catch(Exception e){
 							e.printStackTrace();
-						}*/
+						}*//*
 						logger.info(String.format("服务费同步至车位东 请求参数：%s", json.toString()));
 						String result = ElecUtil.sendCarPort(json.toString());
 						logger.info(String.format("服务费同步至车位东返回结果：%s", result));
 					}
 				});
-				thread.start();
+				thread.start();*/
 			//}
 			}
 			
@@ -701,6 +706,18 @@ public class ElecOrderService {
        map.put("serivceAmount", amountServiceSum);
        map.put("costAmount", amountCostSum);
        return map;
+   }
+
+   public boolean isMonthlyRent(String phone){
+	   ActivityNewUser activityNewUser = new ActivityNewUser();
+	   activityNewUser.setPhone(phone);
+	   activityNewUser.setIsPay("1");
+	   activityNewUser.setMonthStatus(1);
+	   List<ActivityNewUser> newUser = anuDao.findNewUser(activityNewUser);
+	   if(null!=newUser&&newUser.size()>0){
+	   	return true;
+	   }
+	   return false;
    }
 
 }

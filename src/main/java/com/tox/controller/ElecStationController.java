@@ -127,6 +127,17 @@ public class ElecStationController {
 			}
 		}
     	elecStation.setNormList(normList);
+		if(null !=elecStation.getPersonType()&&elecStation.getPersonType()==1){
+//			boolean flag = orderService.isMonthlyRent(phone);
+//			elecPileInfo.getStation().setMonthlyRent(flag);
+			ElecUserAppend append = new ElecUserAppend();
+			append.setUserAccount(elecStation.getPersonPhone());
+			List<ElecUserAppend> elecUserAppends = appendMapper.selectStationAndAppent(append);
+			for (ElecUserAppend elecUserAppend : elecUserAppends) {
+				elecStation.getPhones().add(String.valueOf(elecUserAppend.getUserPhone()));
+			}
+
+		}
     	//查询庄站内绑定交流电桩的总数量
     	int acPileTotalCount = 0;
     	//查询庄站内绑定空闲的交流电桩的数量

@@ -3,6 +3,7 @@ package com.tox.controller;
 
 import com.tox.bean.*;
 import com.tox.dao.*;
+import com.tox.service.ElecOrderService;
 import com.tox.service.ElecPriceTemplateService;
 import com.tox.utils.ElecUtil;
 import com.tox.utils.ExcelUtil;
@@ -51,6 +52,8 @@ public class ElecPileController {
     private ElecStationNormMapper stationNormDao;
     @Autowired
     private ElecUserAppendMapper appendDao;
+	@Autowired
+    private ElecOrderService orderService;
 	
 	private static final DateFormat format = new SimpleDateFormat("yyyy-MM-dd 00:00:00");
 	/**
@@ -89,7 +92,7 @@ public class ElecPileController {
 
  	//扫码获取电桩和场站信息
  	@RequestMapping(value="/findChargeInfoByPileNum",method=RequestMethod.POST,produces="application/json")
- 	public @ResponseBody ElecPile findChargeInfoBypileNum(String pileNum){
+ 	public @ResponseBody ElecPile findChargeInfoBypileNum(String pileNum,String phone){
  		
  		System.out.println("要查询的电桩号："+pileNum);
  		ElecPile elecPileInfo =null;
@@ -105,10 +108,12 @@ public class ElecPileController {
  		if(elecPileInfo.getType()==3||elecPileInfo.getType()==4){
  			type=2;
  		}
- 		if(null !=elecPileInfo.getStation().getPersonType()&&elecPileInfo.getStation().getPersonType()==1){
-				ElecUserAppend append = new ElecUserAppend();
-				append.setUserAccount(elecPileInfo.getStation().getPersonPhone());
-				List<ElecUserAppend> elecUserAppends = appendDao.selectStationAndAppent(append);
+		if(null !=elecPileInfo.getStation().getPersonType()&&elecPileInfo.getStation().getPersonType()==1){
+			boolean flag = orderService.isMonthlyRent(phone);
+			elecPileInfo.getStation().setMonthlyRent(flag);
+			ElecUserAppend append = new ElecUserAppend();
+			append.setUserAccount(elecPileInfo.getStation().getPersonPhone());
+			List<ElecUserAppend> elecUserAppends = appendDao.selectStationAndAppent(append);
 			for (ElecUserAppend elecUserAppend : elecUserAppends) {
 				elecPileInfo.getStation().getPhones().add(String.valueOf(elecUserAppend.getUserPhone()));
 			}
