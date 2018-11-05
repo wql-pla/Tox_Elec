@@ -308,7 +308,7 @@ public class ElecOrderService {
 					elecOrder.setStatus("0");
 				}
 				orderDao.updateByPrimaryKeySelective(elecOrder);
-				Thread thread = new Thread(new Runnable() {
+				/*Thread thread = new Thread(new Runnable() {
 					@Override
 					public void run() {
 //						BigDecimal elecCount = BigDecimal.valueOf(elecOrder.getRealCount());
@@ -341,8 +341,8 @@ public class ElecOrderService {
 							}
 						}
 						
-						/********************************************************MQ代码********************************************************/
-						/*RabbitMQ rabbitMq = new RabbitMQ();
+						*//********************************************************MQ代码********************************************************//*
+						*//*RabbitMQ rabbitMq = new RabbitMQ();
 						Channel channel = rabbitMq.getChannel();
 						//声明关联编码(需要与回调队列的编码相对应)
 						String corrId = String.valueOf(elecOrder.getId());
@@ -363,13 +363,13 @@ public class ElecOrderService {
 							channel.getConnection().close();
 						}catch(Exception e){
 							e.printStackTrace();
-						}*/
+						}*//*
 						logger.info(String.format("服务费同步至车位东 请求参数：%s", json.toString()));
 						String result = ElecUtil.sendCarPort(json.toString());
 						logger.info(String.format("服务费同步至车位东返回结果：%s", result));
 					}
 				});
-				thread.start();
+				thread.start();*/
 			//}
 			}
 			
