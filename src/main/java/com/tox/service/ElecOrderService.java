@@ -9,6 +9,8 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import com.tox.bean.*;
 import com.tox.dao.*;
+import com.tox.utils.SystemConstant;
+import com.tox.utils.dateUtil;
 import org.apache.poi.ss.formula.functions.EDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -135,7 +137,7 @@ public class ElecOrderService {
 		
 	}
 	//组装订单费用信息
-	public void setOrderMoney(ElecPile pile,ElecUser user,ElecOrder order,Double balance){
+	public void setOrderMoney(ElecPile pile,ElecUser user,ElecOrder order,Double balance) throws ParseException {
 		order.setPileId(pile.getId());
 		ElecStation station = pile.getStation();
 
@@ -161,6 +163,8 @@ public class ElecOrderService {
 			serviceAmount=BigDecimal.valueOf(station.getPersonServiceAmount());
 			basicChargeAmount =station.getPersonBasicChargeAmount();
 		}else{
+			Date now = new Date();
+			//双十一活动免普通桩东服务费
 			if(chargeType==1&& (pile.getType()==3 ||pile.getType()==4)){//全时 交流价格
 				basicChargeAmount = station.getBasicChargeAmount();
 				serviceChargeAmount = station.getServiceChargeAmount();
@@ -176,6 +180,11 @@ public class ElecOrderService {
 				basicChargeAmount=normList.get(0).getBasicChargeAmount();
 				serviceChargeAmount=normList.get(0).getServiceChargeAmount();
 			}
+			if(now.after(dateUtil.getDateHms(SystemConstant.startDate11))&&now.before(dateUtil.getDateHms(SystemConstant.endDate11))){
+				serviceChargeAmount=0D;
+
+			}
+
 			serviceAmount= BigDecimal.valueOf(serviceChargeAmount);
 		}
 		BigDecimal basicAmount = BigDecimal.valueOf(basicChargeAmount);
@@ -379,6 +388,11 @@ public class ElecOrderService {
 			Double elecSum = (Double) countOrderElec.get("elec");
 			Double amountCostSum = (Double) countOrderElec.get("costAmount");
 			Double serivceAmountSum = (Double) countOrderElec.get("serivceAmount");
+			Date now = new Date();
+			//双十一活动免普通桩东服务费
+			if(now.after(dateUtil.getDateHms(SystemConstant.startDate11))&&now.before(dateUtil.getDateHms(SystemConstant.endDate11))){
+				serivceAmountSum=0D;
+			}
 			amountCostSum+=serivceAmountSum;
 			if("99".equals(bean.getEndReason())){//充满,但是订单未结束
 				//上报的充电电量大于上次的电量才会修改充电信息，否则不修改
