@@ -6,8 +6,6 @@ import com.tox.dao.*;
 import com.tox.service.ElecPriceTemplateService;
 import com.tox.utils.ElecUtil;
 import com.tox.utils.ExcelUtil;
-import com.tox.utils.SystemConstant;
-import com.tox.utils.dateUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -91,7 +89,7 @@ public class ElecPileController {
 
  	//扫码获取电桩和场站信息
  	@RequestMapping(value="/findChargeInfoByPileNum",method=RequestMethod.POST,produces="application/json")
- 	public @ResponseBody ElecPile findChargeInfoBypileNum(String pileNum,String phone) throws ParseException {
+ 	public @ResponseBody ElecPile findChargeInfoBypileNum(String pileNum){
  		
  		System.out.println("要查询的电桩号："+pileNum);
  		ElecPile elecPileInfo =null;
@@ -124,11 +122,6 @@ public class ElecPileController {
         int month = calendar.get(Calendar.MONTH)+1;
         int day = calendar.get(Calendar.DAY_OF_MONTH);
     	for (ElecStationNorm elecStationNorm : normList) {
-			Date now = new Date();
-			if(now.after(dateUtil.getDateHms(SystemConstant.startDate11))&&now.before(dateUtil.getDateHms(SystemConstant.endDate11))){
-				if(elecPileInfo.getStation().getPersonType()!=1||(elecPileInfo.getStation().getPersonType()==1 &&!elecPileInfo.getStation().getPhones().contains(phone)))
-				elecStationNorm.setServiceChargeAmount(0D);
-			}
     		String fromDate = elecStationNorm.getFromDate();
     		String toDate = elecStationNorm.getToDate();
     		try {
