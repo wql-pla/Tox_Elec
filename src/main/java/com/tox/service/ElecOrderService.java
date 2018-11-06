@@ -313,68 +313,25 @@ public class ElecOrderService {
 					elecOrder.setStatus("0");
 				}
 				orderDao.updateByPrimaryKeySelective(elecOrder);
-				/*Thread thread = new Thread(new Runnable() {
-					@Override
-					public void run() {
+				if(BigDecimal.ZERO.equals(BigDecimal.valueOf(station.getPersonBasicChargeAmount()))){
+					Thread thread = new Thread(new Runnable() {
+						@Override
+						public void run() {
 //						BigDecimal elecCount = BigDecimal.valueOf(elecOrder.getRealCount());
 //						BigDecimal divide = elecCount.divide(BigDecimal.valueOf(1.15),2,BigDecimal.ROUND_DOWN);
-						JSONObject json = new JSONObject();
-						//普通车位东
-						if(station.getPersonType() == 2){
+							JSONObject json = new JSONObject();
 							json.element("ordernum", elecOrder.getId());
 							json.element("phone", station.getPersonPhone());
 							json.element("eleccount", elecOrder.getRealCount());
-							json.element("elecPrice", station.getBasicChargeAmount());
-							//分润服务费*服务费
-							json.element("money", station.getThirdServiceAmount() * station.getServiceChargeAmount());
-						//个人车位东
-						}else if(station.getPersonType() == 1){
-							//本人充电只给基础费
-							if(user.getPhone().equals(station.getPersonPhone())){
-								json.element("ordernum", elecOrder.getId());
-								json.element("phone", station.getPersonPhone());
-								json.element("eleccount", elecOrder.getRealCount());
-								json.element("elecPrice", station.getPersonBasicChargeAmount());
-								json.element("money", 0);
-							//非本人充值给基础费加服务费
-							}else {
-								json.element("ordernum", elecOrder.getId());
-								json.element("phone", station.getPersonPhone());
-								json.element("eleccount", elecOrder.getRealCount());
-								json.element("elecPrice", station.getBasicChargeAmount());
-								json.element("money", station.getThirdServiceAmount() * station.getServiceChargeAmount());
-							}
+							json.element("elecPrice", station.getPersonBasicChargeAmount());
+							json.element("money", 0);
+							logger.info(String.format("服务费同步至车位东 请求参数：%s", json.toString()));
+							String result = ElecUtil.sendCarPort(json.toString());
+							logger.info(String.format("服务费同步至车位东返回结果：%s", result));
 						}
-
-						*//********************************************************MQ代码********************************************************//*
-						*//*RabbitMQ rabbitMq = new RabbitMQ();
-						Channel channel = rabbitMq.getChannel();
-						//声明关联编码(需要与回调队列的编码相对应)
-						String corrId = String.valueOf(elecOrder.getId());
-						//声明需要发送消息的配置replyTo：回调队列。correlationId：关联编码。deliveryMode：消息持久化
-						BasicProperties props = new BasicProperties.Builder()
-								.correlationId(corrId)
-								.replyTo(callBackQueue)
-								.deliveryMode(2)
-								.build();
-						try {
-							//声明回调队列,并持久化
-							channel.queueDeclare(callBackQueue, true, false, false, null);
-							//发送至指定队列
-							channel.basicPublish(rabbitMq.getExchangeName(), rabbitMq.getRoutKey(), props, json.toString().getBytes("UTF-8"));
-							System.out.println("电桩系统发送消息 [ElecChargeExchange] Sent '" + json.toString() + "'");
-							logger.info(json.toString()+ "发送到ElecChargeExchange队列中");
-							channel.close();
-							channel.getConnection().close();
-						}catch(Exception e){
-							e.printStackTrace();
-						}*//*
-						logger.info(String.format("服务费同步至车位东 请求参数：%s", json.toString()));
-						String result = ElecUtil.sendCarPort(json.toString());
-						logger.info(String.format("服务费同步至车位东返回结果：%s", result));
-					}
-				});
-				thread.start();*/
+					});
+					thread.start();
+				}
 				//}
 			}
 
