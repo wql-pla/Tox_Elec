@@ -109,8 +109,8 @@ public class ElecPileController {
  			type=2;
  		}
 		if(null !=elecPileInfo.getStation().getPersonType()&&elecPileInfo.getStation().getPersonType()==1){
-			boolean flag = orderService.isMonthlyRent(phone);
-			elecPileInfo.getStation().setMonthlyRent(flag);
+//			boolean flag = orderService.isMonthlyRent(phone);
+//			elecPileInfo.getStation().setMonthlyRent(flag);
 			ElecUserAppend append = new ElecUserAppend();
 			append.setUserAccount(elecPileInfo.getStation().getPersonPhone());
 			List<ElecUserAppend> elecUserAppends = appendDao.selectStationAndAppent(append);
