@@ -7,6 +7,6 @@
 package com.tox.utils;
 
 public class SystemConstant {
-    public  static String startDate11 ="2018-11-05 00:00:00";
-    public  static String endDate11 ="2018-11-10 23:59:59";
+    public  static String startDate11 ="2018-11-08 00:00:00";
+    public  static String endDate11 ="2018-11-21 23:59:59";
 }
