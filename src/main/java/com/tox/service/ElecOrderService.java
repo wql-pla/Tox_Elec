@@ -9,6 +9,8 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import com.tox.bean.*;
 import com.tox.dao.*;
+import com.tox.utils.SystemConstant;
+import com.tox.utils.dateUtil;
 import org.apache.poi.ss.formula.functions.EDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,17 +46,15 @@ public class ElecOrderService {
 	private ElecChargeRecordMapper recordDao;
 	@Autowired
 	private ElecOrderDetailMapper detailMapper;
-	@Autowired
-	private ElecStationNormMapper stationNormDao;
-	@Autowired
-	private ElecStationMapper stationDao;
-	@Autowired
-	private ElecUserAppendMapper appendDao;
-	@Autowired
-	private ActivityNewUserMapper anuDao;
-
+    @Autowired
+    private ElecStationNormMapper stationNormDao;
+    @Autowired
+    private ElecStationMapper stationDao;
+    @Autowired
+    private ElecUserAppendMapper appendDao;
+	
 	private String callBackQueue = "carportQueue";
-
+	
 	public boolean openCharging(ElecOrder order,ElecPile pile){
 		ElecFirm firm = firmDao.selectByPrimaryKey(pile.getFirmId());
 		String tradeTypeCode ="1";
@@ -104,25 +104,25 @@ public class ElecOrderService {
 	//是否满足首单免费活动
 	public Integer getFreeCoupon(ElecUser user){
 		List<ElecCoupons> list = couponsDao.getFreeCoupon();
-		if(null != list& list.size()>0){
-			return list.get(0).getId();
-		}
-		return null;
+    	if(null != list& list.size()>0){
+    		return list.get(0).getId();
+    	}
+    	return null;
 	}
 	//是否满足首单免费活动 for app
 	public @ResponseBody Map<String, Object> getFreeCoupon(String openId){
 		Map<String, Object> map = new HashMap<String, Object>();
 		List<ElecCoupons> list = couponsDao.getFreeCoupon();
-		if(null != list& list.size()>0){
-			List<ElecOrder> orders = orderDao.getOrderListByOpenid(openId);
-			if(null ==orders || orders.size()<1){
-				map.put("couponId", list.get(0).getId());
-				map.put("result", true);
-				return map;
-			}
-		}
-		map.put("result", false);
-		return map;
+    	if(null != list& list.size()>0){
+    		List<ElecOrder> orders = orderDao.getOrderListByOpenid(openId);
+    		if(null ==orders || orders.size()<1){
+    			map.put("couponId", list.get(0).getId());
+    			map.put("result", true);
+    			return map;
+    		}
+    	}
+    	map.put("result", false);
+    	return map;
 	}
 	//绑定首单免费活动
 	public Integer bindFreeOrder(Integer couponId,Integer userId){
@@ -134,10 +134,10 @@ public class ElecOrderService {
 		ucr.setUserId(userId);
 		ucrDao.insertSelective(ucr);
 		return  ucr.getId();
-
+		
 	}
 	//组装订单费用信息
-	public void setOrderMoney(ElecPile pile,ElecUser user,ElecOrder order,Double balance){
+	public void setOrderMoney(ElecPile pile,ElecUser user,ElecOrder order,Double balance) throws ParseException {
 		order.setPileId(pile.getId());
 		ElecStation station = pile.getStation();
 
@@ -146,10 +146,10 @@ public class ElecOrderService {
 		Integer chargeType = station.getChargeType();
 		Double basicChargeAmount=0D;
 		Double serviceChargeAmount =0D;
-
+		
 		BigDecimal serviceAmount = BigDecimal.ZERO;
-//		List<String> phones = new ArrayList<String>();
-		/*if(null!=station.getPersonType()&& 1==station.getPersonType()){
+		List<String> phones = new ArrayList<String>();
+		if(null!=station.getPersonType()&& 1==station.getPersonType()){
 			ElecUserAppend append = new ElecUserAppend();
 			append.setUserAccount(station.getPersonPhone());
 			List<ElecUserAppend> elecUserAppends = appendDao.selectStationAndAppent(append);
@@ -157,13 +157,14 @@ public class ElecOrderService {
 			for (ElecUserAppend elecUserAppend : elecUserAppends) {
 				phones.add(String.valueOf(elecUserAppend.getUserPhone()));
 			}
-		}*/
-		//月租用户不收费
-		if(null!=station.getPersonType()&& 1==station.getPersonType()&&isMonthlyRent(user.getPhone())){
+		}
+		if(null!=station.getPersonType()&& 1==station.getPersonType()&&phones.contains(user.getPhone())){
 			logger.info("桩东充电============");
-			serviceAmount=BigDecimal.valueOf(0D);
-			basicChargeAmount =0D;
+			serviceAmount=BigDecimal.valueOf(station.getPersonServiceAmount());
+			basicChargeAmount =station.getPersonBasicChargeAmount();
 		}else{
+			Date now = new Date();
+			//双十一活动免普通桩东服务费
 			if(chargeType==1&& (pile.getType()==3 ||pile.getType()==4)){//全时 交流价格
 				basicChargeAmount = station.getBasicChargeAmount();
 				serviceChargeAmount = station.getServiceChargeAmount();
@@ -179,6 +180,11 @@ public class ElecOrderService {
 				basicChargeAmount=normList.get(0).getBasicChargeAmount();
 				serviceChargeAmount=normList.get(0).getServiceChargeAmount();
 			}
+			if(now.after(dateUtil.getDateHms(SystemConstant.startDate11))&&now.before(dateUtil.getDateHms(SystemConstant.endDate11))){
+				serviceChargeAmount=0D;
+
+			}
+
 			serviceAmount= BigDecimal.valueOf(serviceChargeAmount);
 		}
 		BigDecimal basicAmount = BigDecimal.valueOf(basicChargeAmount);
@@ -199,29 +205,21 @@ public class ElecOrderService {
 		orderDao.updateByPrimaryKeySelective(order);
 		pileDao.updateByPrimaryKeySelective(pile);
 	}
-	public void endOrder(ElecOrder elecOrder,ElecUser user, ElecPile pile,ElecStation station,ResultXYDF bean,List<String>phones) throws NumberFormatException, ParseException {
-		Double basicAmount = station.getBasicChargeAmount();
-		Double serviceAmount=0D;
-		if(null!=station.getPersonType()&& 1==station.getPersonType()&&isMonthlyRent(user.getPhone())&&phones.contains(user.getPhone())){
-			logger.info("桩东结束充电============");
-			serviceAmount=0D;
-			basicAmount=0D;
-		}else if(1==station.getPersonType()&&phones.contains(user.getPhone())){
-			basicAmount=station.getPersonBasicChargeAmount();
-			serviceAmount=station.getPersonServiceAmount();
-		}else{
-			serviceAmount= station.getServiceChargeAmount();
-		}
-		Double totalAmout = basicAmount+serviceAmount;
-		if(null!=station.getPersonType()&& 1==station.getPersonType()&&isMonthlyRent(user.getPhone())&&phones.contains(user.getPhone())){
+	public void endOrder(ElecOrder elecOrder,ElecUser user, ElecPile pile,ElecStation station,ResultXYDF bean,Double basicAmount,Double serviceAmount,Double totalAmout,List<String>phones) throws NumberFormatException, ParseException {
+		if(null!=station.getPersonType()&& 1==station.getPersonType()&&phones.contains(user.getPhone())){
 			logger.info("桩东结束充电============");
 			if("99".equals(bean.getEndReason())){//充满,但是订单未结束
 				//上报的充电电量大于上次的电量才会修改充电信息，否则不修改
 				if(Double.valueOf(bean.getTotalAmmeterDegree())==0 || Double.valueOf(bean.getTotalAmmeterDegree())>(elecOrder.getRealCount() ==null?0:elecOrder.getRealCount())){
 					BigDecimal multiply = BigDecimal.valueOf(Double.valueOf(bean.getTotalAmmeterDegree())).multiply(BigDecimal.valueOf(1.05D)).setScale(2, BigDecimal.ROUND_UP);
 					elecOrder.setRealCount(multiply.doubleValue());
-					elecOrder.setOrderFee(elecOrder.getRealCount()*totalAmout);
-					elecOrder.setRealAmount(elecOrder.getRealCount()*totalAmout);
+					if(elecOrder.getElecTotalCount()==elecOrder.getRealCount()){
+						elecOrder.setOrderFee(elecOrder.getElecTotalAmount());
+						elecOrder.setRealAmount(elecOrder.getElecTotalAmount());
+					}else{
+						elecOrder.setOrderFee(elecOrder.getRealCount()*totalAmout);
+						elecOrder.setRealAmount(elecOrder.getRealCount()*totalAmout);
+					}
 					elecOrder.setBasicChargeTotal(basicAmount*elecOrder.getRealCount());
 					elecOrder.setServiceChargeTotalSelf(serviceAmount*elecOrder.getRealCount());
 					elecOrder.setEndTime(new Date());
@@ -239,8 +237,14 @@ public class ElecOrderService {
 					pile.setAllCount((pile.getAllCount()==null?0:pile.getAllCount())+multiply.doubleValue());
 				}
 				elecOrder.setRealCount(multiply.doubleValue());
-				elecOrder.setOrderFee(elecOrder.getRealCount()*totalAmout);
-				elecOrder.setRealAmount(elecOrder.getRealCount()*totalAmout);
+				if(elecOrder.getElecTotalCount()<=Double.valueOf(bean.getTotalAmmeterDegree())){
+					elecOrder.setOrderFee(elecOrder.getElecTotalAmount());
+					elecOrder.setRealAmount(elecOrder.getElecTotalAmount());
+				}else{
+					elecOrder.setOrderFee(elecOrder.getRealCount()*totalAmout);
+					BigDecimal realAmountB = BigDecimal.valueOf(elecOrder.getRealCount()).multiply(BigDecimal.valueOf(totalAmout));
+					elecOrder.setRealAmount(realAmountB.doubleValue());
+				}
 				elecOrder.setBasicChargeTotal(basicAmount*elecOrder.getRealCount());
 				elecOrder.setServiceChargeTotalSelf(serviceAmount*elecOrder.getRealCount());
 				if(null==elecOrder.getEndTime()){
@@ -265,7 +269,7 @@ public class ElecOrderService {
 							}else{
 								elecOrder.setRealAmount(0.00);
 							}
-							//打折优惠券
+						//打折优惠券
 						}else if(2==status){
 							elecOrder.setRealAmount(elecOrder.getRealAmount()*elecCoupons.getAmount());
 						}else if(3==status||5==status){
@@ -290,7 +294,7 @@ public class ElecOrderService {
 							ucrDao.updateByPrimaryKeySelective(couponsRel);
 						}
 					}
-
+					
 				}
 				if(3==pile.getType()||5==pile.getType()){//单枪电桩
 					pile.setIsUsed(0);
@@ -305,7 +309,7 @@ public class ElecOrderService {
 						pile.setIsUsed(0);
 					}
 				}
-
+				
 				pileDao.updateByPrimaryKeySelective(pile);
 				if(elecOrder.getRealCount()==0){
 					elecOrder.setStatus("2");
@@ -332,15 +336,20 @@ public class ElecOrderService {
 					});
 					thread.start();
 				}
-				//}
+			//}
 			}
-
+			
 		}else{
 			HashMap countOrderElec = countOrderElec(elecOrder.getId(), Double.valueOf(bean.getTotalAmmeterDegree()));
-
+			
 			Double elecSum = (Double) countOrderElec.get("elec");
 			Double amountCostSum = (Double) countOrderElec.get("costAmount");
 			Double serivceAmountSum = (Double) countOrderElec.get("serivceAmount");
+			Date now = new Date();
+			//双十一活动免普通桩东服务费
+			if(now.after(dateUtil.getDateHms(SystemConstant.startDate11))&&now.before(dateUtil.getDateHms(SystemConstant.endDate11))){
+				serivceAmountSum=0D;
+			}
 			amountCostSum+=serivceAmountSum;
 			if("99".equals(bean.getEndReason())){//充满,但是订单未结束
 				//上报的充电电量大于上次的电量才会修改充电信息，否则不修改
@@ -403,7 +412,7 @@ public class ElecOrderService {
 							}else{
 								elecOrder.setRealAmount(0.00);
 							}
-							//打折优惠券
+						//打折优惠券
 						}else if(2==status){
 							elecOrder.setRealAmount(elecOrder.getRealAmount()*elecCoupons.getAmount());
 						}else if(3==status||5==status){
@@ -423,7 +432,7 @@ public class ElecOrderService {
 						elecOrder.setCouponId(0);
 						ucrDao.updateByPrimaryKeySelective(couponsRel);
 					}
-
+					
 				}
 				if(3==pile.getType()||5==pile.getType()){//单枪电桩
 					pile.setIsUsed(0);
@@ -438,7 +447,7 @@ public class ElecOrderService {
 						pile.setIsUsed(0);
 					}
 				}
-
+				
 				pileDao.updateByPrimaryKeySelective(pile);
 				if(elecOrder.getRealCount()==0){
 					elecOrder.setStatus("2");
@@ -460,7 +469,7 @@ public class ElecOrderService {
 							json.element("elecPrice", station.getBasicChargeAmount());
 							//分润服务费*服务费
 							json.element("money", station.getThirdServiceAmount() * station.getServiceChargeAmount());
-							//个人车位东
+						//个人车位东
 						}else if(station.getPersonType() == 1){
 							//本人充电只给基础费
 							if(user.getPhone().equals(station.getPersonPhone())){
@@ -469,7 +478,7 @@ public class ElecOrderService {
 								json.element("eleccount", elecOrder.getRealCount());
 								json.element("elecPrice", station.getBasicChargeAmount());
 								json.element("money", 0);
-								//非本人充值给基础费加服务费
+							//非本人充值给基础费加服务费
 							}else {
 								json.element("ordernum", elecOrder.getId());
 								json.element("phone", station.getPersonPhone());
@@ -478,7 +487,7 @@ public class ElecOrderService {
 								json.element("money", station.getThirdServiceAmount() * station.getServiceChargeAmount());
 							}
 						}
-
+						
 						/********************************************************MQ代码********************************************************/
 						/*RabbitMQ rabbitMq = new RabbitMQ();
 						Channel channel = rabbitMq.getChannel();
@@ -508,11 +517,11 @@ public class ElecOrderService {
 					}
 				});
 				thread.start();
-				//}
+			//}
 			}
 		}
-
-
+		
+	
 	}
 	public boolean appentXY(ElecChargeRecord record,ElecOrder order,ElecUser user){
 		ElecPile pile = pileDao.findChargeInfoByPileNum2(order.getPileNum());
@@ -541,18 +550,18 @@ public class ElecOrderService {
 		record.setRecordStatus(1);
 		order.setElecTotalAmount(order.getElecTotalAmount()+record.getElecAmount());
 		order.setElecTotalCount(BigDecimal.valueOf(order.getElecTotalCount()).add(divide).doubleValue());
-		int recordFlag = recordDao.insertSelective(record);
-		if(recordFlag>0){
-			String result = ElecUtil.appentXY(pile.getPileNum(), "4", order.getElecTotalCount(),order.getId(),type,order.getGunNo(),pile.getType() );
-			if("SUCCESS".equals(result)){
-				orderDao.updateByPrimaryKeySelective(order);
-				return true;
+	    int recordFlag = recordDao.insertSelective(record);
+	    if(recordFlag>0){
+	    	String result = ElecUtil.appentXY(pile.getPileNum(), "4", order.getElecTotalCount(),order.getId(),type,order.getGunNo(),pile.getType() );
+	    	if("SUCCESS".equals(result)){
+	    		orderDao.updateByPrimaryKeySelective(order);
+	    		return true;
 			}
-		}
+	    }
 		return false;
 	}
-
-
+	
+	
 	/**
 	 * 订单结束时根据订单传送过来的信息进行返回订单信息
 	 * @param orderId
@@ -561,120 +570,108 @@ public class ElecOrderService {
 	 * @throws ParseException
 	 */
 	public HashMap countOrderElec(Integer orderId,Double pileChargeCounts) throws ParseException{
-		DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		//根据订单ID查询订单
-		ElecOrder order = orderDao.selectByPrimaryKey(orderId);
-
-		Calendar calendar = Calendar.getInstance();//日历对象
-		calendar.setTime(new Date());//设置当前日期
-		//小时
-		int hour = calendar.get(Calendar.HOUR_OF_DAY);
-		//时间
-		int min = calendar.get(Calendar.MINUTE);
-		//年
-		int year = calendar.get(Calendar.YEAR);
-		//月
-		int month = calendar.get(Calendar.MONTH);
-		//日
-		int day = calendar.get(Calendar.DAY_OF_MONTH);
-		//根据该场站时间段
-		List<ElecStationNorm> elecStationNorms = stationNormDao.selectByStationId(order.getPile().getChargeStandardId());
-
-		ElecStationNorm norms=null;
-
-		int timeSum=0;
-
-		for(ElecStationNorm norm:elecStationNorms){
-			//结束时间
-			String[] toDates = norm.getToDate().split(":");
-			//开始时间
-			String[] fromDates = norm.getFromDate().split(":");
-
-			//开始时间-小时
-			Integer fromHour = Integer.valueOf(fromDates[0]);
-
-			//结束时间-小时
-			Integer toHour = Integer.valueOf(toDates[0]);
-			Integer toMin = Integer.valueOf(toDates[1]);
-
-			//订单结束时间大于时间段开始时间
-			if(hour>=fromHour){
-				//订单结束时间等于当前时间段结束时间
-				if(hour==toHour){
-					//需要结束时间分钟数大于等于当前结束时间分钟
-					if(toMin>=min){
-						norms= norm;
-					}
-					//如果结束时间小时小于结束时间小时
-				}else if(hour<toHour){
-					norms= norm;
-				}
-			}
-		}
-
-
-
-		//查询当前订单是否有过明细
-		Double  orderElecCount= detailMapper.selectCountByOrderId(order.getId());
-		//如果有过明细则减去之前度数
-		if(orderElecCount!=null && orderElecCount>0){
-			Double endElecCount= pileChargeCounts-orderElecCount;
-			if(endElecCount>0){
-				endElecCount=endElecCount*1.05;
-				ElecOrderDetail elecOrderDetail = new ElecOrderDetail();
-				String time1=year+"-"+month+"-"+day+" "+norms.getFromDate();
-				// 创建订单明细
-				elecOrderDetail.setFromDate(format.parse(time1));
-				elecOrderDetail.setToDate(new Date());
-				elecOrderDetail.setPrice(norms.getBasicChargeAmount()+norms.getServiceChargeAmount());
-				elecOrderDetail.setServiceAmount(norms.getServiceChargeAmount()*endElecCount);
-				elecOrderDetail.setCost(norms.getBasicChargeAmount()*endElecCount);
-				elecOrderDetail.setOrderId(order.getId());
-				elecOrderDetail.setElecCount(endElecCount);
-				elecOrderDetail.setDuration(Double.valueOf(timeSum));
-				detailMapper.insertSelective(elecOrderDetail);
-			}
-		}else{
-			double endElecCount=pileChargeCounts*1.05;
-			ElecOrderDetail elecOrderDetail = new ElecOrderDetail();
-			String time1=year+"-"+month+"-"+day+" "+norms.getFromDate();
-			// 创建订单明细
-			elecOrderDetail.setFromDate(format.parse(time1));
-			elecOrderDetail.setToDate(new Date());
-			elecOrderDetail.setPrice(norms.getBasicChargeAmount()+norms.getServiceChargeAmount());
-			elecOrderDetail.setServiceAmount(norms.getServiceChargeAmount()*endElecCount);
-			elecOrderDetail.setCost(norms.getBasicChargeAmount()*endElecCount);
-			elecOrderDetail.setOrderId(order.getId());
-			elecOrderDetail.setElecCount(endElecCount);
-			detailMapper.insertSelective(elecOrderDetail);
-
-		}
-		HashMap map= new HashMap();
-		Double elecSum=0.0;
-		Double amountCostSum=0.0;
-		Double amountServiceSum=0.0;
-		List<ElecOrderDetail> selectByOrderId = detailMapper.selectByOrderId(orderId);
-		for(ElecOrderDetail detail:selectByOrderId){
-			elecSum+=detail.getElecCount();
-			amountCostSum+=detail.getCost();
-			amountServiceSum+=detail.getServiceAmount();
-		}
-		map.put("elec", elecSum);
-		map.put("serivceAmount", amountServiceSum);
-		map.put("costAmount", amountCostSum);
-		return map;
-	}
-
-	public boolean isMonthlyRent(String phone){
-		ActivityNewUser activityNewUser = new ActivityNewUser();
-		activityNewUser.setPhone(phone);
-		activityNewUser.setIsPay("1");
-		activityNewUser.setMonthStatus(1);
-		List<ActivityNewUser> newUser = anuDao.findNewUser(activityNewUser);
-		if(null!=newUser&&newUser.size()>0){
-			return true;
-		}
-		return false;
-	}
+   	 DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); 
+   	//根据订单ID查询订单
+   	ElecOrder order = orderDao.selectByPrimaryKey(orderId);
+   	
+   	Calendar calendar = Calendar.getInstance();//日历对象
+       calendar.setTime(new Date());//设置当前日期
+       //小时
+       int hour = calendar.get(Calendar.HOUR_OF_DAY);
+       //时间
+       int min = calendar.get(Calendar.MINUTE);
+     //年
+       int year = calendar.get(Calendar.YEAR);
+     //月
+       int month = calendar.get(Calendar.MONTH);
+     //日
+       int day = calendar.get(Calendar.DAY_OF_MONTH);
+     //根据该场站时间段
+       List<ElecStationNorm> elecStationNorms = stationNormDao.selectByStationId(order.getPile().getChargeStandardId());
+       
+       ElecStationNorm norms=null;
+       
+       int timeSum=0;
+       
+       for(ElecStationNorm norm:elecStationNorms){
+    	   //结束时间
+    	   String[] toDates = norm.getToDate().split(":");
+    	   //开始时间
+    	   String[] fromDates = norm.getFromDate().split(":");
+    	   
+    	   //开始时间-小时
+    	   Integer fromHour = Integer.valueOf(fromDates[0]);
+    	   
+    	   //结束时间-小时
+    	   Integer toHour = Integer.valueOf(toDates[0]);
+    	   Integer toMin = Integer.valueOf(toDates[1]);
+    	   
+    	   //订单结束时间大于时间段开始时间
+    	   if(hour>=fromHour){
+    		   //订单结束时间等于当前时间段结束时间
+    		   if(hour==toHour){
+    			   //需要结束时间分钟数大于等于当前结束时间分钟
+    			   if(toMin>=min){
+    				   norms= norm;
+    			   }
+    			   //如果结束时间小时小于结束时间小时
+    		   }else if(hour<toHour){
+    			   norms= norm;
+    		   }
+    		   }
+    	   }
+    	   
+    	   
+       
+     //查询当前订单是否有过明细
+       Double  orderElecCount= detailMapper.selectCountByOrderId(order.getId());
+       //如果有过明细则减去之前度数
+       if(orderElecCount!=null && orderElecCount>0){
+       	Double endElecCount= pileChargeCounts-orderElecCount;
+       	if(endElecCount>0){
+       		endElecCount=endElecCount*1.05;
+   			ElecOrderDetail elecOrderDetail = new ElecOrderDetail();
+   			String time1=year+"-"+month+"-"+day+" "+norms.getFromDate();
+   			// 创建订单明细
+       		elecOrderDetail.setFromDate(format.parse(time1));
+       		elecOrderDetail.setToDate(new Date());
+       		elecOrderDetail.setPrice(norms.getBasicChargeAmount()+norms.getServiceChargeAmount());
+       		elecOrderDetail.setServiceAmount(norms.getServiceChargeAmount()*endElecCount);
+       		elecOrderDetail.setCost(norms.getBasicChargeAmount()*endElecCount);
+       		elecOrderDetail.setOrderId(order.getId());
+       		elecOrderDetail.setElecCount(endElecCount);
+       		elecOrderDetail.setDuration(Double.valueOf(timeSum));
+       		detailMapper.insertSelective(elecOrderDetail);
+       	}
+       }else{
+   			double endElecCount=pileChargeCounts*1.05;
+  			ElecOrderDetail elecOrderDetail = new ElecOrderDetail();
+  			String time1=year+"-"+month+"-"+day+" "+norms.getFromDate();
+  			// 创建订单明细
+      		elecOrderDetail.setFromDate(format.parse(time1));
+      		elecOrderDetail.setToDate(new Date());
+      		elecOrderDetail.setPrice(norms.getBasicChargeAmount()+norms.getServiceChargeAmount());
+      		elecOrderDetail.setServiceAmount(norms.getServiceChargeAmount()*endElecCount);
+      		elecOrderDetail.setCost(norms.getBasicChargeAmount()*endElecCount);
+      		elecOrderDetail.setOrderId(order.getId());
+      		elecOrderDetail.setElecCount(endElecCount);
+      		detailMapper.insertSelective(elecOrderDetail);
+      		
+       }
+       HashMap map= new HashMap();
+       Double elecSum=0.0;
+       Double amountCostSum=0.0;
+       Double amountServiceSum=0.0;
+       List<ElecOrderDetail> selectByOrderId = detailMapper.selectByOrderId(orderId);
+       for(ElecOrderDetail detail:selectByOrderId){
+       	elecSum+=detail.getElecCount();
+       	amountCostSum+=detail.getCost();
+       	amountServiceSum+=detail.getServiceAmount();
+       }
+       map.put("elec", elecSum);
+       map.put("serivceAmount", amountServiceSum);
+       map.put("costAmount", amountCostSum);
+       return map;
+   }
 
 }

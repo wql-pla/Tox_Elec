@@ -33,7 +33,9 @@
     <result column="STATION_NAME" property="stationName" jdbcType="VARCHAR" />
     <result column="CITY" jdbcType="VARCHAR" property="city" />
     <result column="CHARGE_TYPE" jdbcType="INTEGER" property="chargeType" />
-    <association property="pile"  column="PILE_ID" javaType="com.tox.bean.ElecPile" >  
+    <result column="STATION_PERSON_PHONE" jdbcType="VARCHAR" property="stationPersonPhone" />
+    <result column="STATION_TYPE" jdbcType="INTEGER" property="stationType" />
+    <association property="pile"  column="PILE_ID" javaType="com.tox.bean.ElecPile" >
         <id column="PID" property="id" jdbcType="INTEGER" />
 	    <result column="PILE_NUM" property="pileNum" jdbcType="VARCHAR" />
 	    <result column="CHARGE_STANDARD_ID" property="chargeStandardId" jdbcType="INTEGER" />
@@ -155,7 +157,7 @@
   <select id="getOrderAndCouponByOrderId" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     select 
     o.ID, o.STATUS, ELEC_TOTAL_AMOUNT, ELEC_TOTAL_COUNT, o.CREATE_TIME, END_TIME, OPEN_ID,ORDER_FEE,o.ELEC_PRICE,
-    COUPON_ID, COUPON_STATUS, PILE_ID, SERVICE_CHARGE_TOTAL_SELF, SERVICE_CHARGE_TOTAL_THIRD, 
+    COUPON_ID, COUPON_STATUS, PILE_ID, SERVICE_CHARGE_TOTAL_SELF, SERVICE_CHARGE_TOTAL_THIRD,s.PERSON_PHONE AS STATION_PERSON_PHONE,s.PERSON_TYPE as STATION_TYPE,
     BASIC_CHARGE_TOTAL, ORDER_SOURCE, REAL_AMOUNT, REAL_COUNT, SERVICE_PAY_STATUS, BASIC_PAY_STATUS,GUN_NO,USE_OPENID,
     p.ID as PID, PILE_NUM,p.TYPE, CHARGE_STANDARD_ID, FIRM_ID, p.CREATE_TIME as PCREATE_TIME,s.STATION_NAME AS PILE_POSITION,
     FIRM_NAME,c.id as CID,c.NAME, c.FROM_DATE, c.TO_DATE, c.AMOUNT, c.STATUS as CSTATUS, c.TYPE, c.CREATE_DATE as CCREATE_DATE, c.IS_DEL as CIS_DEL
@@ -415,7 +417,7 @@
   </select>	
    <select id="getPageOrderListByOpenidPages" resultMap="BaseResultMap">
     select 
-    t1.*,t3.STATION_NAME as PILE_POSITION,t2.PILE_NUM AS PILE_NUM,t3.CHARGE_TYPE,
+    t1.*,t3.STATION_NAME as PILE_POSITION,t2.PILE_NUM AS PILE_NUM,t3.CHARGE_TYPE,t3.PERSON_PHONE AS STATION_PERSON_PHONE,t3.PERSON_TYPE as STATION_TYPE,
     c.id as CID,c.NAME, c.FROM_DATE, c.TO_DATE, c.AMOUNT, c.STATUS as CSTATUS, c.TYPE, c.CREATE_DATE as CCREATE_DATE, c.IS_DEL as CIS_DEL
     from elec_order t1
     left join elec_pile t2 on t1.PILE_ID = t2.ID

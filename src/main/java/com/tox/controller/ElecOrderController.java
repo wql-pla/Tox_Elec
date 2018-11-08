@@ -313,7 +313,7 @@ public class ElecOrderController {
 	 * @return
 	 */
 	@RequestMapping(value = "/createOrder")
-	public Map<String, Object> createOrder(@RequestBody ElecOrder order) {
+	public Map<String, Object> createOrder(@RequestBody ElecOrder order) throws Exception {
 		logger.info(String.format("要插入的订单信息：%s", order.toString()));
 		Map<String, Object> map = new HashMap<String, Object>();
 		order.setCreateTime(new Date());

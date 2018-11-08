@@ -1,11 +1,9 @@
 package com.tox.bean;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import java.util.Date;
 import java.util.List;
-
-import org.springframework.format.annotation.DateTimeFormat;
-
-import com.fasterxml.jackson.annotation.JsonFormat;
 
 
 public class ElecOrder extends PageView<ElecOrder> {
@@ -92,6 +90,10 @@ public class ElecOrder extends PageView<ElecOrder> {
     private Integer chargeType;//是否跨时段 1全时 2 分时
     
     private List<ElecOrderDetail> details;
+
+    private String stationPersonPhone;//桩东电话
+
+    private Integer stationType;//场站类型
     
 
 	public List<ElecOrderDetail> getDetails() {
@@ -433,21 +435,69 @@ public class ElecOrder extends PageView<ElecOrder> {
 		this.chargeType = chargeType;
 	}
 
-	@Override
-	public String toString() {
-		return "ElecOrder [id=" + id + ", status=" + status + ", elecTotalAmount=" + elecTotalAmount
-				+ ", elecTotalCount=" + elecTotalCount + ", elecPrice=" + elecPrice + ", createTime=" + createTime
-				+ ", endTime=" + endTime + ", openId=" + openId + ", couponId=" + couponId + ", couponStatus="
-				+ couponStatus + ", coupon=" + coupon + ", pileId=" + pileId + ", pile=" + pile + ", pileNum=" + pileNum
-				+ ", serviceChargeTotalSelf=" + serviceChargeTotalSelf + ", serviceChargeTotalThird="
-				+ serviceChargeTotalThird + ", basicChargeTotal=" + basicChargeTotal + ", orderSource=" + orderSource
-				+ ", orderFee=" + orderFee + ", realAmount=" + realAmount + ", realCount=" + realCount
-				+ ", servicePayStatus=" + servicePayStatus + ", basicPayStatus=" + basicPayStatus + ", stationName="
-				+ stationName + ", stationId=" + stationId + ", firmName=" + firmName + ", pilePosition=" + pilePosition
-				+ ", onLineDate=" + onLineDate + ", startDate=" + startDate + ", endDate=" + endDate + ", phone="
-				+ phone + ", storeName=" + storeName + ", city=" + city + ", type=" + type + ", sumMoney=" + sumMoney
-				+ ", recharges=" + recharges + ", gunNo=" + gunNo + ", useOpenid=" + useOpenid + ", chargeType="
-				+ chargeType + ", details=" + details + ", pageDetails=" + pageDetails + ", timeDiff=" + timeDiff + "]";
-	}
+    public String getStationPersonPhone() {
+        return stationPersonPhone;
+    }
 
+    public void setStationPersonPhone(String stationPersonPhone) {
+        this.stationPersonPhone = stationPersonPhone;
+    }
+
+    public Integer getStationType() {
+        return stationType;
+    }
+
+    public void setStationType(Integer stationType) {
+        this.stationType = stationType;
+    }
+
+    @Override
+    public String toString() {
+        return "ElecOrder{" +
+                "id=" + id +
+                ", status='" + status + '\'' +
+                ", elecTotalAmount=" + elecTotalAmount +
+                ", elecTotalCount=" + elecTotalCount +
+                ", elecPrice=" + elecPrice +
+                ", createTime=" + createTime +
+                ", endTime=" + endTime +
+                ", openId='" + openId + '\'' +
+                ", couponId=" + couponId +
+                ", couponStatus='" + couponStatus + '\'' +
+                ", coupon=" + coupon +
+                ", pileId=" + pileId +
+                ", pile=" + pile +
+                ", pileNum='" + pileNum + '\'' +
+                ", serviceChargeTotalSelf=" + serviceChargeTotalSelf +
+                ", serviceChargeTotalThird=" + serviceChargeTotalThird +
+                ", basicChargeTotal=" + basicChargeTotal +
+                ", orderSource='" + orderSource + '\'' +
+                ", orderFee=" + orderFee +
+                ", realAmount=" + realAmount +
+                ", realCount=" + realCount +
+                ", servicePayStatus='" + servicePayStatus + '\'' +
+                ", basicPayStatus='" + basicPayStatus + '\'' +
+                ", stationName='" + stationName + '\'' +
+                ", stationId=" + stationId +
+                ", firmName='" + firmName + '\'' +
+                ", pilePosition='" + pilePosition + '\'' +
+                ", onLineDate=" + onLineDate +
+                ", startDate=" + startDate +
+                ", endDate=" + endDate +
+                ", phone='" + phone + '\'' +
+                ", storeName='" + storeName + '\'' +
+                ", city='" + city + '\'' +
+                ", type=" + type +
+                ", sumMoney=" + sumMoney +
+                ", recharges=" + recharges +
+                ", gunNo=" + gunNo +
+                ", useOpenid='" + useOpenid + '\'' +
+                ", chargeType=" + chargeType +
+                ", details=" + details +
+                ", stationPersonPhone='" + stationPersonPhone + '\'' +
+                ", stationType=" + stationType +
+                ", pageDetails=" + pageDetails +
+                ", timeDiff=" + timeDiff +
+                '}';
+    }
 }
