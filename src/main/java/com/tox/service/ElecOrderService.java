@@ -260,7 +260,7 @@ public class ElecOrderService {
 					ElecCoupons elecCoupons = couponsDao.selectByPrimaryKey(couponsRel.getCouponsId());
 					Integer status = elecCoupons.getStatus();
 					//充电金额为零时，退还使用的优惠券,如果是首单免费优惠券删除该优惠券
-					if(0 != elecOrder.getRealAmount()){
+					if(!BigDecimal.ZERO.equals(BigDecimal.valueOf(elecOrder.getRealAmount())) ){
 						//直减优惠券
 						if(1==status){
 							//优惠券抵扣（充电金额大于优惠券金额时用优惠券和余额一起支付，充电金额小于优惠券金额时，直接用优惠券支付，优惠金额多余部分不予退还）
@@ -317,7 +317,7 @@ public class ElecOrderService {
 					elecOrder.setStatus("0");
 				}
 				orderDao.updateByPrimaryKeySelective(elecOrder);
-				if(BigDecimal.ZERO.equals(BigDecimal.valueOf(station.getPersonBasicChargeAmount()))){
+				if(!BigDecimal.ZERO.equals(BigDecimal.valueOf(station.getPersonBasicChargeAmount()))){
 					Thread thread = new Thread(new Runnable() {
 						@Override
 						public void run() {
@@ -403,7 +403,7 @@ public class ElecOrderService {
 					ElecCoupons elecCoupons = couponsDao.selectByPrimaryKey(couponsRel.getCouponsId());
 					Integer status = elecCoupons.getStatus();
 					//充电金额为零时，退还使用的优惠券,如果是首单免费优惠券删除该优惠券
-					if(0 != elecOrder.getRealAmount()){
+					if(!BigDecimal.ZERO.equals(BigDecimal.valueOf(elecOrder.getRealAmount()))){
 						//直减优惠券
 						if(1==status){
 							//优惠券抵扣（充电金额大于优惠券金额时用优惠券和余额一起支付，充电金额小于优惠券金额时，直接用优惠券支付，优惠金额多余部分不予退还）
