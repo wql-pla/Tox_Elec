@@ -1,17 +1,11 @@
 package com.tox.service;
 
-import java.math.BigDecimal;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicLong;
-
 import com.tox.bean.*;
 import com.tox.dao.*;
+import com.tox.utils.ElecUtil;
 import com.tox.utils.SystemConstant;
 import com.tox.utils.dateUtil;
-import org.apache.poi.ss.formula.functions.EDate;
+import net.sf.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,13 +13,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.rabbitmq.client.Channel;
-import com.rabbitmq.client.QueueingConsumer;
-import com.rabbitmq.client.AMQP.BasicProperties;
-import com.tox.controller.ElecOrderController;
-import com.tox.utils.ElecUtil;
+import java.math.BigDecimal;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicLong;
+
 //import com.tox.utils.RabbitMQ;
-import net.sf.json.JSONObject;
 
 @Service
 @Transactional
@@ -427,10 +422,14 @@ public class ElecOrderService {
 							}
 						}
 					}else{
-						//归还优惠券
-						couponsRel.setStatus(0);
-						elecOrder.setCouponId(0);
-						ucrDao.updateByPrimaryKeySelective(couponsRel);
+						if(3==status){
+							elecOrder.setCouponId(0);
+							ucrDao.deleteByPrimaryKey(couponsRel.getId());
+						}else{
+							couponsRel.setStatus(0);
+							elecOrder.setCouponId(0);
+							ucrDao.updateByPrimaryKeySelective(couponsRel);
+						}
 					}
 					
 				}
