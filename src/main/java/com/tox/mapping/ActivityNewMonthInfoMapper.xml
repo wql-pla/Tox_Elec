@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.tox.dao.ActivityNewMonthInfoMapper" >
+  <resultMap id="BaseResultMap" type="com.tox.bean.ActivityNewMonthInfo" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="phone" property="phone" jdbcType="VARCHAR" />
+    <result column="city" property="city" jdbcType="VARCHAR" />
+    <result column="online_date" property="onlineDate" jdbcType="TIMESTAMP" />
+    <result column="month_start_date" property="monthStartDate" jdbcType="TIMESTAMP" />
+    <result column="month_end_date" property="monthEndDate" jdbcType="TIMESTAMP" />
+    <result column="month_status" property="monthStatus" jdbcType="VARCHAR" />
+    <result column="is_del" property="isDel" jdbcType="VARCHAR" />
+    <result column="create_date" property="createDate" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, phone, city, online_date, month_start_date, month_end_date, month_status, is_del, 
+    create_date
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from activity_new_month_info
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from activity_new_month_info
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.tox.bean.ActivityNewMonthInfo" >
+    insert into activity_new_month_info (id, phone, city, 
+      online_date, month_start_date, month_end_date, 
+      month_status, is_del, create_date
+      )
+    values (#{id,jdbcType=INTEGER}, #{phone,jdbcType=VARCHAR}, #{city,jdbcType=VARCHAR}, 
+      #{onlineDate,jdbcType=TIMESTAMP}, #{monthStartDate,jdbcType=TIMESTAMP}, #{monthEndDate,jdbcType=TIMESTAMP}, 
+      #{monthStatus,jdbcType=VARCHAR}, #{isDel,jdbcType=VARCHAR}, #{createDate,jdbcType=TIMESTAMP}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.tox.bean.ActivityNewMonthInfo" >
+    insert into activity_new_month_info
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="phone != null" >
+        phone,
+      </if>
+      <if test="city != null" >
+        city,
+      </if>
+      <if test="onlineDate != null" >
+        online_date,
+      </if>
+      <if test="monthStartDate != null" >
+        month_start_date,
+      </if>
+      <if test="monthEndDate != null" >
+        month_end_date,
+      </if>
+      <if test="monthStatus != null" >
+        month_status,
+      </if>
+      <if test="isDel != null" >
+        is_del,
+      </if>
+      <if test="createDate != null" >
+        create_date,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="phone != null" >
+        #{phone,jdbcType=VARCHAR},
+      </if>
+      <if test="city != null" >
+        #{city,jdbcType=VARCHAR},
+      </if>
+      <if test="onlineDate != null" >
+        #{onlineDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="monthStartDate != null" >
+        #{monthStartDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="monthEndDate != null" >
+        #{monthEndDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="monthStatus != null" >
+        #{monthStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="isDel != null" >
+        #{isDel,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null" >
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.tox.bean.ActivityNewMonthInfo" >
+    update activity_new_month_info
+    <set >
+      <if test="phone != null" >
+        phone = #{phone,jdbcType=VARCHAR},
+      </if>
+      <if test="city != null" >
+        city = #{city,jdbcType=VARCHAR},
+      </if>
+      <if test="onlineDate != null" >
+        online_date = #{onlineDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="monthStartDate != null" >
+        month_start_date = #{monthStartDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="monthEndDate != null" >
+        month_end_date = #{monthEndDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="monthStatus != null" >
+        month_status = #{monthStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="isDel != null" >
+        is_del = #{isDel,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null" >
+        create_date = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.tox.bean.ActivityNewMonthInfo" >
+    update activity_new_month_info
+    set phone = #{phone,jdbcType=VARCHAR},
+      city = #{city,jdbcType=VARCHAR},
+      online_date = #{onlineDate,jdbcType=TIMESTAMP},
+      month_start_date = #{monthStartDate,jdbcType=TIMESTAMP},
+      month_end_date = #{monthEndDate,jdbcType=TIMESTAMP},
+      month_status = #{monthStatus,jdbcType=VARCHAR},
+      is_del = #{isDel,jdbcType=VARCHAR},
+      create_date = #{createDate,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

@@ -22,14 +22,19 @@ public class ActivityNewUser extends PageView<ActivityNewUser> {
     private String city;
     
     private Integer isSign;
+    //---------------------------------查询条件非映射------------------------------------------------
 
+    //月卡状态
     private Integer monthStatus;
-    
+    //开始时间-针对用户管理报名日期
+    //
     private Date startDate;
 
     private Date endDate;
     
     private Date firstOnlineDate;
+    
+    private Integer monthDay;
     
     public Integer getId() {
         return id;
@@ -151,6 +156,15 @@ public class ActivityNewUser extends PageView<ActivityNewUser> {
 	public void setEndDate(Date endDate) {
 		this.endDate = endDate;
 	}
+
+	public Integer getMonthDay() {
+		return monthDay;
+	}
+
+	public void setMonthDay(Integer monthDay) {
+		this.monthDay = monthDay;
+	}
+	
 
 	
     

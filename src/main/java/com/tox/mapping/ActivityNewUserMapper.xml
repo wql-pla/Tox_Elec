@@ -181,7 +181,6 @@
       <where>
           1=1 and ISDEL = 0
           <if test="phone != null and phone != ''">
-              <bind name="phone" value="'%'+phone+'%'"/>
               AND PHONE like #{phone}
           </if>
           <if test="startDate != null">
@@ -208,15 +207,51 @@
            <if test="monthStatus != null and monthStatus == '2' and monthStatus != '3'">
              AND to_date &lt; DATE_FORMAT(now(),'%Y-%m-%d') 
           </if>
+          
+           <!-- 上线时间 -->
+           <if test="monthStatus != null and monthStatus == '2' and monthStatus != '3'">
+             AND to_date &lt; DATE_FORMAT(now(),'%Y-%m-%d') 
+          </if>
+          
           order by CREATE_DATE desc
           <if test="pageSize>0">
 			limit #{pageNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
 		 </if>
 	
       </where>
-      
   </select>
   
+   <select id="findMonthCard" parameterType="com.tox.bean.ActivityNewUser" resultMap="BaseResultMap">
+      select 
+      	<include refid="Base_Column_List" />,DATEDIFF(to_date,from_date) AS monthDay
+      from 
+      	activity_new_user
+      <where>
+          1=1 and ISDEL = 0
+          <!-- 电话号查询 -->
+           <if test="phone != null and phone != ''">
+              AND PHONE like #{phone}
+          </if>
+             <!-- 月卡未生效 -->
+          <if test="monthStatus != null and monthStatus == '0' and monthStatus != '3'">
+             AND from_date is null 
+          </if>
+          <!-- 月卡生效 -->
+           <if test="monthStatus != null and monthStatus == '1' and monthStatus != '3'">
+             AND to_date &gt;= DATE_FORMAT(now(),'%Y-%m-%d') 
+          </if>
+          <!-- 月卡失效 -->
+           <if test="monthStatus != null and monthStatus == '2' and monthStatus != '3'">
+             AND to_date &lt; DATE_FORMAT(now(),'%Y-%m-%d') 
+          </if>
+          
+           <if test="firstOnlineDate != null">
+            AND  between '2017-07-25 00:00:00' and  '2017-07-25 24:00:00';
+          </if>
+          
+         
+   	  </where>
+   </select>
   
   
 </mapper>
