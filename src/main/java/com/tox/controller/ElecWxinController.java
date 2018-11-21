@@ -12,10 +12,12 @@ import com.tox.utils.wxsdk.WXPayUtil;
 import net.sf.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.BufferedReader;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import com.github.wxpay.sdk.WXPay;
@@ -23,6 +25,7 @@ import com.tox.utils.wxpayne.WXPayConfigImpl;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.crypto.Data;
 
 /**
  * 98元活动支付微信号信息
@@ -57,11 +60,14 @@ public class ElecWxinController {
     private WXPayConfigImpl config;
 
     //订单对象
+    @Autowired
     private ActivityNewOrderMapper acOrderDao;
 
     //创建用户对象
+    @Autowired
     private ActivityNewUserMapper acUserDao;
 
+    @Autowired
     private ElecNewActivityService elecNewActivityService;
 
     /**
@@ -93,7 +99,7 @@ public class ElecWxinController {
      */
     @RequestMapping(value="/getOpenid",method=RequestMethod.POST,produces="application/json")
     public @ResponseBody
-    Map<String,Object> getOpenid(String code, Integer userId){
+    Map<String,Object> getOpenid(String code){
         Map<String, Object> map = new HashMap<>();
         String url = GET_OPENID.replace("APPID", APPID).replace("APPSECRET", APPSECRET).replace("CODE", code);
         JSONObject openidob = WeixinUtil.DoGetStr(url);
@@ -117,6 +123,7 @@ public class ElecWxinController {
     @RequestMapping(value = "/doUnifiedOrder", method = RequestMethod.POST)
     public @ResponseBody
     Map<String, Object> doUnifiedOrder_pledge(HttpServletRequest req, @RequestBody WxinInfo info) throws Exception {
+
 
         info.setTotal_fee(elecNewActivityService.getNewActivityTotal_fee(info.getUserId()));
         logger.info(String.format("付款信息：%s", info.toString()));
@@ -142,6 +149,8 @@ public class ElecWxinController {
         //添加订单信息
         record.settNo(data.get("out_trade_no"));
         record.setUserId(info.getUserId());
+        record.setCreateDate(new Date());
+        record.setOpenid(info.getOpenid());
         record.setMoney(Integer.valueOf(info.getTotal_fee()));
         record.setIsDel(1);
         acOrderDao.insertSelective(record);

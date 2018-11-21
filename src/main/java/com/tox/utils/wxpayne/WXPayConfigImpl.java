@@ -40,15 +40,15 @@ public class WXPayConfigImpl extends WXPayConfig implements com.github.wxpay.sdk
     //    return "wx1d318639b55ac182";
     //}
     public String getAppID() {
-        return "wxd8f283d11e1dab80";
+        return "wx79ba5aac62b61134";
     }
 
     public String getMchID() {
-        return "1487688232";
+        return "1490625992";
     }
 
     public String getKey() {
-        return "TuKeZuCheluo2017FSProductNum0123";
+        return "TuKeZuCheluo2018FSProductNum0123";
     }
 
     public InputStream getCertStream() {
