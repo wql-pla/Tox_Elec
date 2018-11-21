@@ -5,6 +5,9 @@ import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 
 import com.tox.bean.ActivityNewOrder;
+import org.springframework.stereotype.Service;
+
+@Service
 @Mapper
 public interface ActivityNewOrderMapper {
     int deleteByPrimaryKey(Integer id);
