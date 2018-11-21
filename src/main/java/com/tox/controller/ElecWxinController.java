@@ -6,6 +6,7 @@ import com.tox.bean.ElecRecharge;
 import com.tox.bean.WxinInfo;
 import com.tox.dao.ActivityNewOrderMapper;
 import com.tox.dao.ActivityNewUserMapper;
+import com.tox.service.ElecNewActivityService;
 import com.tox.utils.WeixinUtil;
 import com.tox.utils.wxsdk.WXPayUtil;
 import net.sf.json.JSONObject;
@@ -61,6 +62,8 @@ public class ElecWxinController {
     //创建用户对象
     private ActivityNewUserMapper acUserDao;
 
+    private ElecNewActivityService elecNewActivityService;
+
     /**
      *
      * @throws Exception
@@ -115,6 +118,7 @@ public class ElecWxinController {
     public @ResponseBody
     Map<String, Object> doUnifiedOrder_pledge(HttpServletRequest req, @RequestBody WxinInfo info) throws Exception {
 
+        info.setTotal_fee(elecNewActivityService.getNewActivityTotal_fee(info.getUserId()));
         logger.info(String.format("付款信息：%s", info.toString()));
         ActivityNewOrder record =new ActivityNewOrder();
         Map<String, Object> map = new HashMap<>();
@@ -156,7 +160,6 @@ public class ElecWxinController {
             ru.put("sign",sign);
             ru.put("timestamp",Timestamp);
             System.out.println(sign);
-            System.out.println(ru);
             map.put("data",ru);
         } catch (Exception e) {
             e.printStackTrace();
