@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="GBK" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.tox.dao.ActivityNewUserMapper" >
   <resultMap id="BaseResultMap" type="com.tox.bean.ActivityNewUser" >
@@ -195,20 +195,20 @@
            <if test="isPay != null">
              AND is_pay = #{isPay}
           </if>
-          <!-- æœˆå¡æœªç”Ÿæ•ˆ -->
+          <!-- ÔÂ¿¨Î´ÉúÐ§ -->
           <if test="monthStatus != null and monthStatus == '0' and monthStatus != '3'">
              AND from_date is null 
           </if>
-          <!-- æœˆå¡ç”Ÿæ•ˆ -->
+          <!-- ÔÂ¿¨ÉúÐ§ -->
            <if test="monthStatus != null and monthStatus == '1' and monthStatus != '3'">
              AND to_date &gt;= DATE_FORMAT(now(),'%Y-%m-%d') 
           </if>
-          <!-- æœˆå¡å¤±æ•ˆ -->
+          <!-- ÔÂ¿¨Ê§Ð§ -->
            <if test="monthStatus != null and monthStatus == '2' and monthStatus != '3'">
              AND to_date &lt; DATE_FORMAT(now(),'%Y-%m-%d') 
           </if>
           
-           <!-- ä¸Šçº¿æ—¶é—´ -->
+           <!-- ÉÏÏßÊ±¼ä -->
            <if test="monthStatus != null and monthStatus == '2' and monthStatus != '3'">
              AND to_date &lt; DATE_FORMAT(now(),'%Y-%m-%d') 
           </if>
@@ -228,19 +228,19 @@
       	activity_new_user
       <where>
           1=1 and ISDEL = 0
-          <!-- ç”µè¯å·æŸ¥è¯¢ -->
+          <!-- µç»°ºÅ²éÑ¯ -->
            <if test="phone != null and phone != ''">
               AND PHONE like #{phone}
           </if>
-             <!-- æœˆå¡æœªç”Ÿæ•ˆ -->
+             <!-- ÔÂ¿¨Î´ÉúÐ§ -->
           <if test="monthStatus != null and monthStatus == '0' and monthStatus != '3'">
              AND from_date is null 
           </if>
-          <!-- æœˆå¡ç”Ÿæ•ˆ -->
+          <!-- ÔÂ¿¨ÉúÐ§ -->
            <if test="monthStatus != null and monthStatus == '1' and monthStatus != '3'">
              AND to_date &gt;= DATE_FORMAT(now(),'%Y-%m-%d') 
           </if>
-          <!-- æœˆå¡å¤±æ•ˆ -->
+          <!-- ÔÂ¿¨Ê§Ð§ -->
            <if test="monthStatus != null and monthStatus == '2' and monthStatus != '3'">
              AND to_date &lt; DATE_FORMAT(now(),'%Y-%m-%d') 
           </if>
