@@ -8,9 +8,10 @@
     <result column="activity_code" property="activityCode" jdbcType="VARCHAR" />
     <result column="is_del" property="isDel" jdbcType="INTEGER" />
     <result column="is_open" property="isOpen" jdbcType="INTEGER" />
+    <result column="activity_url" property="activityUrl" jdbcType="VARCHAR" />
   </resultMap>
   <sql id="Base_Column_List" >
-    id, activity_name, create_date, activity_code, is_del, is_open
+    id, activity_name, create_date, activity_code, is_del, is_open,activity_url
   </sql>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
     select 
@@ -18,16 +19,40 @@
     from activity_new_info
     where id = #{id,jdbcType=INTEGER}
   </select>
+  <select id="selectActivitys" resultMap="BaseResultMap" parameterType="com.tox.bean.ActivityNewInfo" >
+    select
+    <include refid="Base_Column_List" />
+    from activity_new_info
+    WHERE 1=1
+    <if test="activityName !=null and activityName!=''">
+      <bind name="actName" value="'%'+activityName+'%'"/>
+      AND activity_name LIKE actName
+    </if>
+    <if test="activityCode !=null and activityCode!=''">
+      <bind name="code" value="'%'+activityCode+'%'"/>
+      AND activity_code LIKE code
+    </if>
+    <if test="startDate !=null">
+      AND create_date &gt;= startDate
+    </if>
+    <if test="endDate !=null">
+      AND create_date &lt;= endDate
+    </if>
+    order by create_date DESC
+    <if test="pageSize>0">
+      limit #{pageNum},#{pageSize}
+    </if>
+  </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
     delete from activity_new_info
     where id = #{id,jdbcType=INTEGER}
   </delete>
   <insert id="insert" parameterType="com.tox.bean.ActivityNewInfo" >
     insert into activity_new_info (id, activity_name, create_date, 
-      activity_code, is_del, is_open
+      activity_code, is_del, is_open,activity_url,
       )
     values (#{id,jdbcType=INTEGER}, #{activityName,jdbcType=VARCHAR}, #{createDate,jdbcType=TIMESTAMP}, 
-      #{activityCode,jdbcType=VARCHAR}, #{isDel,jdbcType=INTEGER}, #{isOpen,jdbcType=INTEGER}
+      #{activityCode,jdbcType=VARCHAR}, #{isDel,jdbcType=INTEGER}, #{isOpen,jdbcType=INTEGER},#{activityUrl,jdbcType=VARCHAR}
       )
   </insert>
   <insert id="insertSelective" parameterType="com.tox.bean.ActivityNewInfo" >
@@ -51,6 +76,9 @@
       <if test="isOpen != null" >
         is_open,
       </if>
+      <if test="activityUrl != null" >
+        activity_url,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides="," >
       <if test="id != null" >
@@ -70,6 +98,9 @@
       </if>
       <if test="isOpen != null" >
         #{isOpen,jdbcType=INTEGER},
+      </if>
+      <if test="activityUrl != null" >
+        #{activityUrl,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -91,6 +122,9 @@
       <if test="isOpen != null" >
         is_open = #{isOpen,jdbcType=INTEGER},
       </if>
+      <if test="activityUrl != null" >
+        activity_url = #{activityUrl,jdbcType=VARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
@@ -100,7 +134,8 @@
       create_date = #{createDate,jdbcType=TIMESTAMP},
       activity_code = #{activityCode,jdbcType=VARCHAR},
       is_del = #{isDel,jdbcType=INTEGER},
-      is_open = #{isOpen,jdbcType=INTEGER}
+      is_open = #{isOpen,jdbcType=INTEGER},
+      activity_url = #{activityUrl,jdbcType=VARCHAR}
     where id = #{id,jdbcType=INTEGER}
   </update>
 </mapper>

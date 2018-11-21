@@ -1,7 +1,11 @@
 package com.tox.dao;
 
 import com.tox.bean.ActivityNewInfo;
+import org.apache.ibatis.annotations.Mapper;
 
+import java.util.List;
+
+@Mapper
 public interface ActivityNewInfoMapper {
     int deleteByPrimaryKey(Integer id);
 
@@ -14,4 +18,6 @@ public interface ActivityNewInfoMapper {
     int updateByPrimaryKeySelective(ActivityNewInfo record);
 
     int updateByPrimaryKey(ActivityNewInfo record);
+
+    List<ActivityNewInfo> selectActivitys(ActivityNewInfo activity);
 }
