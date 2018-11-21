@@ -253,12 +253,17 @@ public class ElecNewActivityController {
 		 ActivityNewUser activityNewUser= new ActivityNewUser();
 		 activityNewUser.setPhone(phone);
 		 ActivityNewUser newUser = activityNewDao.selectByPhone(activityNewUser);
-		 
-		 if(!StringUtil.isNullOrEmpty(city)) {
-			 newUser.setCity(city);
-		 }else {
-			 newUser.setIsSign(0);
+		 //判断用户是否存在
+		 if(newUser!=null) {
+			 //判断城市是否传输
+			 if(!StringUtil.isNullOrEmpty(city)) {
+				 //注册城市信息
+				 newUser.setCity(city);
+				 //更改报名情况
+				 newUser.setIsSign(1);
+			 }
 		 }
+		 //修改用户报名信息
 		 activityNewDao.updateByPrimaryKeySelective(newUser);
 		 
 		map.put("result", "100");
