@@ -1,58 +1,58 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.tox.dao.ActivityNewInfoMapper" >
-  <resultMap id="BaseResultMap" type="com.tox.bean.ActivityNewInfo" >
-    <id column="id" property="id" jdbcType="INTEGER" />
-    <result column="activity_name" property="activityName" jdbcType="VARCHAR" />
-    <result column="create_date" property="createDate" jdbcType="TIMESTAMP" />
-    <result column="activity_code" property="activityCode" jdbcType="VARCHAR" />
-    <result column="is_del" property="isDel" jdbcType="INTEGER" />
-    <result column="is_open" property="isOpen" jdbcType="INTEGER" />
-    <result column="activity_url" property="activityUrl" jdbcType="VARCHAR" />
-    <result column="month_amount" property="monthAmount" jdbcType="DOUBLE" />
-    <result column="start_month_date" property="startMonthDate" jdbcType="TIMESTAMP" />
-    <result column="end_month_date" property="endMonthDate" jdbcType="TIMESTAMP" />
-    <result column="activity_date" property="activityDate" jdbcType="TIMESTAMP" />
-  </resultMap>
- <sql id="Base_Column_List" >
+<mapper namespace="com.tox.dao.ActivityNewInfoMapper">
+    <resultMap id="BaseResultMap" type="com.tox.bean.ActivityNewInfo">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="activity_name" property="activityName" jdbcType="VARCHAR"/>
+        <result column="create_date" property="createDate" jdbcType="TIMESTAMP"/>
+        <result column="activity_code" property="activityCode" jdbcType="VARCHAR"/>
+        <result column="is_del" property="isDel" jdbcType="INTEGER"/>
+        <result column="is_open" property="isOpen" jdbcType="INTEGER"/>
+        <result column="activity_url" property="activityUrl" jdbcType="VARCHAR"/>
+        <result column="month_amount" property="monthAmount" jdbcType="DOUBLE"/>
+        <result column="start_month_date" property="startMonthDate" jdbcType="TIMESTAMP"/>
+        <result column="end_month_date" property="endMonthDate" jdbcType="TIMESTAMP"/>
+        <result column="activity_date" property="activityDate" jdbcType="INTEGER"/>
+    </resultMap>
+    <sql id="Base_Column_List">
     id, activity_name, create_date, activity_code, is_del, is_open, activity_url, month_amount,
     start_month_date, end_month_date, activity_date
   </sql>
-  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
-    select 
-    <include refid="Base_Column_List" />
-    from activity_new_info
-    where id = #{id,jdbcType=INTEGER}
-  </select>
-  <select id="selectActivitys" resultMap="BaseResultMap" parameterType="com.tox.bean.ActivityNewInfo" >
-    select
-    <include refid="Base_Column_List" />
-    from activity_new_info
-    WHERE 1=1
-    <if test="activityName !=null and activityName!=''">
-      <bind name="actName" value="'%'+activityName+'%'"/>
-      AND activity_name LIKE actName
-    </if>
-    <if test="activityCode !=null and activityCode!=''">
-      <bind name="code" value="'%'+activityCode+'%'"/>
-      AND activity_code LIKE code
-    </if>
-    <if test="startDate !=null">
-      AND create_date &gt;= startDate
-    </if>
-    <if test="endDate !=null">
-      AND create_date &lt;= endDate
-    </if>
-    order by create_date DESC
-    <if test="pageSize>0">
-      limit #{pageNum},#{pageSize}
-    </if>
-  </select>
-  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+        select
+        <include refid="Base_Column_List"/>
+        from activity_new_info
+        where id = #{id,jdbcType=INTEGER}
+    </select>
+    <select id="selectActivitys" resultMap="BaseResultMap" parameterType="com.tox.bean.ActivityNewInfo">
+        select
+        <include refid="Base_Column_List"/>
+        from activity_new_info
+        WHERE 1=1
+        <if test="activityName !=null and activityName!=''">
+            <bind name="actName" value="'%'+activityName+'%'"/>
+            AND activity_name LIKE actName
+        </if>
+        <if test="activityCode !=null and activityCode!=''">
+            <bind name="code" value="'%'+activityCode+'%'"/>
+            AND activity_code LIKE code
+        </if>
+        <if test="startDate !=null">
+            AND create_date &gt;= startDate
+        </if>
+        <if test="endDate !=null">
+            AND create_date &lt;= endDate
+        </if>
+        order by create_date DESC
+        <if test="pageSize>0">
+            limit #{pageNum},#{pageSize}
+        </if>
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
     delete from activity_new_info
     where id = #{id,jdbcType=INTEGER}
   </delete>
-  <insert id="insert" parameterType="com.tox.bean.ActivityNewInfo" >
+    <insert id="insert" parameterType="com.tox.bean.ActivityNewInfo">
     insert into activity_new_info (id, activity_name, create_date, 
       activity_code, is_del, is_open,activity_url,
       )
@@ -60,92 +60,116 @@
       #{activityCode,jdbcType=VARCHAR}, #{isDel,jdbcType=INTEGER}, #{isOpen,jdbcType=INTEGER},#{activityUrl,jdbcType=VARCHAR}
       )
   </insert>
-  <insert id="insertSelective" parameterType="com.tox.bean.ActivityNewInfo" >
-    insert into activity_new_info
-    <trim prefix="(" suffix=")" suffixOverrides="," >
-      <if test="id != null" >
-        id,
-      </if>
-      <if test="activityName != null" >
-        activity_name,
-      </if>
-      <if test="createDate != null" >
-        create_date,
-      </if>
-      <if test="activityCode != null" >
-        activity_code,
-      </if>
-      <if test="isDel != null" >
-        is_del,
-      </if>
-      <if test="isOpen != null" >
-        is_open,
-      </if>
-      <if test="activityUrl != null" >
-        activity_url,
-      </if>
-    </trim>
-    <trim prefix="values (" suffix=")" suffixOverrides="," >
-      <if test="id != null" >
-        #{id,jdbcType=INTEGER},
-      </if>
-      <if test="activityName != null" >
-        #{activityName,jdbcType=VARCHAR},
-      </if>
-      <if test="createDate != null" >
-        #{createDate,jdbcType=TIMESTAMP},
-      </if>
-      <if test="activityCode != null" >
-        #{activityCode,jdbcType=VARCHAR},
-      </if>
-      <if test="isDel != null" >
-        #{isDel,jdbcType=INTEGER},
-      </if>
-      <if test="isOpen != null" >
-        #{isOpen,jdbcType=INTEGER},
-      </if>
-      <if test="activityUrl != null" >
-        #{activityUrl,jdbcType=VARCHAR},
-      </if>
-    </trim>
-  </insert>
-  <update id="updateByPrimaryKeySelective" parameterType="com.tox.bean.ActivityNewInfo" >
-    update activity_new_info
-    <set >
-      <if test="activityName != null" >
-        activity_name = #{activityName,jdbcType=VARCHAR},
-      </if>
-      <if test="createDate != null" >
-        create_date = #{createDate,jdbcType=TIMESTAMP},
-      </if>
-      <if test="activityCode != null" >
-        activity_code = #{activityCode,jdbcType=VARCHAR},
-      </if>
-      <if test="isDel != null" >
-        is_del = #{isDel,jdbcType=INTEGER},
-      </if>
-      <if test="isOpen != null" >
-        is_open = #{isOpen,jdbcType=INTEGER},
-      </if>
-      <if test="activityUrl != null" >
-        activity_url = #{activityUrl,jdbcType=VARCHAR},
-      </if>
-      <if test="monthAmount != null" >
-        month_amount = #{monthAmount,jdbcType=DOUBLE},
-      </if>
-      <if test="startMonthDate != null" >
-        start_month_date = #{startMonthDate,jdbcType=TIMESTAMP},
-      </if>
-      <if test="endMonthDate != null" >
-        end_month_date = #{endMonthDate,jdbcType=TIMESTAMP},
-      </if>
-      <if test="activityDate != null" >
-        activity_date = #{activityDate,jdbcType=TIMESTAMP},
-      </if>
-    </set>
-    where id = #{id,jdbcType=INTEGER}
-  </update>
-  <update id="updateByPrimaryKey" parameterType="com.tox.bean.ActivityNewInfo" >
+    <insert id="insertSelective" parameterType="com.tox.bean.ActivityNewInfo">
+        insert into activity_new_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="activityName != null">
+                activity_name,
+            </if>
+            <if test="createDate != null">
+                create_date,
+            </if>
+            <if test="activityCode != null">
+                activity_code,
+            </if>
+            <if test="isDel != null">
+                is_del,
+            </if>
+            <if test="isOpen != null">
+                is_open,
+            </if>
+            <if test="activityUrl != null">
+                activity_url,
+            </if>
+            <if test="monthAmount != null">
+                month_amount,
+            </if>
+            <if test="startMonthDate != null">
+                start_month_date,
+            </if>
+            <if test="endMonthDate != null">
+                end_month_date,
+            </if>
+            <if test="activityDate != null">
+                activity_date,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=INTEGER},
+            </if>
+            <if test="activityName != null">
+                #{activityName,jdbcType=VARCHAR},
+            </if>
+            <if test="createDate != null">
+                #{createDate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="activityCode != null">
+                #{activityCode,jdbcType=VARCHAR},
+            </if>
+            <if test="isDel != null">
+                #{isDel,jdbcType=INTEGER},
+            </if>
+            <if test="isOpen != null">
+                #{isOpen,jdbcType=INTEGER},
+            </if>
+            <if test="activityUrl != null">
+                #{activityUrl,jdbcType=VARCHAR},
+            </if>
+            <if test="monthAmount != null">
+                #{monthAmount},
+            </if>
+            <if test="startMonthDate != null">
+                #{startMonthDate},
+            </if>
+            <if test="endMonthDate != null">
+                #{endMonthDate},
+            </if>
+            <if test="activityDate != null">
+                #{activityDate},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.tox.bean.ActivityNewInfo">
+        update activity_new_info
+        <set>
+            <if test="activityName != null">
+                activity_name = #{activityName,jdbcType=VARCHAR},
+            </if>
+            <if test="createDate != null">
+                create_date = #{createDate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="activityCode != null">
+                activity_code = #{activityCode,jdbcType=VARCHAR},
+            </if>
+            <if test="isDel != null">
+                is_del = #{isDel,jdbcType=INTEGER},
+            </if>
+            <if test="isOpen != null">
+                is_open = #{isOpen,jdbcType=INTEGER},
+            </if>
+            <if test="activityUrl != null">
+                activity_url = #{activityUrl,jdbcType=VARCHAR},
+            </if>
+            <if test="monthAmount != null">
+                month_amount = #{monthAmount,jdbcType=DOUBLE},
+            </if>
+            <if test="startMonthDate != null">
+                start_month_date = #{startMonthDate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="endMonthDate != null">
+                end_month_date = #{endMonthDate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="activityDate != null">
+                activity_date = #{activityDate},
+            </if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.tox.bean.ActivityNewInfo">
     update activity_new_info
     set activity_name = #{activityName,jdbcType=VARCHAR},
       create_date = #{createDate,jdbcType=TIMESTAMP},

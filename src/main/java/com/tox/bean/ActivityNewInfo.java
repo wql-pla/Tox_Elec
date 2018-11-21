@@ -24,13 +24,14 @@ public class ActivityNewInfo extends PageView<ActivityNewInfo> {
     private Date startDate;
     @ApiModelProperty(name = "endDate",value = "查询结束时间")
     private Date endDate;
+    @ApiModelProperty(name = "monthAmount",value = "月卡金额")
     private Double monthAmount;
-
+    @ApiModelProperty(name = "startMonthDate",value = "月卡开始时间")
     private Date startMonthDate;
-
+    @ApiModelProperty(name = "endMonthDate",value = "月卡结束时间")
     private Date endMonthDate;
-
-    private Date activityDate;
+    @ApiModelProperty(name = "activityDate",value = "续期判断节点日期")
+    private Integer activityDate;
 
     public Integer getId() {
         return id;
@@ -104,6 +105,38 @@ public class ActivityNewInfo extends PageView<ActivityNewInfo> {
         this.endDate = endDate;
     }
 
+    public Double getMonthAmount() {
+        return monthAmount;
+    }
+
+    public void setMonthAmount(Double monthAmount) {
+        this.monthAmount = monthAmount;
+    }
+
+    public Date getStartMonthDate() {
+        return startMonthDate;
+    }
+
+    public void setStartMonthDate(Date startMonthDate) {
+        this.startMonthDate = startMonthDate;
+    }
+
+    public Date getEndMonthDate() {
+        return endMonthDate;
+    }
+
+    public void setEndMonthDate(Date endMonthDate) {
+        this.endMonthDate = endMonthDate;
+    }
+
+    public Integer getActivityDate() {
+        return activityDate;
+    }
+
+    public void setActivityDate(Integer activityDate) {
+        this.activityDate = activityDate;
+    }
+
     @Override
     public String toString() {
         return "ActivityNewInfo{" +
@@ -114,6 +147,12 @@ public class ActivityNewInfo extends PageView<ActivityNewInfo> {
                 ", isDel=" + isDel +
                 ", isOpen=" + isOpen +
                 ", activityUrl='" + activityUrl + '\'' +
+                ", startDate=" + startDate +
+                ", endDate=" + endDate +
+                ", monthAmount=" + monthAmount +
+                ", startMonthDate=" + startMonthDate +
+                ", endMonthDate=" + endMonthDate +
+                ", activityDate=" + activityDate +
                 '}';
     }
 }
