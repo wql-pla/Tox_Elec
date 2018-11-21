@@ -248,63 +248,7 @@ public class ElecOrderService {
 				elecOrder.setBasicPayStatus("0");
 				elecOrder.setServicePayStatus("0");
 				elecOrder.setServiceChargeTotalThird(0.00);
-				Integer couponId = elecOrder.getCouponId();
-				//判断有没有使用优惠券
-				if(null != couponId && 0 != couponId){
-					ElecUserCouponsRel couponsRel = ucrDao.selectByPrimaryKey(couponId);
-					ElecCoupons elecCoupons = couponsDao.selectByPrimaryKey(couponsRel.getCouponsId());
-					Integer status = elecCoupons.getStatus();
-					//充电金额为零时，退还使用的优惠券,如果是首单免费优惠券删除该优惠券
-					if(!BigDecimal.ZERO.equals(BigDecimal.valueOf(elecOrder.getRealAmount())) ){
-						//直减优惠券
-						if(1==status){
-							//优惠券抵扣（充电金额大于优惠券金额时用优惠券和余额一起支付，充电金额小于优惠券金额时，直接用优惠券支付，优惠金额多余部分不予退还）
-							if(elecOrder.getRealAmount()>elecCoupons.getAmount()){
-								elecOrder.setRealAmount(elecOrder.getRealAmount()-elecCoupons.getAmount());
-							}else{
-								elecOrder.setRealAmount(0.00);
-							}
-						//打折优惠券
-						}else if(2==status){
-							elecOrder.setRealAmount(elecOrder.getRealAmount()*elecCoupons.getAmount());
-						}else if(3==status||5==status){
-							elecOrder.setRealAmount(0.00);
-						}else if(4==status){
-							if(elecOrder.getRealAmount()>=elecCoupons.getReach()){
-								elecOrder.setRealAmount(elecOrder.getRealAmount()-elecCoupons.getAmount());
-							}else{
-								couponsRel.setStatus(0);
-								elecOrder.setCouponId(0);
-								ucrDao.updateByPrimaryKeySelective(couponsRel);
-							}
-						}
-					}else{
-						//归还优惠券
-						if(3==status){
-							elecOrder.setCouponId(0);
-							ucrDao.deleteByPrimaryKey(couponsRel.getId());
-						}else{
-							couponsRel.setStatus(0);
-							elecOrder.setCouponId(0);
-							ucrDao.updateByPrimaryKeySelective(couponsRel);
-						}
-					}
-					
-				}
-				if(3==pile.getType()||5==pile.getType()){//单枪电桩
-					pile.setIsUsed(0);
-				}else{//双枪电桩
-					if(3==pile.getIsUsed()){
-						if(0==bean.getGunNo()){
-							pile.setIsUsed(2);//B枪被占用
-						}else if(1==bean.getGunNo()){
-							pile.setIsUsed(1);//A枪被占用
-						}
-					}else if(1==pile.getIsUsed()||2==pile.getIsUsed()){
-						pile.setIsUsed(0);
-					}
-				}
-				
+				editGunStatusAndCouponsStatus(elecOrder,pile,bean);
 				pileDao.updateByPrimaryKeySelective(pile);
 				if(elecOrder.getRealCount()==0){
 					elecOrder.setStatus("2");
@@ -313,23 +257,8 @@ public class ElecOrderService {
 				}
 				orderDao.updateByPrimaryKeySelective(elecOrder);
 				if(!BigDecimal.ZERO.equals(BigDecimal.valueOf(station.getPersonBasicChargeAmount()))){
-					Thread thread = new Thread(new Runnable() {
-						@Override
-						public void run() {
-//						BigDecimal elecCount = BigDecimal.valueOf(elecOrder.getRealCount());
-//						BigDecimal divide = elecCount.divide(BigDecimal.valueOf(1.15),2,BigDecimal.ROUND_DOWN);
-							JSONObject json = new JSONObject();
-							json.element("ordernum", elecOrder.getId());
-							json.element("phone", station.getPersonPhone());
-							json.element("eleccount", elecOrder.getRealCount());
-							json.element("elecPrice", station.getPersonBasicChargeAmount());
-							json.element("money", 0);
-							logger.info(String.format("服务费同步至车位东 请求参数：%s", json.toString()));
-							String result = ElecUtil.sendCarPort(json.toString());
-							logger.info(String.format("服务费同步至车位东返回结果：%s", result));
-						}
-					});
-					thread.start();
+				    //分润
+				    sendServiceMoney(elecOrder.getId(),station.getPersonPhone(),elecOrder.getRealCount(),station.getPersonBasicChargeAmount(),0D);
 				}
 			//}
 			}
@@ -391,62 +320,7 @@ public class ElecOrderService {
 				elecOrder.setBasicPayStatus("0");
 				elecOrder.setServicePayStatus("0");
 				elecOrder.setServiceChargeTotalThird(0.00);
-				Integer couponId = elecOrder.getCouponId();
-				//判断有没有使用优惠券
-				if(null != couponId && 0 != couponId){
-					ElecUserCouponsRel couponsRel = ucrDao.selectByPrimaryKey(couponId);
-					ElecCoupons elecCoupons = couponsDao.selectByPrimaryKey(couponsRel.getCouponsId());
-					Integer status = elecCoupons.getStatus();
-					//充电金额为零时，退还使用的优惠券,如果是首单免费优惠券删除该优惠券
-					if(!BigDecimal.ZERO.equals(BigDecimal.valueOf(elecOrder.getRealAmount()))){
-						//直减优惠券
-						if(1==status){
-							//优惠券抵扣（充电金额大于优惠券金额时用优惠券和余额一起支付，充电金额小于优惠券金额时，直接用优惠券支付，优惠金额多余部分不予退还）
-							if(elecOrder.getRealAmount()>elecCoupons.getAmount()){
-								elecOrder.setRealAmount(elecOrder.getRealAmount()-elecCoupons.getAmount());
-							}else{
-								elecOrder.setRealAmount(0.00);
-							}
-						//打折优惠券
-						}else if(2==status){
-							elecOrder.setRealAmount(elecOrder.getRealAmount()*elecCoupons.getAmount());
-						}else if(3==status||5==status){
-							elecOrder.setRealAmount(0.00);
-						}else if(4==status){
-							if(elecOrder.getRealAmount()>=elecCoupons.getReach()){
-								elecOrder.setRealAmount(elecOrder.getRealAmount()-elecCoupons.getAmount());
-							}else{
-								couponsRel.setStatus(0);
-								elecOrder.setCouponId(0);
-								ucrDao.updateByPrimaryKeySelective(couponsRel);
-							}
-						}
-					}else{
-						if(3==status){
-							elecOrder.setCouponId(0);
-							ucrDao.deleteByPrimaryKey(couponsRel.getId());
-						}else{
-							couponsRel.setStatus(0);
-							elecOrder.setCouponId(0);
-							ucrDao.updateByPrimaryKeySelective(couponsRel);
-						}
-					}
-					
-				}
-				if(3==pile.getType()||5==pile.getType()){//单枪电桩
-					pile.setIsUsed(0);
-				}else{//双枪电桩
-					if(3==pile.getIsUsed()){
-						if(0==bean.getGunNo()){
-							pile.setIsUsed(2);//B枪被占用
-						}else if(1==bean.getGunNo()){
-							pile.setIsUsed(1);//A枪被占用
-						}
-					}else if(1==pile.getIsUsed()||2==pile.getIsUsed()){
-						pile.setIsUsed(0);
-					}
-				}
-				
+				editGunStatusAndCouponsStatus(elecOrder,pile,bean);
 				pileDao.updateByPrimaryKeySelective(pile);
 				if(elecOrder.getRealCount()==0){
 					elecOrder.setStatus("2");
@@ -454,69 +328,8 @@ public class ElecOrderService {
 					elecOrder.setStatus("0");
 				}
 				orderDao.updateByPrimaryKeySelective(elecOrder);
-				Thread thread = new Thread(new Runnable() {
-					@Override
-					public void run() {
-//						BigDecimal elecCount = BigDecimal.valueOf(elecOrder.getRealCount());
-//						BigDecimal divide = elecCount.divide(BigDecimal.valueOf(1.15),2,BigDecimal.ROUND_DOWN);
-						JSONObject json = new JSONObject();
-						//普通车位东
-						if(station.getPersonType() == 2){
-							json.element("ordernum", elecOrder.getId());
-							json.element("phone", station.getPersonPhone());
-							json.element("eleccount", elecOrder.getRealCount());
-							json.element("elecPrice", station.getBasicChargeAmount());
-							//分润服务费*服务费
-							json.element("money", station.getThirdServiceAmount() * station.getServiceChargeAmount());
-						//个人车位东
-						}else if(station.getPersonType() == 1){
-							//本人充电只给基础费
-							if(user.getPhone().equals(station.getPersonPhone())){
-								json.element("ordernum", elecOrder.getId());
-								json.element("phone", station.getPersonPhone());
-								json.element("eleccount", elecOrder.getRealCount());
-								json.element("elecPrice", station.getBasicChargeAmount());
-								json.element("money", 0);
-							//非本人充值给基础费加服务费
-							}else {
-								json.element("ordernum", elecOrder.getId());
-								json.element("phone", station.getPersonPhone());
-								json.element("eleccount", elecOrder.getRealCount());
-								json.element("elecPrice", station.getBasicChargeAmount());
-								json.element("money", station.getThirdServiceAmount() * station.getServiceChargeAmount());
-							}
-						}
-						
-						/********************************************************MQ代码********************************************************/
-						/*RabbitMQ rabbitMq = new RabbitMQ();
-						Channel channel = rabbitMq.getChannel();
-						//声明关联编码(需要与回调队列的编码相对应)
-						String corrId = String.valueOf(elecOrder.getId());
-						//声明需要发送消息的配置replyTo：回调队列。correlationId：关联编码。deliveryMode：消息持久化
-						BasicProperties props = new BasicProperties.Builder()
-								.correlationId(corrId)
-								.replyTo(callBackQueue)
-								.deliveryMode(2)
-								.build();
-						try {
-							//声明回调队列,并持久化
-							channel.queueDeclare(callBackQueue, true, false, false, null);
-							//发送至指定队列
-							channel.basicPublish(rabbitMq.getExchangeName(), rabbitMq.getRoutKey(), props, json.toString().getBytes("UTF-8"));
-							System.out.println("电桩系统发送消息 [ElecChargeExchange] Sent '" + json.toString() + "'");
-							logger.info(json.toString()+ "发送到ElecChargeExchange队列中");
-							channel.close();
-							channel.getConnection().close();
-						}catch(Exception e){
-							e.printStackTrace();
-						}*/
-						logger.info(String.format("服务费同步至车位东 请求参数：%s", json.toString()));
-						String result = ElecUtil.sendCarPort(json.toString());
-						logger.info(String.format("服务费同步至车位东返回结果：%s", result));
-					}
-				});
-				thread.start();
-			//}
+				//分润
+				sendServiceMoney(elecOrder.getId(),station.getPersonPhone(),elecOrder.getRealCount(),station.getBasicChargeAmount(),station.getThirdServiceAmount() * station.getServiceChargeAmount());
 			}
 		}
 		
@@ -673,4 +486,94 @@ public class ElecOrderService {
        return map;
    }
 
+    /**
+     * 给桩东分润
+     * @param orderId
+     * @param phone
+     * @param count
+     * @param basicPrice
+     * @param serviceMoney
+     */
+   private void sendServiceMoney(Integer orderId,String phone,Double count,Double basicPrice,Double serviceMoney){
+       Thread thread = new Thread(new Runnable() {
+           @Override
+           public void run() {
+               JSONObject json = new JSONObject();
+               json.element("ordernum", orderId);
+               json.element("phone", phone);
+               json.element("eleccount", count);
+               json.element("elecPrice", basicPrice);
+               json.element("money", serviceMoney);
+               logger.info(String.format("服务费同步至车位东 请求参数：%s", json.toString()));
+               String result = ElecUtil.sendCarPort(json.toString());
+               logger.info(String.format("服务费同步至车位东返回结果：%s", result));
+           }
+       });
+       thread.start();
+   }
+
+    /**
+     * 修改枪状态和优惠券使用状态
+     * @param elecOrder
+     * @param pile
+     * @param bean
+     */
+   private void editGunStatusAndCouponsStatus(ElecOrder elecOrder,ElecPile pile,ResultXYDF bean){
+       //判断有没有使用优惠券
+       Integer couponId = elecOrder.getCouponId();
+       if(null != couponId && 0 != couponId){
+           ElecUserCouponsRel couponsRel = ucrDao.selectByPrimaryKey(couponId);
+           ElecCoupons elecCoupons = couponsDao.selectByPrimaryKey(couponsRel.getCouponsId());
+           Integer status = elecCoupons.getStatus();
+           //充电金额为零时，退还使用的优惠券,如果是首单免费优惠券删除该优惠券
+           if(!BigDecimal.ZERO.equals(BigDecimal.valueOf(elecOrder.getRealAmount()))){
+               //直减优惠券
+               if(1==status){
+                   //优惠券抵扣（充电金额大于优惠券金额时用优惠券和余额一起支付，充电金额小于优惠券金额时，直接用优惠券支付，优惠金额多余部分不予退还）
+                   if(elecOrder.getRealAmount()>elecCoupons.getAmount()){
+                       elecOrder.setRealAmount(elecOrder.getRealAmount()-elecCoupons.getAmount());
+                   }else{
+                       elecOrder.setRealAmount(0.00);
+                   }
+                   //打折优惠券
+               }else if(2==status){
+                   elecOrder.setRealAmount(elecOrder.getRealAmount()*elecCoupons.getAmount());
+               }else if(3==status||5==status){
+                   elecOrder.setRealAmount(0.00);
+               }else if(4==status){
+                   if(elecOrder.getRealAmount()>=elecCoupons.getReach()){
+                       elecOrder.setRealAmount(elecOrder.getRealAmount()-elecCoupons.getAmount());
+                   }else{
+                       couponsRel.setStatus(0);
+                       elecOrder.setCouponId(0);
+                       ucrDao.updateByPrimaryKeySelective(couponsRel);
+                   }
+               }
+           }else{
+               if(3==status){
+                   elecOrder.setCouponId(0);
+                   ucrDao.deleteByPrimaryKey(couponsRel.getId());
+               }else{
+                   couponsRel.setStatus(0);
+                   elecOrder.setCouponId(0);
+                   ucrDao.updateByPrimaryKeySelective(couponsRel);
+               }
+           }
+
+       }
+       if(3==pile.getType()||5==pile.getType()){//单枪电桩
+           pile.setIsUsed(0);
+       }else{//双枪电桩
+           if(3==pile.getIsUsed()){
+               if(0==bean.getGunNo()){
+                   pile.setIsUsed(2);//B枪被占用
+               }else if(1==bean.getGunNo()){
+                   pile.setIsUsed(1);//A枪被占用
+               }
+           }else if(1==pile.getIsUsed()||2==pile.getIsUsed()){
+               pile.setIsUsed(0);
+           }
+       }
+
+   }
 }

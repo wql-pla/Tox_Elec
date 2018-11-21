@@ -24,7 +24,13 @@ public class ActivityNewInfo extends PageView<ActivityNewInfo> {
     private Date startDate;
     @ApiModelProperty(name = "endDate",value = "查询结束时间")
     private Date endDate;
+    private Double monthAmount;
 
+    private Date startMonthDate;
+
+    private Date endMonthDate;
+
+    private Date activityDate;
 
     public Integer getId() {
         return id;

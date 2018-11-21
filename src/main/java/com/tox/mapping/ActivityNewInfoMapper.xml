@@ -9,9 +9,14 @@
     <result column="is_del" property="isDel" jdbcType="INTEGER" />
     <result column="is_open" property="isOpen" jdbcType="INTEGER" />
     <result column="activity_url" property="activityUrl" jdbcType="VARCHAR" />
+    <result column="month_amount" property="monthAmount" jdbcType="DOUBLE" />
+    <result column="start_month_date" property="startMonthDate" jdbcType="TIMESTAMP" />
+    <result column="end_month_date" property="endMonthDate" jdbcType="TIMESTAMP" />
+    <result column="activity_date" property="activityDate" jdbcType="TIMESTAMP" />
   </resultMap>
-  <sql id="Base_Column_List" >
-    id, activity_name, create_date, activity_code, is_del, is_open,activity_url
+ <sql id="Base_Column_List" >
+    id, activity_name, create_date, activity_code, is_del, is_open, activity_url, month_amount,
+    start_month_date, end_month_date, activity_date
   </sql>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
     select 
@@ -125,6 +130,18 @@
       <if test="activityUrl != null" >
         activity_url = #{activityUrl,jdbcType=VARCHAR},
       </if>
+      <if test="monthAmount != null" >
+        month_amount = #{monthAmount,jdbcType=DOUBLE},
+      </if>
+      <if test="startMonthDate != null" >
+        start_month_date = #{startMonthDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="endMonthDate != null" >
+        end_month_date = #{endMonthDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="activityDate != null" >
+        activity_date = #{activityDate,jdbcType=TIMESTAMP},
+      </if>
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
@@ -135,7 +152,11 @@
       activity_code = #{activityCode,jdbcType=VARCHAR},
       is_del = #{isDel,jdbcType=INTEGER},
       is_open = #{isOpen,jdbcType=INTEGER},
-      activity_url = #{activityUrl,jdbcType=VARCHAR}
+      activity_url = #{activityUrl,jdbcType=VARCHAR},
+      month_amount = #{monthAmount,jdbcType=DOUBLE},
+      start_month_date = #{startMonthDate,jdbcType=TIMESTAMP},
+      end_month_date = #{endMonthDate,jdbcType=TIMESTAMP},
+      activity_date = #{activityDate,jdbcType=TIMESTAMP}
     where id = #{id,jdbcType=INTEGER}
   </update>
 </mapper>
