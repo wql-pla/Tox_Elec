@@ -15,6 +15,16 @@ public class ActivityNewInfo {
 
     private Integer isOpen;
 
+    private String activityUrl;
+
+    private Double monthAmount;
+
+    private Date startMonthDate;
+
+    private Date endMonthDate;
+
+    private Date activityDate;
+
     public Integer getId() {
         return id;
     }
@@ -61,5 +71,45 @@ public class ActivityNewInfo {
 
     public void setIsOpen(Integer isOpen) {
         this.isOpen = isOpen;
+    }
+
+    public String getActivityUrl() {
+        return activityUrl;
+    }
+
+    public void setActivityUrl(String activityUrl) {
+        this.activityUrl = activityUrl == null ? null : activityUrl.trim();
+    }
+
+    public Double getMonthAmount() {
+        return monthAmount;
+    }
+
+    public void setMonthAmount(Double monthAmount) {
+        this.monthAmount = monthAmount;
+    }
+
+    public Date getStartMonthDate() {
+        return startMonthDate;
+    }
+
+    public void setStartMonthDate(Date startMonthDate) {
+        this.startMonthDate = startMonthDate;
+    }
+
+    public Date getEndMonthDate() {
+        return endMonthDate;
+    }
+
+    public void setEndMonthDate(Date endMonthDate) {
+        this.endMonthDate = endMonthDate;
+    }
+
+    public Date getActivityDate() {
+        return activityDate;
+    }
+
+    public void setActivityDate(Date activityDate) {
+        this.activityDate = activityDate;
     }
 }
