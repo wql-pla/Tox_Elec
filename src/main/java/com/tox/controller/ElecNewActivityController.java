@@ -63,7 +63,7 @@ public class ElecNewActivityController {
 	 * @return
 	 */
 	 @RequestMapping(value = "/newSendCode", method = RequestMethod.POST, produces = "application/json")
-     public @ResponseBody Map<String, Object> sendCode(@RequestParam String phone,@RequestParam String city) {
+     public @ResponseBody Map<String, Object> sendCode(@RequestParam String phone) {
 
 		 logger.info(String.format("接收到的手机号为：%s",phone));
 			
@@ -92,11 +92,25 @@ public class ElecNewActivityController {
 				ActivityNewUser activityNewUser= new ActivityNewUser();
 				
 				record.setPhone(phone);
+				activityNewUser.setCreateDate(new Date());
 				activityNewUser.setPhone(phone);
+				activityNewUser.setIsDel(0);
+				activityNewUser.setIsPay("0");
+				activityNewUser.setIsSign(0);
 				
 	//			ElecUser elecUser = elecUserDao.selectByOpenId(openId);
 				ElecUser user = elecUserDao.selectByPhone(record);
 				ActivityNewUser newUser = activityNewDao.selectByPhone(activityNewUser);
+				//如果98报名用户尚未存在则进行报名
+				if(newUser ==null) {
+					int insertSelective = activityNewDao.insertSelective(activityNewUser);
+						if( insertSelective != 1){
+						map.put("result", "10002");
+						map.put("date", "验证码失效时间更新失败!");
+						map.put("msg", "验证码失效时间更新失败!");
+						return map;
+					}
+				}
 				
 				/*if(null !=elecUser &&user ==null){
 					logger.info("用户更换了手机号登陆！");
@@ -149,15 +163,9 @@ public class ElecNewActivityController {
 						return map;
 						
 					}
+					
 				}
 				
-				if(newUser==null) {
-					activityNewUser.setCity(city);
-					activityNewUser.setCreateDate(date);
-					activityNewUser.setIsDel(0);
-					activityNewUser.setIsPay("0");
-					activityNewUser.setPhone(phone);
-				}
 				
 				if(bool){
 					
@@ -328,6 +336,12 @@ public class ElecNewActivityController {
 		map.put("date", orders);
 		
 		return map;
+	 }
+	 
+	 
+	 
+	 public void findMoneyManager(){
+		 logger.info("查询活动信息");
 	 }
 	 
 //	 @RequestMapping(value = "/findMonthInfo", method = RequestMethod.POST, produces = "application/json")
