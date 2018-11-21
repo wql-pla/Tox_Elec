@@ -1,27 +1,7 @@
 	package com.tox.controller;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
-import java.util.regex.Pattern;
-
-import org.apache.commons.beanutils.BeanUtils;
-import org.apache.commons.codec.binary.StringUtils;
-import org.apache.http.util.EntityUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.*;
-
 import com.tox.bean.ActivityNewOrder;
 import com.tox.bean.ActivityNewUser;
-import com.tox.bean.ElecOrder;
 import com.tox.bean.ElecUser;
 import com.tox.dao.ActivityNewOrderMapper;
 import com.tox.dao.ActivityNewUserMapper;
@@ -32,8 +12,17 @@ import com.tox.sms.config.StringUtil;
 import com.tox.utils.RandomUtil;
 import com.tox.utils.SMS.sendSmsUtil;
 import com.tox.utils.date.dateUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.*;
 
-import io.swagger.annotations.ApiOperation;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Pattern;
 
 
 @CrossOrigin(origins = "*", maxAge = 3600)
