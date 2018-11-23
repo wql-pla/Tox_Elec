@@ -2,6 +2,8 @@ package com.tox.dao;
 
 import com.tox.bean.ActivityNewMonthInfo;
 
+import java.util.List;
+
 public interface ActivityNewMonthInfoMapper {
     int deleteByPrimaryKey(Integer id);
 
@@ -14,4 +16,8 @@ public interface ActivityNewMonthInfoMapper {
     int updateByPrimaryKeySelective(ActivityNewMonthInfo record);
 
     int updateByPrimaryKey(ActivityNewMonthInfo record);
+
+    List<ActivityNewMonthInfo> selectMonthInfos(ActivityNewMonthInfo monthInfo);
+
+    int selectMonthInfosCount(ActivityNewMonthInfo monthInfo);
 }

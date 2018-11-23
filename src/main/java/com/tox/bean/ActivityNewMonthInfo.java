@@ -1,24 +1,28 @@
 package com.tox.bean;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+
 import java.util.Date;
-
-public class ActivityNewMonthInfo {
+@ApiModel(value = "activityNewMonthInfo",description = "月卡明细")
+public class ActivityNewMonthInfo extends PageView<ActivityNewMonthInfo>{
+    @ApiModelProperty(name = "id",value = "月卡id")
     private Integer id;
-
+    @ApiModelProperty(name = "phone",value = "用户电话")
     private String phone;
-
+    @ApiModelProperty(name = "city",value = "所在城市")
     private String city;
-
+    @ApiModelProperty(name = "onlineDate",value = "上线时间")
     private Date onlineDate;
-
+    @ApiModelProperty(name = "monthStartDate",value = "月卡开始时间")
     private Date monthStartDate;
-
+    @ApiModelProperty(name = "monthEndDate",value = "月卡失效时间")
     private Date monthEndDate;
-
+    @ApiModelProperty(name = "monthStatus",value = "月卡状态")
     private String monthStatus;
-
+    @ApiModelProperty(name = "isDel",value = "是否删除")
     private String isDel;
-
+    @ApiModelProperty(name = "createDate",value = "月卡创建时间")
     private Date createDate;
 
     public Integer getId() {
@@ -91,5 +95,20 @@ public class ActivityNewMonthInfo {
 
     public void setCreateDate(Date createDate) {
         this.createDate = createDate;
+    }
+
+    @Override
+    public String toString() {
+        return "ActivityNewMonthInfo{" +
+                "id=" + id +
+                ", phone='" + phone + '\'' +
+                ", city='" + city + '\'' +
+                ", onlineDate=" + onlineDate +
+                ", monthStartDate=" + monthStartDate +
+                ", monthEndDate=" + monthEndDate +
+                ", monthStatus='" + monthStatus + '\'' +
+                ", isDel='" + isDel + '\'' +
+                ", createDate=" + createDate +
+                '}';
     }
 }

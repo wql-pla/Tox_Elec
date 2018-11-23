@@ -20,4 +20,6 @@ public interface ActivityNewInfoMapper {
     int updateByPrimaryKey(ActivityNewInfo record);
 
     List<ActivityNewInfo> selectActivitys(ActivityNewInfo activity);
+
+    int selectActivitysCount(ActivityNewInfo activity);
 }
