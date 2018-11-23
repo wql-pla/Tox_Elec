@@ -1,9 +1,10 @@
 package com.tox.dao;
 
 import com.tox.bean.ActivityNewMonthInfo;
+import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
-
+@Mapper
 public interface ActivityNewMonthInfoMapper {
     int deleteByPrimaryKey(Integer id);
 
