@@ -164,8 +164,8 @@ public class ActivityNewUser extends PageView<ActivityNewUser> {
 	public void setMonthDay(Integer monthDay) {
 		this.monthDay = monthDay;
 	}
-	
 
-	
-    
+
+
+
 }

@@ -24,6 +24,20 @@ public class ActivityNewMonthInfo extends PageView<ActivityNewMonthInfo>{
     private String isDel;
     @ApiModelProperty(name = "createDate",value = "月卡创建时间")
     private Date createDate;
+    @ApiModelProperty(name = "onLineStartDate",value = "上线开始时间")
+    private Date onLineStartDate;
+    @ApiModelProperty(name = "onLineEndDate",value = "上线结束时间")
+    private Date onLineEndDate;
+    @ApiModelProperty(name = "monthStartBeginDate",value = "月卡生效开始时间")
+    private Date monthStartBeginDate;
+    @ApiModelProperty(name = "monthStartEndDate",value = "月卡生效结束时间")
+    private Date monthStartEndDate;
+    @ApiModelProperty(name = "monthEndbeginDate",value = "月卡截止开始时间")
+    private Date monthEndbeginDate;
+    @ApiModelProperty(name = "monthEndFinishDate",value = "月卡截止结束时间")
+    private Date monthEndFinishDate;
+    @ApiModelProperty(name = "validDays",value = "月卡有效天数")
+    private Integer validDays;
 
     public Integer getId() {
         return id;
@@ -97,6 +111,62 @@ public class ActivityNewMonthInfo extends PageView<ActivityNewMonthInfo>{
         this.createDate = createDate;
     }
 
+    public Date getOnLineStartDate() {
+        return onLineStartDate;
+    }
+
+    public void setOnLineStartDate(Date onLineStartDate) {
+        this.onLineStartDate = onLineStartDate;
+    }
+
+    public Date getOnLineEndDate() {
+        return onLineEndDate;
+    }
+
+    public void setOnLineEndDate(Date onLineEndDate) {
+        this.onLineEndDate = onLineEndDate;
+    }
+
+    public Date getMonthStartBeginDate() {
+        return monthStartBeginDate;
+    }
+
+    public void setMonthStartBeginDate(Date monthStartBeginDate) {
+        this.monthStartBeginDate = monthStartBeginDate;
+    }
+
+    public Date getMonthStartEndDate() {
+        return monthStartEndDate;
+    }
+
+    public void setMonthStartEndDate(Date monthStartEndDate) {
+        this.monthStartEndDate = monthStartEndDate;
+    }
+
+    public Date getMonthEndbeginDate() {
+        return monthEndbeginDate;
+    }
+
+    public void setMonthEndbeginDate(Date monthEndbeginDate) {
+        this.monthEndbeginDate = monthEndbeginDate;
+    }
+
+    public Date getMonthEndFinishDate() {
+        return monthEndFinishDate;
+    }
+
+    public void setMonthEndFinishDate(Date monthEndFinishDate) {
+        this.monthEndFinishDate = monthEndFinishDate;
+    }
+
+    public Integer getValidDays() {
+        return validDays;
+    }
+
+    public void setValidDays(Integer validDays) {
+        this.validDays = validDays;
+    }
+
     @Override
     public String toString() {
         return "ActivityNewMonthInfo{" +
@@ -109,6 +179,13 @@ public class ActivityNewMonthInfo extends PageView<ActivityNewMonthInfo>{
                 ", monthStatus='" + monthStatus + '\'' +
                 ", isDel='" + isDel + '\'' +
                 ", createDate=" + createDate +
+                ", onLineStartDate=" + onLineStartDate +
+                ", onLineEndDate=" + onLineEndDate +
+                ", monthStartBeginDate=" + monthStartBeginDate +
+                ", monthStartEndDate=" + monthStartEndDate +
+                ", monthEndbeginDate=" + monthEndbeginDate +
+                ", monthEndFinishDate=" + monthEndFinishDate +
+                ", validDays=" + validDays +
                 '}';
     }
 }

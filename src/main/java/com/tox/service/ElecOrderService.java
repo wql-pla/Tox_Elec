@@ -47,6 +47,8 @@ public class ElecOrderService {
     private ElecStationMapper stationDao;
     @Autowired
     private ElecUserAppendMapper appendDao;
+    @Autowired
+    private ActivityNewUserMapper activityNewUserDao;
 	
 	private String callBackQueue = "carportQueue";
 	
@@ -155,8 +157,18 @@ public class ElecOrderService {
 		}
 		if(null!=station.getPersonType()&& 1==station.getPersonType()&&phones.contains(user.getPhone())){
 			logger.info("桩东充电============");
-			serviceAmount=BigDecimal.valueOf(station.getPersonServiceAmount());
-			basicChargeAmount =station.getPersonBasicChargeAmount();
+			//获取月租用户
+			ActivityNewUser newUser= new ActivityNewUser();
+			newUser.setPhone(station.getPersonPhone());
+			ActivityNewUser userInfo =activityNewUserDao.selectByPhone(newUser);
+			if(null !=userInfo&&null!=userInfo.getFromDate()&&null !=userInfo.getToDate()&&(userInfo.getFromDate().before(new Date())&&userInfo.getToDate().after(new Date()))){
+				serviceAmount= BigDecimal.ZERO;
+				basicChargeAmount = 0D;
+
+			}else{
+				serviceAmount=BigDecimal.valueOf(station.getPersonServiceAmount());
+				basicChargeAmount =station.getPersonBasicChargeAmount();
+			}
 		}else{
 			Date now = new Date();
 			//双十一活动免普通桩东服务费

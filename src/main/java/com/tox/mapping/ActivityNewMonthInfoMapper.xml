@@ -22,6 +22,88 @@
     from activity_new_month_info
     where id = #{id,jdbcType=INTEGER}
   </select>
+  <select id="selectMonthInfos" resultMap="BaseResultMap" parameterType="com.tox.bean.ActivityNewMonthInfo">
+    select
+    <include refid="Base_Column_List"/>
+    from activity_new_month_info
+    WHERE 1=1
+    <if test="phone !=null and phone!=''">
+      <bind name="phone" value="'%'+phone+'%'"/>
+      AND phone LIKE #{phone}
+    </if>
+    <if test="monthStatus !=null and monthStatus!=''">
+      <if test="monthStatus ==0">
+        AND month_start_date &gt; DATE_FORMAT(now(),'%Y-%m-%d')
+      </if>
+      <if test="monthStatus ==1">
+        AND month_start_date &lt;= DATE_FORMAT(now(),'%Y-%m-%d') AND month_end_date &gt;= DATE_FORMAT(now(),'%Y-%m-%d')
+      </if>
+      <if test="monthStatus ==2">
+        AND month_end_date &lt; DATE_FORMAT(now(),'%Y-%m-%d')
+      </if>
+    </if>
+    <if test="onLineStartDate !=null">
+      AND online_date &gt;= #{onLineStartDate}
+    </if>
+    <if test="onLineEndDate !=null">
+      AND online_date &lt;= #{onLineEndDate}
+    </if>
+    <if test="monthStartBeginDate !=null">
+      AND month_start_date &gt;= #{monthStartBeginDate}
+    </if>
+    <if test="monthStartEndDate !=null">
+      AND month_start_date &lt;= #{monthStartEndDate}
+    </if>
+    <if test="monthEndbeginDate !=null">
+      AND month_end_date &gt;= #{monthEndbeginDate}
+    </if>
+    <if test="monthEndFinishDate !=null">
+      AND month_end_date &lt;= #{monthEndFinishDate}
+    </if>
+    order by create_date DESC
+    <if test="pageSize>0">
+      limit #{pageNum},#{pageSize}
+    </if>
+  </select>
+  <select id="selectMonthInfosCount" resultType="java.lang.Integer" parameterType="com.tox.bean.ActivityNewMonthInfo">
+    select
+    count(id)
+    from activity_new_month_info
+    WHERE 1=1
+    <if test="phone !=null and phone!=''">
+      <bind name="phone" value="'%'+phone+'%'"/>
+      AND phone LIKE #{phone}
+    </if>
+    <if test="monthStatus !=null and monthStatus!=''">
+      <if test="monthStatus ==0">
+        AND month_start_date &gt; DATE_FORMAT(now(),'%Y-%m-%d')
+      </if>
+      <if test="monthStatus ==1">
+        AND month_start_date &lt;= DATE_FORMAT(now(),'%Y-%m-%d') AND month_end_date &gt;= DATE_FORMAT(now(),'%Y-%m-%d')
+      </if>
+      <if test="monthStatus ==2">
+        AND month_end_date &lt; DATE_FORMAT(now(),'%Y-%m-%d')
+      </if>
+    </if>
+    <if test="onLineStartDate !=null">
+      AND online_date &gt;= #{onLineStartDate}
+    </if>
+    <if test="onLineEndDate !=null">
+      AND online_date &lt;= #{onLineEndDate}
+    </if>
+    <if test="monthStartBeginDate !=null">
+      AND month_start_date &gt;= #{monthStartBeginDate}
+    </if>
+    <if test="monthStartEndDate !=null">
+      AND month_start_date &lt;= #{monthStartEndDate}
+    </if>
+    <if test="monthEndbeginDate !=null">
+      AND month_end_date &gt;= #{monthEndbeginDate}
+    </if>
+    <if test="monthEndFinishDate !=null">
+      AND month_end_date &lt;= #{monthEndFinishDate}
+    </if>
+  </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
     delete from activity_new_month_info
     where id = #{id,jdbcType=INTEGER}
