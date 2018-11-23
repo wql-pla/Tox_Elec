@@ -124,12 +124,21 @@ public class ElecWxinController {
     public @ResponseBody
     Map<String, Object> doUnifiedOrder_pledge(HttpServletRequest req, @RequestBody WxinInfo info) throws Exception {
 
-
-        info.setTotal_fee(elecNewActivityService.getNewActivityTotal_fee(info.getUserId()));
         logger.info(String.format("付款信息：%s", info.toString()));
         ActivityNewOrder record =new ActivityNewOrder();
         Map<String, Object> map = new HashMap<>();
         HashMap<String, String> data = new HashMap<String, String>();
+
+        //------------------金额查询-----------------
+        try {
+            info.setTotal_fee(elecNewActivityService.getNewActivityTotal_fee(info.getUserId()));
+        }catch (Exception e){
+            map.put("Code","-10000");
+            map.put("Msg","参数有误！");
+            return map;
+        }
+
+
         data.put("body", info.getBody());
         data.put("out_trade_no", WXPayUtil.getTradeNo());
         data.put("device_info", "");
@@ -140,8 +149,8 @@ public class ElecWxinController {
         data.put("total_fee", am+"");							//info.getTotal_fee()
         data.put("nonce_str", WXPayUtil.generateNonceStr());
         data.put("spbill_create_ip", req.getLocalAddr());
-//	        data.put("notify_url","http://electest.toxchina.com:8081/wxpay5/notify");
-        data.put("notify_url","http://elec.toxchina.com/ToxElec_2/wxpay98/notify");
+        data.put("notify_url","http://electest.toxchina.com:8020/wxpay98/notify");
+        //data.put("notify_url","http://elec.toxchina.com/ToxElec_2/wxpay98/notify");
         data.put("trade_type", "JSAPI");
         data.put("product_id", "12");
         data.put("openid", info.getOpenid());

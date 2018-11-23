@@ -19,11 +19,20 @@
     start_month_date, end_month_date, activity_date
   </sql>
     <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+    select
+    <include refid="Base_Column_List"/>
+    from activity_new_info
+    where id = #{id,jdbcType=INTEGER}
+</select>
+
+    <select id="selectByPrimaryCode" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"/>
         from activity_new_info
-        where id = #{id,jdbcType=INTEGER}
+        where activity_code = #{activityCode}
     </select>
+
+
     <select id="selectActivitys" resultMap="BaseResultMap" parameterType="com.tox.bean.ActivityNewInfo">
         select
         <include refid="Base_Column_List"/>
