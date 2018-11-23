@@ -161,7 +161,11 @@ public class ElecOrderService {
 			ActivityNewUser newUser= new ActivityNewUser();
 			newUser.setPhone(station.getPersonPhone());
 			ActivityNewUser userInfo =activityNewUserDao.selectByPhone(newUser);
-			if(null !=userInfo&&null!=userInfo.getFromDate()&&null !=userInfo.getToDate()&&(userInfo.getFromDate().before(new Date())&&userInfo.getToDate().after(new Date()))){
+			Date date = new Date();
+			SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+			String format1 = format.format(date);
+			Date now = com.tox.utils.date.dateUtil.getDateYmd(format1);
+			if(null !=userInfo&&null!=userInfo.getFromDate()&&null !=userInfo.getToDate()&&((userInfo.getFromDate().before(now)||userInfo.getFromDate().equals(now))&&(userInfo.getToDate().after(now))||userInfo.getToDate().equals(now))){
 				serviceAmount= BigDecimal.ZERO;
 				basicChargeAmount = 0D;
 

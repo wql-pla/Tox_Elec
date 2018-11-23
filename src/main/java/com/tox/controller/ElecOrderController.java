@@ -563,7 +563,8 @@ public class ElecOrderController {
 				}else{
 					serviceAmount= station.getServiceChargeAmount();
 				}
-				Double totalAmout = basicAmount+serviceAmount;
+//				Double totalAmout = basicAmount+serviceAmount;
+				Double totalAmout=elecOrder.getElecPrice();
 				//上报的充电电量大于上次的电量才会修改充电信息，否则不修改
 				orderService.endOrder(elecOrder,user, pile, station, bean,basicAmount, serviceAmount, totalAmout,phones);
 				if(user.getType()==1){
