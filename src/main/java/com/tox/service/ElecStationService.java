@@ -27,7 +27,7 @@ public class ElecStationService {
     ActivityNewMonthInfoMapper activityNewMonthInfoMapper;
 
 
-    public void updateActiveUser(String phone, String onlineDate) throws Exception{
+    public void updateActiveUser(String phone, Date online) throws Exception{
         ActivityNewUser u=new ActivityNewUser();
         u.setPhone(phone);
         u=  activityNewUserMapper.selectByPhone(u);
@@ -38,13 +38,13 @@ public class ElecStationService {
             Integer count= activityNewOrderMapper.getCountByUserId(u.getId());
             if(count>0){
                 SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                Date online=null;
-                try{
-                    online= sdf.parse(onlineDate);
-
-                }catch (Exception e){
-                    throw  new Exception(phone+"online日期格式有误!");
-                }
+//                Date online=null;
+//                try{
+//                    online= sdf.parse(onlineDate);
+//
+//                }catch (Exception e){
+//                    throw  new Exception(phone+"online日期格式有误!");
+//                }
                 Date endDate= dateUtil.reckonMonths(online, count);
                 u.setFromDate(online);
                 u.setToDate(endDate);
