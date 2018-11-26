@@ -25,7 +25,6 @@ import com.tox.utils.wxpayne.WXPayConfigImpl;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.xml.crypto.Data;
 
 /**
  * 98元活动支付微信号信息
@@ -214,7 +213,7 @@ public class ElecWxinController {
 
         //签名成功修改订单
         if (checkSign(xmlString)) {
-           ActivityNewUser userinfo = new ActivityNewUser();
+        /*   ActivityNewUser userinfo = new ActivityNewUser();
             ActivityNewOrder record = acOrderDao.selectByTno(map.get("out_trade_no"));
             record.settNo(map.get("out_trade_no"));
             record.setwNo(map.get("transaction_id"));
@@ -222,8 +221,13 @@ public class ElecWxinController {
             acOrderDao.updateByPrimaryKeySelective(record);
             userinfo.setId(record.getUserId());
             userinfo.setIsPay("1");
-            acUserDao.updateByPrimaryKeySelective(userinfo);
-            return "SUCCESS";
+            acUserDao.updateByPrimaryKeySelective(userinfo);*/
+             try{
+                 elecNewActivityService.weixinNotify(map.get("out_trade_no"),map.get("transaction_id"));
+                 return "SUCCESS";
+             }catch (Exception e){
+                 return "FAIL";
+             }
 
             //签名失败直接返回失败
         } else {
