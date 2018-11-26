@@ -544,8 +544,8 @@ public class ElecOrderController {
 				}
 				ElecPile pile = pileDao.selectCSByPrimaryKey(elecOrder.getPileNum());
 				ElecStation station = pile.getStation();
-				Double basicAmount = station.getBasicChargeAmount();
-				Double serviceAmount=0D;
+//				Double basicAmount = station.getBasicChargeAmount();
+//				Double serviceAmount=0D;
 				List<String> phones = new ArrayList<String>();
 				if(null!=station.getPersonType()&& 1==station.getPersonType()){
 					ElecUserAppend append = new ElecUserAppend();
@@ -556,17 +556,17 @@ public class ElecOrderController {
 						phones.add(String.valueOf(elecUserAppend.getUserPhone()));
 					}
 				}
-				if(null!=station.getPersonType()&& 1==station.getPersonType()&&phones.contains(user.getPhone())){
+				/*if(null!=station.getPersonType()&& 1==station.getPersonType()&&phones.contains(user.getPhone())){
 					logger.info("桩东结束充电============");
 					serviceAmount=station.getPersonServiceAmount();
 					basicAmount=station.getPersonBasicChargeAmount();
 				}else{
 					serviceAmount= station.getServiceChargeAmount();
-				}
+				}*/
 //				Double totalAmout = basicAmount+serviceAmount;
 				Double totalAmout=elecOrder.getElecPrice();
 				//上报的充电电量大于上次的电量才会修改充电信息，否则不修改
-				orderService.endOrder(elecOrder,user, pile, station, bean,basicAmount, serviceAmount, totalAmout,phones);
+				orderService.endOrder(elecOrder,user, pile, station, bean, totalAmout,phones);
 				if(user.getType()==1){
 					map.put("result", "success");
 					return map;

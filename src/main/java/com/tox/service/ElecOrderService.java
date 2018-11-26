@@ -216,7 +216,7 @@ public class ElecOrderService {
 		orderDao.updateByPrimaryKeySelective(order);
 		pileDao.updateByPrimaryKeySelective(pile);
 	}
-	public void endOrder(ElecOrder elecOrder,ElecUser user, ElecPile pile,ElecStation station,ResultXYDF bean,Double basicAmount,Double serviceAmount,Double totalAmout,List<String>phones) throws NumberFormatException, ParseException {
+	public void endOrder(ElecOrder elecOrder,ElecUser user, ElecPile pile,ElecStation station,ResultXYDF bean,Double totalAmout,List<String>phones) throws NumberFormatException, ParseException {
 		if(null!=station.getPersonType()&& 1==station.getPersonType()&&phones.contains(user.getPhone())){
 			logger.info("桩东结束充电============");
 			if("99".equals(bean.getEndReason())){//充满,但是订单未结束
@@ -231,8 +231,8 @@ public class ElecOrderService {
 						elecOrder.setOrderFee(elecOrder.getRealCount()*totalAmout);
 						elecOrder.setRealAmount(elecOrder.getRealCount()*totalAmout);
 					}
-					elecOrder.setBasicChargeTotal(basicAmount*elecOrder.getRealCount());
-					elecOrder.setServiceChargeTotalSelf(serviceAmount*elecOrder.getRealCount());
+//					elecOrder.setBasicChargeTotal(basicAmount*elecOrder.getRealCount());
+//					elecOrder.setServiceChargeTotalSelf(serviceAmount*elecOrder.getRealCount());
 					elecOrder.setEndTime(new Date());
 					elecOrder.setBasicPayStatus("0");
 					elecOrder.setServicePayStatus("0");
@@ -256,8 +256,8 @@ public class ElecOrderService {
 					BigDecimal realAmountB = BigDecimal.valueOf(elecOrder.getRealCount()).multiply(BigDecimal.valueOf(totalAmout));
 					elecOrder.setRealAmount(realAmountB.doubleValue());
 				}
-				elecOrder.setBasicChargeTotal(basicAmount*elecOrder.getRealCount());
-				elecOrder.setServiceChargeTotalSelf(serviceAmount*elecOrder.getRealCount());
+//				elecOrder.setBasicChargeTotal(basicAmount*elecOrder.getRealCount());
+//				elecOrder.setServiceChargeTotalSelf(serviceAmount*elecOrder.getRealCount());
 				if(null==elecOrder.getEndTime()){
 					elecOrder.setEndTime(new Date());
 				}
