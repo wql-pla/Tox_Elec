@@ -1,12 +1,10 @@
 	package com.tox.controller;
 
+import com.tox.bean.ActivityNewInfo;
 import com.tox.bean.ActivityNewOrder;
 import com.tox.bean.ActivityNewUser;
 import com.tox.bean.ElecUser;
-import com.tox.dao.ActivityNewOrderMapper;
-import com.tox.dao.ActivityNewUserMapper;
-import com.tox.dao.ElecOrderMapper;
-import com.tox.dao.ElecUserMapper;
+import com.tox.dao.*;
 import com.tox.service.ElecActivityService;
 import com.tox.sms.config.StringUtil;
 import com.tox.utils.RandomUtil;
@@ -45,6 +43,8 @@ public class ElecNewActivityController {
 	private ActivityNewOrderMapper activityNewOrderMapper;
 	@Autowired
 	private ElecOrderMapper orderDao;
+    @Autowired
+	private ActivityNewInfoMapper activityNewInfoDao;
 	
 	/**
 	 * 发送验证码
@@ -190,6 +190,7 @@ public class ElecNewActivityController {
 		 Map<String,Object> map = new HashMap<String, Object>();
 		 Date date = new Date();
 		 ElecUser record2 = elecUserDao.selectByPhone(user);
+		 ActivityNewUser newUser = new ActivityNewUser();
 		 if(record2 == null){
 			 
 			map.put("result", "-100");
@@ -214,8 +215,16 @@ public class ElecNewActivityController {
 					elecUserDao.updateByPrimaryKeySelective(record2);
 					activityService.giveNewUserActivity(record2);//注册成功 送优惠
 				}
-				map.put("result", "100");
-				map.put("date", record2);
+				 ActivityNewUser record = new ActivityNewUser();
+				 record.setPhone(record2.getPhone());
+				 newUser = activityNewDao.selectByPhone(record);
+
+
+                 ActivityNewInfo activityNewInfo = activityNewInfoDao.selectByPrimaryCode ("98ACELECTOX");
+
+                 map.put("result", "100");
+				map.put("date", newUser);
+                 map.put("data-open", activityNewInfo.getIsOpen());
 				map.put("msg", "登录成功!");
 				 
 			 }
@@ -282,7 +291,7 @@ public class ElecNewActivityController {
 		 activityNewDao.updateByPrimaryKeySelective(newUser);
 		 
 		map.put("result", "100");
-		map.put("msg", "登录成功!");
+		map.put("msg", "修改成功!");
 	    
 		return map;
 	 }
@@ -305,7 +314,6 @@ public class ElecNewActivityController {
 		 List<ActivityNewUser> newUser = activityNewDao.findNewUser(activityNewUser);
 		 
 		map.put("result", "100");
-		map.put("msg", "登录成功!");
 		map.put("date", newUser);
 		
 		return map;

@@ -2,7 +2,7 @@ package com.tox.bean;
 
 import java.util.Date;
 
-public class ActivityNewOrder {
+public class ActivityNewOrder extends PageView<ActivityNewOrder>{
     private Integer id;
 
     private Integer userId;
@@ -26,6 +26,9 @@ public class ActivityNewOrder {
     private Date endDate;
     
     private String phone;
+
+    //------------------------不做映射关系
+    private String city;
 
     public Integer getId() {
         return id;
@@ -122,5 +125,12 @@ public class ActivityNewOrder {
 	public void setPhone(String phone) {
 		this.phone = phone;
 	}
-    
+
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
 }

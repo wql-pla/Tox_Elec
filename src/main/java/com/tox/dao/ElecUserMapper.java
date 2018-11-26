@@ -7,8 +7,10 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import com.tox.bean.ElecUser;
+import org.springframework.stereotype.Service;
 
 @Mapper
+@Service
 public interface ElecUserMapper {
     int deleteByPrimaryKey(Integer id);
 
