@@ -27,7 +27,7 @@ public class ElecStationService {
     ActivityNewMonthInfoMapper activityNewMonthInfoMapper;
 
 
-    public void updateActiveUser(String phone, Date online) throws Exception{
+    public void updateActiveUser(String phone, Date online){
         ActivityNewUser u=new ActivityNewUser();
         u.setPhone(phone);
         u=  activityNewUserMapper.selectByPhone(u);
