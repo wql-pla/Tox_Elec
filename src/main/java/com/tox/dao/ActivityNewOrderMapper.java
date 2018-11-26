@@ -25,4 +25,6 @@ public interface ActivityNewOrderMapper {
     List<ActivityNewOrder> findNewOrder(ActivityNewOrder record);
 
     ActivityNewOrder selectByTno(String tNo);
+
+    Integer getCountByUserId(Integer userId);
 }
