@@ -7,7 +7,10 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import com.tox.bean.ElecOrder;
+import org.springframework.stereotype.Service;
+
 @Mapper
+@Service
 public interface ElecOrderMapper {
     int deleteByPrimaryKey(Integer id);
 
