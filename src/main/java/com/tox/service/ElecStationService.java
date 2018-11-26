@@ -32,12 +32,12 @@ public class ElecStationService {
         u.setPhone(phone);
         u=  activityNewUserMapper.selectByPhone(u);
         if(u==null){
-            throw  new Exception(phone+"手机号不存在");
+            return;
         }
         if("1".equals(u.getIsPay())){
             Integer count= activityNewOrderMapper.getCountByUserId(u.getId());
             if(count>0){
-                SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+//                SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 //                Date online=null;
 //                try{
 //                    online= sdf.parse(onlineDate);
