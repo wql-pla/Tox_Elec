@@ -462,23 +462,23 @@ public class ElecStationController {
 			station.setStationName(ln.get(0)); 								//桩站名称
 			station.setServiceChargeAmount(Double.valueOf(ln.get(1)));		//桩站服务费
 			station.setBasicChargeAmount(Double.valueOf(ln.get(2)));		//桩站基础费
-			station.setThirdServiceAmount(Double.valueOf(ln.get(3)));		//桩站分润费
-			station.setPersonServiceAmount(Double.valueOf(ln.get(4)));		//桩站个人服务费
-			station.setPersonName(ln.get(5));								//负责人姓名
-			station.setPersonPhone(ln.get(6));								//负责人电话
-			station.setPersonType(Integer.valueOf(ln.get(7)));				//车位东类型1个人2普通
+            station.setPersonBasicChargeAmount(Double.valueOf(ln.get(3)));	//个人车位东所收取的基础电费
+			station.setThirdServiceAmount(Double.valueOf(ln.get(4)));		//桩站分润费
+			station.setPersonServiceAmount(Double.valueOf(ln.get(5)));		//桩站个人服务费
+			station.setPersonName(ln.get(6));								//负责人姓名
+			station.setPersonPhone(ln.get(7));								//负责人电话
+			station.setPersonType(Integer.valueOf(ln.get(8)));				//车位东类型1个人2普通
 			station.setCreateTime(new Date());								//创建时间
-			station.setProvince(ln.get(8));									//桩站所在
-			station.setCity(ln.get(9));										//桩站所在城市
-			station.setRegion(ln.get(10));									//桩站所在区域
-			station.setAddress(ln.get(11));									//桩站地址
-			station.setCoord(ln.get(12));									//桩站坐标
-			station.setStatus(Integer.valueOf(ln.get(13)));					//桩站状态
-			station.setStoreId(Integer.valueOf(ln.get(14)));				//庄站所属门店id
-			station.setDCNum(Integer.valueOf(ln.get(15)));					//预计建设直流桩个数
-			station.setACNum(Integer.valueOf(ln.get(16)));					//预计建设交流桩个数
-			station.setPlanUseTime(sdf.parse(ln.get(17)));					//预计上线时间
-			station.setPersonBasicChargeAmount(Double.valueOf(ln.get(18)));	//个人车位东所收取的基础电费			
+			station.setProvince(ln.get(9));									//桩站所在
+			station.setCity(ln.get(10));									//桩站所在城市
+			station.setRegion(ln.get(11));									//桩站所在区域
+			station.setAddress(ln.get(12));									//桩站地址
+			station.setCoord(ln.get(13));									//桩站坐标
+			station.setStatus(Integer.valueOf(ln.get(14)));					//桩站状态
+			station.setStoreId(Integer.valueOf(ln.get(15)));				//庄站所属门店id
+			station.setDCNum(Integer.valueOf(ln.get(16)));					//预计建设直流桩个数
+			station.setACNum(Integer.valueOf(ln.get(17)));					//预计建设交流桩个数
+			station.setPlanUseTime(sdf.parse(ln.get(18)));					//预计上线时间
 			station.setChargeType(1);										//默认为全天候
 
 
