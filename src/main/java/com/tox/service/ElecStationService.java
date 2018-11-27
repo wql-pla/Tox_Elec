@@ -67,7 +67,7 @@ public class ElecStationService {
                 u.setFromDate(online);
                 u.setToDate(endDate);
                 u.setFirstOnlineDate(online);
-                u.setIsPay("2");
+               // u.setIsPay("2");
                 activityNewUserMapper.updateByPrimaryKeySelective(u);
                 ActivityNewMonthInfo info=new ActivityNewMonthInfo();
                 info.setCity(u.getCity());
