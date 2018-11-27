@@ -19,7 +19,7 @@ public class ApplicationTests {
     public  void  esServiceTest(){
 
         try {
-            esService.updateActiveUser("18920378921",new Date());
+            esService.updateActiveUser("15502226355",new Date());
         } catch (Exception e) {
             e.printStackTrace();
         }

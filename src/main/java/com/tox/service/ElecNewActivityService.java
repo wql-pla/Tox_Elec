@@ -13,6 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -99,9 +101,16 @@ public class ElecNewActivityService {
 
                 //--过期续租----
             }else{
-                //---用户月卡状态设置---
+
+                //获取当前活动
+                ActivityNewInfo activityNewInfo = activityNewInfoDao.selectByPrimaryCode(activityNewUser.getType());
                 activityNewUser.setFromDate(new Date());
-                activityNewUser.setToDate(dateUtil.reckonMonths(new Date(),1));//添加一个自然月
+                if (activityNewInfo.getActivityDate()>dateUtil.getDay(getFristDay(activityNewUser.getFromDate()),activityNewUser.getFromDate())){
+                    activityNewUser.setToDate(getLastDay(activityNewUser.getFromDate()));//当月最后一天
+                }else{
+                    activityNewUser.setToDate(getLastDay(dateUtil.reckonMinutes(activityNewUser.getFromDate(),1)));//下个月最后一天
+                }
+                //---用户月卡状态设置---
                 acUserDao.updateByPrimaryKeySelective(activityNewUser);
                 //--月卡记录直接添加记录
                 monthInfo.setCity(activityNewUser.getCity());
@@ -115,10 +124,25 @@ public class ElecNewActivityService {
             }
 
         }
-
-
         return true;
     }
+
+    public static Date  getFristDay(Date date){
+
+        Calendar c = Calendar.getInstance();
+        c.setTime(date);
+        c.add(Calendar.MONTH, 0);
+        c.set(Calendar.DAY_OF_MONTH,1);//设置为1号,当前日期既为本月第一天
+
+    return c.getTime();
+}
+
+    public static Date getLastDay(Date date){
+        Calendar ca = Calendar.getInstance();
+        ca.setTime(date);
+        ca.set(Calendar.DAY_OF_MONTH, ca.getActualMaximum(Calendar.DAY_OF_MONTH));
+    return ca.getTime();
+}
 
 
 }
