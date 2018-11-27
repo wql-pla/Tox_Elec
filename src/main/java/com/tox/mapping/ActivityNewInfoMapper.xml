@@ -171,9 +171,6 @@
             <if test="createDate != null">
                 create_date = #{createDate,jdbcType=TIMESTAMP},
             </if>
-            <if test="activityCode != null">
-                activity_code = #{activityCode,jdbcType=VARCHAR},
-            </if>
             <if test="isDel != null">
                 is_del = #{isDel,jdbcType=INTEGER},
             </if>

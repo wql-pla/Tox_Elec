@@ -5,9 +5,8 @@ import org.apache.ibatis.annotations.Mapper;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-
-@Service
 @Mapper
+@Service
 public interface ActivityNewMonthInfoMapper {
     int deleteByPrimaryKey(Integer id);
 

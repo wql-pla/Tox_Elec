@@ -4,6 +4,7 @@ package com.tox.controller;
 
 import com.tox.bean.*;
 import com.tox.dao.*;
+import com.tox.service.ElecStationService;
 import com.tox.utils.ExcelUtil;
 import com.tox.utils.MapUtil;
 
@@ -48,9 +49,8 @@ public class ElecStationController {
     private ElecStationNormMapper stationNormDao;
     @Autowired
     private ElecUserAppendMapper appendMapper;
-
-	//创建用户对象
-	private ActivityNewUserMapper acUserDao;
+    @Autowired
+    private ElecStationService esService;
 
 
 	//查询所有场站所属城市
@@ -415,6 +415,7 @@ public class ElecStationController {
      * @throws ParseException
      */
    // @Transactional(isolation = Isolation.SERIALIZABLE)
+	@Transactional
     @RequestMapping(value="/insertStationByExcel",method=RequestMethod.POST,produces="application/json")
 	public @ResponseBody Map<String,Object> insertStationByExcel (HttpServletRequest request,
 			@RequestParam("myfile") MultipartFile myfile,HttpServletResponse response)
@@ -486,17 +487,7 @@ public class ElecStationController {
 					stationDao.insertSelective(station);
 
 					//--------------负责人添加活动-----------------------、
-					ActivityNewUser record = new ActivityNewUser();
-					record.setPhone(station.getPersonPhone());
-					record = acUserDao.selectByPhone(record);
-					//判断是否有98活动上线时间
-					if (record.getIsPay().equals(1)){
-						record.setFromDate(station.getPlanUseTime());
-						record.setFirstOnlineDate(station.getPlanUseTime());
-						record.setToDate(dateUtil.reckonDays(station.getPlanUseTime(),30));
-						acUserDao.updateByPrimaryKeySelective(record);
-					}
-
+				    esService.updateActiveUser(station.getPersonPhone(),station.getPlanUseTime());
 
 				}
 

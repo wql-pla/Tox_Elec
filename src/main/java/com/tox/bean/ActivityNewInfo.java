@@ -26,9 +26,9 @@ public class ActivityNewInfo extends PageView<ActivityNewInfo> {
     private Date endDate;
     @ApiModelProperty(name = "monthAmount",value = "月卡金额")
     private Double monthAmount;
-    @ApiModelProperty(name = "startMonthDate",value = "月卡开始时间")
+    @ApiModelProperty(name = "startMonthDate",value = "活动开始时间")
     private Date startMonthDate;
-    @ApiModelProperty(name = "endMonthDate",value = "月卡结束时间")
+    @ApiModelProperty(name = "endMonthDate",value = "活动结束时间")
     private Date endMonthDate;
     @ApiModelProperty(name = "activityDate",value = "续期判断节点日期")
     private Integer activityDate;

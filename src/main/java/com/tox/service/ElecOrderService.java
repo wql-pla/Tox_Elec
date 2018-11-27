@@ -47,6 +47,8 @@ public class ElecOrderService {
     private ElecStationMapper stationDao;
     @Autowired
     private ElecUserAppendMapper appendDao;
+    @Autowired
+    private ActivityNewUserMapper activityNewUserDao;
 	
 	private String callBackQueue = "carportQueue";
 	
@@ -155,8 +157,22 @@ public class ElecOrderService {
 		}
 		if(null!=station.getPersonType()&& 1==station.getPersonType()&&phones.contains(user.getPhone())){
 			logger.info("桩东充电============");
-			serviceAmount=BigDecimal.valueOf(station.getPersonServiceAmount());
-			basicChargeAmount =station.getPersonBasicChargeAmount();
+			//获取月租用户
+			ActivityNewUser newUser= new ActivityNewUser();
+			newUser.setPhone(station.getPersonPhone());
+			ActivityNewUser userInfo =activityNewUserDao.selectByPhone(newUser);
+			Date date = new Date();
+			SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+			String format1 = format.format(date);
+			Date now = com.tox.utils.date.dateUtil.getDateYmd(format1);
+			if(null !=userInfo&&null!=userInfo.getFromDate()&&null !=userInfo.getToDate()&&((userInfo.getFromDate().before(now)||userInfo.getFromDate().equals(now))&&(userInfo.getToDate().after(now))||userInfo.getToDate().equals(now))){
+				serviceAmount= BigDecimal.ZERO;
+				basicChargeAmount = 0D;
+
+			}else{
+				serviceAmount=BigDecimal.valueOf(station.getPersonServiceAmount());
+				basicChargeAmount =station.getPersonBasicChargeAmount();
+			}
 		}else{
 			Date now = new Date();
 			//双十一活动免普通桩东服务费
@@ -200,7 +216,7 @@ public class ElecOrderService {
 		orderDao.updateByPrimaryKeySelective(order);
 		pileDao.updateByPrimaryKeySelective(pile);
 	}
-	public void endOrder(ElecOrder elecOrder,ElecUser user, ElecPile pile,ElecStation station,ResultXYDF bean,Double basicAmount,Double serviceAmount,Double totalAmout,List<String>phones) throws NumberFormatException, ParseException {
+	public void endOrder(ElecOrder elecOrder,ElecUser user, ElecPile pile,ElecStation station,ResultXYDF bean,Double totalAmout,List<String>phones) throws NumberFormatException, ParseException {
 		if(null!=station.getPersonType()&& 1==station.getPersonType()&&phones.contains(user.getPhone())){
 			logger.info("桩东结束充电============");
 			if("99".equals(bean.getEndReason())){//充满,但是订单未结束
@@ -215,8 +231,8 @@ public class ElecOrderService {
 						elecOrder.setOrderFee(elecOrder.getRealCount()*totalAmout);
 						elecOrder.setRealAmount(elecOrder.getRealCount()*totalAmout);
 					}
-					elecOrder.setBasicChargeTotal(basicAmount*elecOrder.getRealCount());
-					elecOrder.setServiceChargeTotalSelf(serviceAmount*elecOrder.getRealCount());
+//					elecOrder.setBasicChargeTotal(basicAmount*elecOrder.getRealCount());
+//					elecOrder.setServiceChargeTotalSelf(serviceAmount*elecOrder.getRealCount());
 					elecOrder.setEndTime(new Date());
 					elecOrder.setBasicPayStatus("0");
 					elecOrder.setServicePayStatus("0");
@@ -240,8 +256,8 @@ public class ElecOrderService {
 					BigDecimal realAmountB = BigDecimal.valueOf(elecOrder.getRealCount()).multiply(BigDecimal.valueOf(totalAmout));
 					elecOrder.setRealAmount(realAmountB.doubleValue());
 				}
-				elecOrder.setBasicChargeTotal(basicAmount*elecOrder.getRealCount());
-				elecOrder.setServiceChargeTotalSelf(serviceAmount*elecOrder.getRealCount());
+//				elecOrder.setBasicChargeTotal(basicAmount*elecOrder.getRealCount());
+//				elecOrder.setServiceChargeTotalSelf(serviceAmount*elecOrder.getRealCount());
 				if(null==elecOrder.getEndTime()){
 					elecOrder.setEndTime(new Date());
 				}
