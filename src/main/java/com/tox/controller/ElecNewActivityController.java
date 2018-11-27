@@ -242,7 +242,7 @@ public class ElecNewActivityController {
 	  * @return
 	  */
 	 @RequestMapping(value = "/updateCity", method = RequestMethod.POST, produces = "application/json")
-     public @ResponseBody Map<String, Object> updateCity(@RequestParam String phone,@RequestParam String city) {
+     public @ResponseBody Map<String, Object> updateCity(@RequestParam String phone,@RequestParam String city,@RequestParam String code) {
 		 
 		 logger.info(String.format("接收到的要修改的手机号为：%s",phone));
 			
@@ -259,6 +259,8 @@ public class ElecNewActivityController {
 				 newUser.setCity(city);
 				 //更改报名情况
 				 newUser.setIsSign(1);
+                //插入报名活动代码
+                 newUser.setType(code);
 			 }
 		 }
 		 //修改用户报名信息
