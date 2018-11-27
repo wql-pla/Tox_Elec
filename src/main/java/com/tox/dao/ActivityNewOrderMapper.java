@@ -24,5 +24,7 @@ public interface ActivityNewOrderMapper {
     
     List<ActivityNewOrder> findNewOrder(ActivityNewOrder record);
 
+    int findNewOrderCount(ActivityNewOrder record);
+
     ActivityNewOrder selectByTno(String tNo);
 }

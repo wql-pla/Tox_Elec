@@ -174,4 +174,31 @@
       </where>
       
   </select>
+
+
+    <select id="findNewOrderCount" parameterType="com.tox.bean.ActivityNewOrder" resultMap="BaseResultMap">
+        select
+        count(o.id)
+        from
+        activity_new_user u ,activity_new_order o
+        <where>
+            o.user_id=u.id and o.is_del = 0
+            <if test="phone != null and phone != ''">
+                AND u.PHONE like #{phone}
+            </if>
+            <if test="startDate != null">
+                AND o.CREATE_DATE &gt;= DATE_FORMAT(#{startDate},'%Y-%m-%d')
+            </if>
+            <if test="endDate != null">
+                AND o.CREATE_DATE &lt;= DATE_FORMAT(#{endDate},'%Y-%m-%d')
+            </if>
+            <if test="city != null">
+                AND u.city = #{city}
+            </if>
+            <if test="wNo != null">
+                AND o.w_no = #{wNo}
+            </if>
+        </where>
+
+    </select>
 </mapper>

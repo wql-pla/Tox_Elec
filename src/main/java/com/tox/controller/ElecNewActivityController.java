@@ -48,7 +48,7 @@ public class ElecNewActivityController {
 	
 	/**
 	 * 发送验证码
-	 * @param record
+	 * @param phone
 	 * @return
 	 */
 	 @RequestMapping(value = "/newSendCode", method = RequestMethod.POST, produces = "application/json")
@@ -273,7 +273,6 @@ public class ElecNewActivityController {
 	 /**
 	  * 修改活动
 	  * @param phone
-	  * @param city
 	  * @return
 	  */
 	 @RequestMapping(value = "/updateActivityStatus", method = RequestMethod.POST, produces = "application/json")
@@ -299,8 +298,7 @@ public class ElecNewActivityController {
 	 
 	 /**
 	  * 查询用户信息
-	  * @param phone
-	  * @param city
+	  * @param activityNewUser
 	  * @return
 	  */
 	 @RequestMapping(value = "/findUser", method = RequestMethod.POST, produces = "application/json")
@@ -312,17 +310,18 @@ public class ElecNewActivityController {
 		 
 		 
 		 List<ActivityNewUser> newUser = activityNewDao.findNewUser(activityNewUser);
-		 
-		map.put("result", "100");
-		map.put("date", newUser);
+         int newUserCount = activityNewDao.findNewUserCount(activityNewUser);
+
+         map.put("result", "100");
+         map.put("total",newUserCount);
+		 map.put("date", newUser);
 		
 		return map;
 	 }
 	 
 	 /**
 	  * 查询资金管理
-	  * @param phone
-	  * @param city
+	  * @param activityNewOrder
 	  * @return
 	  */
 	 @RequestMapping(value = "/findMoneyManager", method = RequestMethod.POST, produces = "application/json")
@@ -333,10 +332,11 @@ public class ElecNewActivityController {
 		 Map<String,Object> map = new HashMap<String, Object>();
 		 
 		 List<ActivityNewOrder> orders = activityNewOrderMapper.findNewOrder(activityNewOrder);
-		 
-		map.put("result", "100");
-		map.put("date", orders);
-		
+         int newOrderCount = activityNewOrderMapper.findNewOrderCount(activityNewOrder);
+
+         map.put("result", "100");
+         map.put("date", orders);
+		map.put("total",newOrderCount);
 		return map;
 	 }
 	 

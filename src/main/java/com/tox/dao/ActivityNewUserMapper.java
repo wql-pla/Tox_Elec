@@ -23,7 +23,8 @@ public interface ActivityNewUserMapper {
     int updateByPrimaryKey(ActivityNewUser record);
     
     ActivityNewUser selectByPhone(ActivityNewUser record);
-    
-    
+
+    int findNewUserCount(ActivityNewUser record);
+
     List<ActivityNewUser> findNewUser(ActivityNewUser record);
 }
