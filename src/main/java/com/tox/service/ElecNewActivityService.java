@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -105,10 +104,10 @@ public class ElecNewActivityService {
                 //获取当前活动
                 ActivityNewInfo activityNewInfo = activityNewInfoDao.selectByPrimaryCode(activityNewUser.getType());
                 activityNewUser.setFromDate(new Date());
-                if (activityNewInfo.getActivityDate()>dateUtil.getDay(getFristDay(activityNewUser.getFromDate()),activityNewUser.getFromDate())){
+                if (activityNewInfo.getActivityDate()>(dateUtil.getDay(getFristDay(activityNewUser.getFromDate()),activityNewUser.getFromDate()))+1){
                     activityNewUser.setToDate(getLastDay(activityNewUser.getFromDate()));//当月最后一天
                 }else{
-                    activityNewUser.setToDate(getLastDay(dateUtil.reckonMinutes(activityNewUser.getFromDate(),1)));//下个月最后一天
+                    activityNewUser.setToDate(getLastDay(dateUtil.reckonMonths(activityNewUser.getFromDate(),1)));//下个月最后一天
                 }
                 //---用户月卡状态设置---
                 acUserDao.updateByPrimaryKeySelective(activityNewUser);
@@ -144,5 +143,8 @@ public class ElecNewActivityService {
     return ca.getTime();
 }
 
+    public static void main(String[] args) {
+        System.out.println("ddd"+getLastDay(dateUtil.reckonMonths(new Date(),1)));
+    }
 
 }
