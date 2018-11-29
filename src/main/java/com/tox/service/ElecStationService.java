@@ -56,7 +56,7 @@ public class ElecStationService {
                 onlineCal.setTime(online);
                 Integer onlineDay= onlineCal.get(Calendar.DAY_OF_MONTH);
                 Date endDate= null;
-                if(day>=onlineDay){
+                if(onlineDay>=day){
                     onlineCal.add(Calendar.MONTH,count);
                 }else{
                     onlineCal.add(Calendar.MONTH,count-1);
