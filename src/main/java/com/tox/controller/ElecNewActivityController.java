@@ -1,26 +1,25 @@
 	package com.tox.controller;
 
-import com.tox.bean.ActivityNewInfo;
-import com.tox.bean.ActivityNewOrder;
-import com.tox.bean.ActivityNewUser;
-import com.tox.bean.ElecUser;
-import com.tox.dao.*;
-import com.tox.service.ElecActivityService;
-import com.tox.sms.config.StringUtil;
-import com.tox.utils.RandomUtil;
-import com.tox.utils.SMS.sendSmsUtil;
-import com.tox.utils.date.dateUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.*;
+	import com.tox.bean.*;
+	import com.tox.dao.*;
+	import com.tox.service.ElecActivityService;
+	import com.tox.sms.config.StringUtil;
+	import com.tox.utils.RandomUtil;
+	import com.tox.utils.SMS.sendSmsUtil;
+	import com.tox.utils.date.dateUtil;
+	import org.slf4j.Logger;
+	import org.slf4j.LoggerFactory;
+	import org.springframework.beans.factory.annotation.Autowired;
+	import org.springframework.transaction.annotation.Transactional;
+	import org.springframework.web.bind.annotation.*;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Pattern;
+	import java.text.ParseException;
+	import java.text.SimpleDateFormat;
+	import java.util.Date;
+	import java.util.HashMap;
+	import java.util.List;
+	import java.util.Map;
+	import java.util.regex.Pattern;
 
 
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -224,7 +223,7 @@ public class ElecNewActivityController {
 
                  map.put("result", "100");
 				map.put("date", newUser);
-                 map.put("data-open", activityNewInfo.getIsOpen());
+                 map.put("isOpen", activityNewInfo.getIsOpen());
 				map.put("msg", "登录成功!");
 				 
 			 }
@@ -304,23 +303,79 @@ public class ElecNewActivityController {
 	  * @return
 	  */
 	 @RequestMapping(value = "/findUser", method = RequestMethod.POST, produces = "application/json")
-     public @ResponseBody Map<String, Object> findActivityStatus(@RequestBody ActivityNewUser activityNewUser) {
-		 
+     public @ResponseBody Map<String, Object> findActivityStatus(@RequestBody ActivityNewUser activityNewUser) throws ParseException {
+
 		 logger.info(String.format("接收到的信息为：%s",activityNewUser));
-			
+
 		 Map<String,Object> map = new HashMap<String, Object>();
-		 
-		 
+		 PageView<ActivityNewUser> pageView = new PageView<ActivityNewUser>();
+
+		 pageView.setPageSize(activityNewUser.getPageSize());
+
+		 activityNewUser.setPageNum(activityNewUser.getPageNum() * activityNewUser.getPageSize());
+
 		 List<ActivityNewUser> newUser = activityNewDao.findNewUser(activityNewUser);
-         int newUserCount = activityNewDao.findNewUserCount(activityNewUser);
+		 int newUserCount = activityNewDao.findNewUserCount(activityNewUser);
+		 Date date = new Date();
+		 SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+		 String format1 = format.format(date);
+		 Date now = dateUtil.getDateYmd(format1);
+		 for (ActivityNewUser user : newUser) {
+		 	if(user.getFromDate()==null ||user.getToDate()==null||user.getFromDate().after(now)){
+		 		user.setMonthStatus(0);//未生效
+			}else if((user.getFromDate().equals(now)||user.getFromDate().before(now))&&(user.getToDate().equals(now)||user.getToDate().after(now))){
+		 		user.setMonthStatus(1);//已生效
+				int day = dateUtil.getDay(now, user.getToDate());
+				user.setMonthDay(day);
+			}else if(user.getToDate().before(now)){
+		 		user.setMonthStatus(2);//已过期
+				int day = dateUtil.getDay(now, user.getToDate());
+				user.setMonthDay(day);
+			}
+		 }
+
 
          map.put("result", "100");
          map.put("total",newUserCount);
 		 map.put("date", newUser);
-		
+
 		return map;
 	 }
-	 
+	 /**
+	  * 查询用户信息
+	  * @param activityNewUser
+	  * @return
+	  */
+	 @RequestMapping(value = "/findUserStatus")
+     public @ResponseBody Map<String, Object> findUserStatus(Integer id) throws ParseException {
+
+		 Map<String,Object> map = new HashMap<String, Object>();
+		 ActivityNewUser user = activityNewDao.selectByPrimaryKey(id);
+         Date date = new Date();
+         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+         String format1 = format.format(date);
+         Date now = dateUtil.getDateYmd(format1);
+		 if(null !=user){
+		     if(null==user.getFirstOnlineDate()||user.getFirstOnlineDate().after(now)){
+		         user.setMonthStatus(0);
+             }else {
+		         if((user.getFromDate().equals(now)||user.getFromDate().before(now))&&(user.getToDate().after(now)||user.getToDate().equals(now))){
+                     user.setMonthStatus(1);
+                     user.setMonthDay(dateUtil.getDay(now, user.getToDate()));
+                 }else if(user.getToDate().before(now)){
+                     user.setMonthStatus(2);
+                     user.setMonthDay(Math.abs(dateUtil.getDay(now, user.getToDate())));
+                 }
+
+             }
+         }
+
+         map.put("result", "100");
+         map.put("data",user);
+
+		return map;
+	 }
+
 	 /**
 	  * 查询资金管理
 	  * @param activityNewOrder
@@ -332,6 +387,11 @@ public class ElecNewActivityController {
 		 logger.info(String.format("接收到的信息为：%s",activityNewOrder));
 			
 		 Map<String,Object> map = new HashMap<String, Object>();
+		 PageView<ActivityNewOrder> pageView = new PageView<ActivityNewOrder>();
+
+		 pageView.setPageSize(activityNewOrder.getPageSize());
+
+		 activityNewOrder.setPageNum(activityNewOrder.getPageNum() * activityNewOrder.getPageSize());
 		 
 		 List<ActivityNewOrder> orders = activityNewOrderMapper.findNewOrder(activityNewOrder);
          int newOrderCount = activityNewOrderMapper.findNewOrderCount(activityNewOrder);
