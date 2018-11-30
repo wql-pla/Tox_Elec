@@ -1,13 +1,13 @@
 package com.tox.controller;
 
+import com.github.wxpay.sdk.WXPay;
 import com.tox.bean.ActivityNewOrder;
-import com.tox.bean.ActivityNewUser;
-import com.tox.bean.ElecRecharge;
 import com.tox.bean.WxinInfo;
 import com.tox.dao.ActivityNewOrderMapper;
 import com.tox.dao.ActivityNewUserMapper;
 import com.tox.service.ElecNewActivityService;
 import com.tox.utils.WeixinUtil;
+import com.tox.utils.wxpayne.WXPayConfigImpl;
 import com.tox.utils.wxsdk.WXPayUtil;
 import net.sf.json.JSONObject;
 import org.slf4j.Logger;
@@ -16,15 +16,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import com.github.wxpay.sdk.WXPay;
-import com.tox.utils.wxpayne.WXPayConfigImpl;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 /**
  * 98元活动支付微信号信息
@@ -148,7 +145,7 @@ public class ElecWxinController {
         data.put("total_fee", am+"");							//info.getTotal_fee()
         data.put("nonce_str", WXPayUtil.generateNonceStr());
         data.put("spbill_create_ip", req.getLocalAddr());
-        data.put("notify_url","http://electest.toxchina.com:8020/wxpay98/notify");
+        data.put("notify_url","http://electest.toxchina.com:8081/wxpay98/notify");
         //data.put("notify_url","http://elec.toxchina.com/ToxElec_2/wxpay98/notify");
         data.put("trade_type", "JSAPI");
         data.put("product_id", "12");
@@ -159,7 +156,9 @@ public class ElecWxinController {
         record.setUserId(info.getUserId());
         record.setCreateDate(new Date());
         record.setOpenid(info.getOpenid());
-        record.setMoney(Integer.valueOf(info.getTotal_fee()));
+        double feed=Double.valueOf(info.getTotal_fee());
+        int fee = (int) feed;
+        record.setMoney(fee);
         record.setIsDel(1);
         acOrderDao.insertSelective(record);
         try {

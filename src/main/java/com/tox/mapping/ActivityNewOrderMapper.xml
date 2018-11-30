@@ -146,12 +146,13 @@
   
   <select id="findNewOrder" parameterType="com.tox.bean.ActivityNewOrder" resultMap="BaseResultMap">
       select
-    o.id, o.user_id, o.create_date, o.is_del, o.status, o.openid, o.t_no, o.w_no, o.money
+    o.id, o.user_id, o.create_date, o.is_del, o.status, o.openid, o.t_no, o.w_no, o.money,u.phone,u.city
       from 
       	activity_new_user u ,activity_new_order o
       <where>
           o.user_id=u.id and o.is_del = 0
           <if test="phone != null and phone != ''">
+              <bind name="phone" value="'%'+phone+'%'"/>
               AND u.PHONE like #{phone}
           </if>
           <if test="startDate != null">
@@ -160,10 +161,10 @@
           <if test="endDate != null">
               AND o.CREATE_DATE &lt;= DATE_FORMAT(#{endDate},'%Y-%m-%d')
           </if>
-          <if test="city != null">
+          <if test="city != null and city !=''">
              AND u.city = #{city}
           </if>
-           <if test="wNo != null">
+           <if test="wNo != null and wNo != ''">
              AND o.w_no = #{wNo}
           </if>
         
@@ -179,7 +180,7 @@
   </select>
 
 
-    <select id="findNewOrderCount" parameterType="com.tox.bean.ActivityNewOrder" resultMap="BaseResultMap">
+    <select id="findNewOrderCount" parameterType="com.tox.bean.ActivityNewOrder" resultType="java.lang.Integer">
         select
         count(o.id)
         from
@@ -187,6 +188,7 @@
         <where>
             o.user_id=u.id and o.is_del = 0
             <if test="phone != null and phone != ''">
+                <bind name="phone" value="'%'+phone+'%'"/>
                 AND u.PHONE like #{phone}
             </if>
             <if test="startDate != null">
@@ -195,10 +197,10 @@
             <if test="endDate != null">
                 AND o.CREATE_DATE &lt;= DATE_FORMAT(#{endDate},'%Y-%m-%d')
             </if>
-            <if test="city != null">
+            <if test="city != null and city !=''">
                 AND u.city = #{city}
             </if>
-            <if test="wNo != null">
+            <if test="wNo != null and wNo!=''">
                 AND o.w_no = #{wNo}
             </if>
         </where>

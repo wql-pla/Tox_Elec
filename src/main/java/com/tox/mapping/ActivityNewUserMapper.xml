@@ -181,38 +181,33 @@
       <where>
           1=1 and is_del = 0
           <if test="phone != null and phone != ''">
+              <bind name="phone" value="'%'+phone+'%'"/>
               AND PHONE like #{phone}
           </if>
           <if test="startDate != null">
-              AND DATE_FORMAT(CREATE_DATE,'%Y-%m-%d') &gt;= DATE_FORMAT(#{startDate},'%Y-%m-%d')
+              AND DATE_FORMAT(first_online_date,'%Y-%m-%d') &gt;= DATE_FORMAT(#{startDate},'%Y-%m-%d')
           </if>
           <if test="endDate != null">
-              AND DATE_FORMAT(CREATE_DATE,'%Y-%m-%d') &lt;= DATE_FORMAT(#{endDate},'%Y-%m-%d')
+              AND DATE_FORMAT(first_online_date,'%Y-%m-%d') &lt;= DATE_FORMAT(#{endDate},'%Y-%m-%d')
           </if>
-          <if test="city != null">
+          <if test="city != null and city !=''">
              AND city = #{city}
           </if>
-           <if test="isPay != null">
+           <if test="isPay != null and isPay !=''">
              AND is_pay = #{isPay}
           </if>
           <!-- 月卡未生效 -->
-          <if test="monthStatus != null and monthStatus == '0' and monthStatus != '3'">
-             AND from_date is null 
+          <if test="monthStatus == 0">
+             AND (from_date is null or from_date &gt; DATE_FORMAT(now(),'%Y-%m-%d'))
           </if>
           <!-- 月卡生效 -->
-           <if test="monthStatus != null and monthStatus == '1' and monthStatus != '3'">
+           <if test="monthStatus == 1">
              AND to_date &gt;= DATE_FORMAT(now(),'%Y-%m-%d') 
           </if>
           <!-- 月卡失效 -->
-           <if test="monthStatus != null and monthStatus == '2' and monthStatus != '3'">
+           <if test="monthStatus == 2">
              AND to_date &lt; DATE_FORMAT(now(),'%Y-%m-%d') 
           </if>
-          
-           <!-- 上线时间 -->
-           <if test="monthStatus != null and monthStatus == '2' and monthStatus != '3'">
-             AND to_date &lt; DATE_FORMAT(now(),'%Y-%m-%d') 
-          </if>
-          
           order by CREATE_DATE desc
           <if test="pageSize>0">
 			limit #{pageNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
@@ -221,46 +216,40 @@
       </where>
   </select>
 
-    <select id="findNewUserCount" parameterType="com.tox.bean.ActivityNewUser" resultMap="BaseResultMap">
+    <select id="findNewUserCount" parameterType="com.tox.bean.ActivityNewUser" resultType="java.lang.Integer">
         select
           count(id)
         from
         activity_new_user
         <where>
-            1=1 and is_del = 0
             <if test="phone != null and phone != ''">
+                <bind name="phone" value="'%'+phone+'%'"/>
                 AND PHONE like #{phone}
             </if>
             <if test="startDate != null">
-                AND DATE_FORMAT(CREATE_DATE,'%Y-%m-%d') &gt;= DATE_FORMAT(#{startDate},'%Y-%m-%d')
+                AND DATE_FORMAT(first_online_date,'%Y-%m-%d') &gt;= DATE_FORMAT(#{startDate},'%Y-%m-%d')
             </if>
             <if test="endDate != null">
-                AND DATE_FORMAT(CREATE_DATE,'%Y-%m-%d') &lt;= DATE_FORMAT(#{endDate},'%Y-%m-%d')
+                AND DATE_FORMAT(first_online_date,'%Y-%m-%d') &lt;= DATE_FORMAT(#{endDate},'%Y-%m-%d')
             </if>
-            <if test="city != null">
+            <if test="city != null and city !=''">
                 AND city = #{city}
             </if>
-            <if test="isPay != null">
+            <if test="isPay != null and isPay !=''">
                 AND is_pay = #{isPay}
             </if>
             <!-- 月卡未生效 -->
-            <if test="monthStatus != null and monthStatus == '0' and monthStatus != '3'">
-                AND from_date is null
+            <if test="monthStatus == 0">
+                AND (from_date is null or from_date &gt; DATE_FORMAT(now(),'%Y-%m-%d'))
             </if>
             <!-- 月卡生效 -->
-            <if test="monthStatus != null and monthStatus == '1' and monthStatus != '3'">
+            <if test="monthStatus == 1">
                 AND to_date &gt;= DATE_FORMAT(now(),'%Y-%m-%d')
             </if>
             <!-- 月卡失效 -->
-            <if test="monthStatus != null and monthStatus == '2' and monthStatus != '3'">
+            <if test="monthStatus == 2">
                 AND to_date &lt; DATE_FORMAT(now(),'%Y-%m-%d')
             </if>
-
-            <!-- 上线时间 -->
-            <if test="monthStatus != null and monthStatus == '2' and monthStatus != '3'">
-                AND to_date &lt; DATE_FORMAT(now(),'%Y-%m-%d')
-            </if>
-
         </where>
     </select>
   

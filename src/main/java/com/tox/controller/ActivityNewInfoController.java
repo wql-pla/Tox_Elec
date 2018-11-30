@@ -4,6 +4,7 @@ import com.tox.bean.ActivityNewInfo;
 import com.tox.bean.ElecActivity;
 import com.tox.bean.PageView;
 import com.tox.dao.ActivityNewInfoMapper;
+import com.tox.utils.date.dateUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
@@ -11,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -115,6 +118,35 @@ public class ActivityNewInfoController {
 
 		map.put("result",100);
 		map.put("data",activityNewInfo);
+
+		return map;
+
+
+    }
+    /**
+	 * 活动是否过期
+	 * @param activity
+	 * @return
+	 */
+    @ApiOperation(value = "活动是否过期",notes = "活动是否过期")
+	@ApiImplicitParam(name = "code",value="活动代码",required = true,paramType = "query",dataType = "String")
+    @RequestMapping(value = "/selectActivityStatus",method = RequestMethod.GET)
+    public @ResponseBody Map<String, Object> selectActivityById(String code) throws ParseException {
+
+        Map<String, Object> map = new HashMap<String, Object>();
+		ActivityNewInfo activityNewInfo = activityDao.selectByPrimaryCode(code);
+		Date date = new Date();
+		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+		String format1 = format.format(date);
+		Date now = dateUtil.getDateYmd(format1);
+		if(1==activityNewInfo.getIsOpen()&&(activityNewInfo.getStartMonthDate().before(now)||activityNewInfo.getStartMonthDate().equals(now))&&(activityNewInfo.getEndMonthDate().after(now)||activityNewInfo.getEndMonthDate().equals(now))){
+			map.put("result",100);
+			map.put("flag",true);
+		}else {
+			map.put("result",100);
+			map.put("flag",false);
+		}
+		map.put("money",activityNewInfo.getMonthAmount());
 
 		return map;
 

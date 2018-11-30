@@ -55,7 +55,7 @@ public class ActivityNewMonthInfoController {
 		for (ActivityNewMonthInfo info : monthInfos) {
 			if(info.getMonthStartDate().after(now)){
 				info.setMonthStatus("0");//未生效
-			}else if(info.getMonthStartDate().before(now)&&(info.getMonthEndDate().after(now)||info.getMonthEndDate().equals(now))){
+			}else if((info.getMonthStartDate().before(now)||info.getMonthStartDate().equals(now))&&(info.getMonthEndDate().after(now)||info.getMonthEndDate().equals(now))){
 				info.setMonthStatus("1");//已生效
 				int day = dateUtil.getDay(now, info.getMonthEndDate());
 				info.setValidDays(day);
