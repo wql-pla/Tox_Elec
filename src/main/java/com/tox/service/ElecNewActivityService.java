@@ -57,6 +57,8 @@ public class ElecNewActivityService {
 
         //---------------修改当前订单状态start--------------
         ActivityNewOrder record = acOrderDao.selectByTno(tno);
+
+        if (record.getwNo()!=null) return true;
         record.settNo(tno);
         record.setwNo(wno);
         record.setIsDel(0);

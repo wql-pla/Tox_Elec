@@ -222,7 +222,9 @@ public class ElecWxinController {
             userinfo.setIsPay("1");
             acUserDao.updateByPrimaryKeySelective(userinfo);*/
              try{
-                 elecNewActivityService.weixinNotify(map.get("out_trade_no"),map.get("transaction_id"));
+                 synchronized (ElecWxinController.class){
+                     elecNewActivityService.weixinNotify(map.get("out_trade_no"),map.get("transaction_id"));
+                 }
                  return "SUCCESS";
              }catch (Exception e){
                  return "FAIL";
