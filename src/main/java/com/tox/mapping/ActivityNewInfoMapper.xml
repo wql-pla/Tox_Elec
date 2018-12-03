@@ -47,10 +47,10 @@
             AND activity_code LIKE #{code}
         </if>
         <if test="startDate !=null">
-            AND create_date &gt;= #{startDate}
+            AND start_month_date &gt;= DATE_FORMAT(#{startDate},'%Y-%m-%d')
         </if>
         <if test="endDate !=null">
-            AND create_date &lt;= #{endDate}
+            AND end_month_date &lt;= DATE_FORMAT(#{endDate},'%Y-%m-%d')
         </if>
         order by create_date DESC
         <if test="pageSize>0">
@@ -71,10 +71,10 @@
             AND activity_code LIKE #{code}
         </if>
         <if test="startDate !=null">
-            AND create_date &gt;= #{startDate}
+            AND start_month_date &gt;= DATE_FORMAT(#{startDate},'%Y-%m-%d')
         </if>
         <if test="endDate !=null">
-            AND create_date &lt;= #{endDate}
+            AND end_month_date &lt;= DATE_FORMAT(#{endDate},'%Y-%m-%d')
         </if>
     </select>
     <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
