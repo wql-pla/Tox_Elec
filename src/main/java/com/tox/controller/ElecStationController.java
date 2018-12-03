@@ -484,6 +484,7 @@ public class ElecStationController {
 
 				if (station.getPersonPhone() != null){
 					//--------------添加桩站信息-----------------------
+					logger.info(String.format("桩站信息：%s", station.toString()));
 					stationDao.insertSelective(station);
 
 					//--------------负责人添加活动-----------------------、

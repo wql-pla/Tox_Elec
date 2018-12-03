@@ -13,6 +13,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.tox.utils.weixin.WeixinTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -98,22 +99,30 @@ public class ElecWeXinController {
         String message = null;
         String mesub = "";
         System.out.println("Event=========>"+Event);
+        if ("TEMPLATESENDJOBFINISH".equals(Event)){
+            System.out.println(123);
+            //out.close();
+            return;
+        }
+          System.out.println("Event=========>"+Event);
         if (!"text".equals(MsgType)&&!CpNoUtil.returnCpNo(EventKey).contains("CH"))
         {
           if (("event".equals(MsgType)) && (EventKey != null) && (!EventKey.equals(""))) {
             List newslist = new ArrayList();
             News news = new News();
-            
+
             //电桩事件
             if (!CpNoUtil.returnCpNo(EventKey).contains("car"))
             {
               Map status = checkPileStatus(CpNoUtil.returnCpNo(EventKey));
-              if ("1".equals(status.get("type"))) {
-                if ("1".equals(status.get("result"))) {
-                  news.setPicUrl("http://tox-app.oss-cn-beijing.aliyuncs.com/pic-2.png");
-                  news.setDescription("点击前往充电");
-                  news.setUrl("http://toxchina.com/tox_pay/login.html?createDate=" + format + "&openid=" + FromUserName + "&pileNum=" + CpNoUtil.returnCpNo(EventKey));
-                } else {
+                if ("1".equals(status.get("type"))) {
+                    if ("1".equals(status.get("result"))) {
+                        // news.setPicUrl("http://tox-app.oss-cn-beijing.aliyuncs.com/pic-2.png");
+                        // news.setDescription("点击前往充电");
+                        // news.setUrl("http://toxchina.com/tox_pay/login.html?createDate=" + format + "&openid=" + FromUserName + "&pileNum=" + CpNoUtil.returnCpNo(EventKey));
+                        WeixinTemplate.sendTemplate(FromUserName,CpNoUtil.returnCpNo(EventKey),status.get("station").toString());
+                        return;
+                    } else {
                   news.setTitle("抱歉！");
                   news.setDescription("该电桩已下线，请选择其他电桩充电");
                 }
@@ -141,6 +150,8 @@ public class ElecWeXinController {
         if (Event!=null) {
         	//关注事件
             if (Event.equals("subscribe")) {
+               Map status = checkPileStatus(CpNoUtil.returnCpNo(EventKey));
+              WeixinTemplate.sendTemplate(FromUserName,CpNoUtil.returnCpNo(EventKey),status.get("station").toString());
             	String html = wxConfigDao.selectByPrimaryKey(1).getValue();
             	html = html.replaceAll("\\$", "\n");
             	System.out.println(html);
@@ -177,7 +188,7 @@ public class ElecWeXinController {
   {
     ElecPile pile = this.pileDao.findChargeInfoByPileNum2(code);
     Map map = new HashMap();
-
+    map.put("station",pile.getStation().getStationName());
     if (pile == null) {
       map.put("type", "1");
       map.put("result", "0");
@@ -229,5 +240,5 @@ public class ElecWeXinController {
 	 
 	 return map;
   }
-  
+
 }
