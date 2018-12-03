@@ -18,12 +18,12 @@ import net.sf.json.JSONObject;
 
 public class WeixinUtil {
 	
-	public static final String APPID = "wxd8f283d11e1dab80";
-	private static final String APPSECRET = "15c363656258b56df6b066d82bb7d09c";
+	//public static final String APPID = "wxd8f283d11e1dab80";
+	//private static final String APPSECRET = "15c363656258b56df6b066d82bb7d09c";
 	//public static final String APPID = "wx1d318639b55ac182";
 	//private static final String APPSECRET = "dc767c69861480b01d161e9b999b5c65";
-//	public static final String APPID = "wx8e9059a9ead32e04";
-//	public static final String APPSECRET = "38b78c04ce7eb987bec49a3aa1cca7ab";
+	public static final String APPID = "wx8e9059a9ead32e04";
+	public static final String APPSECRET = "38b78c04ce7eb987bec49a3aa1cca7ab";
 	private static final String ACCESS_TOKEN_URL = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=APPID&secret=APPSECRET";
 	private static final String UPLOAD_URL = "https://api.weixin.qq.com/cgi-bin/media/upload?access_token=ACCESS_TOKEN&type=TYPE";
 	/**
