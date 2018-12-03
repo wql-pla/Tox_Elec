@@ -13,7 +13,7 @@
     <result column="create_date" property="createDate" jdbcType="TIMESTAMP" />
   </resultMap>
   <sql id="Base_Column_List" >
-    id, phone, city, online_date, month_start_date, month_end_date, month_status, is_del, 
+    id, phone, city, online_date, month_start_date, month_end_date, month_status, is_del,
     create_date
   </sql>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
@@ -24,8 +24,9 @@
   </select>
   <select id="selectMonthInfos" resultMap="BaseResultMap" parameterType="com.tox.bean.ActivityNewMonthInfo">
     select
-    <include refid="Base_Column_List"/>
-    from activity_new_month_info
+    m.id, m.phone, m.city, m.month_start_date, m.month_end_date, m.month_status, m.is_del,
+    m.create_date,u.first_online_date AS online_date
+    from activity_new_month_info m LEFT JOIN activity_new_user u ON m.phone=u.phone
     WHERE 1=1
     <if test="phone !=null and phone!=''">
       <bind name="phone" value="'%'+phone+'%'"/>
