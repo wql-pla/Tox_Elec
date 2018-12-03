@@ -145,8 +145,8 @@ public class ElecWxinController {
         data.put("total_fee", am+"");							//info.getTotal_fee()
         data.put("nonce_str", WXPayUtil.generateNonceStr());
         data.put("spbill_create_ip", req.getLocalAddr());
-        data.put("notify_url","http://electest.toxchina.com:8081/wxpay98/notify");
-        //data.put("notify_url","http://elec.toxchina.com/ToxElec_2/wxpay98/notify");
+//        data.put("notify_url","http://electest.toxchina.com:8081/wxpay98/notify");
+        data.put("notify_url","http://elec.toxchina.com/ToxElec_2/wxpay98/notify");
         data.put("trade_type", "JSAPI");
         data.put("product_id", "12");
         data.put("openid", info.getOpenid());
